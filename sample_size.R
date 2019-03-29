@@ -1,61 +1,80 @@
 
+sample_sizes <- c(10, 25, 50, 75, 100, 150, 200)
+samples <- rep(sample_sizes, each = 50)
 
-#################################
-########analysis-models##########
-#################################
+biglists <- lapply(sample_sizes, v_pemba)
 
-## ---- model
+dfs_IDsp<- lapply(biglists , '[[','df_IDsp')
 
+  model1 <- function(df_IDsp = biglists[[1]]["df_IDsp"]){
+  
+      #data list
+      dat_list <- list( 
+        knsp = df_IDsp$known ,
+        ID = df_IDsp$ID
+      ) 
+      
+      m1.1 <- ulam( alist(
+        knsp ~ dbinom( 1 , p ) , 
+        logit(p) <-  a_bar + a[ID] * sigma_a ,
+        a[ID] ~ dnorm( 0 ,  1 ), 
+        a_bar ~ dnorm( 0 , 1.5 ), 
+        sigma_a ~ dexp(1)
+      ) , data=dat_list , chains=4 , cores=4 , log_lik=TRUE )
+      
+      return (precis(m1.1))
+  }
+  
+  precs1 <- lapply(dfs_IDsp, model1)
+  
+  
+  
+  par(mfcol=c(7,1))
+  for (i in 1:7) { plot (precs1[[i]])} 
+  par(mfcol=c(1, 1))
+  
+  
+  
+  
+##models with multiple input data frames#######
+  
+  
+  dfs_ID <- lapply(biglists , '[[','df_ID')
+  sps<- lapply(biglists , '[[','sp')
+  
+  model2 <- function(df_IDsp = biglists[[1]]["df_IDsp"], df_ID = biglists[[1]]["df_ID"]){
+  dat_list <- list( 
+    knsp = df_IDsp$known ,
+    ID = df_IDsp$ID ,
+    age = rep(df_ID$age_st, each = sp)
+  )
+  
+  m1.2 <- ulam( alist(
+    knsp ~ dbinom( 1 , p ) , 
+    logit(p) <-  a_bar + a[ID] * sigma_a + bA*age ,
+    a[ID] ~ dnorm( 0 , 1  ), 
+    a_bar ~ dnorm( 0 , 1.5 ), 
+    bA ~ dnorm(0,1),
+    sigma_a ~ dexp(1)
+  ) , data=dat_list , chains=4 , cores=4 , log_lik=TRUE )
+  
+  precis(m1.2)
+  }
 
-##m1.1 basic model-intercept only#################
+  sp<- 100
+  precs2 <- lapply(list(dfs_IDsp, dfs_ID), model2)
+  
+  
 
-#data list
-dat_list <- list( 
-  knsp = df_IDsp$known ,
-  ID = df_IDsp$ID
-  ) 
-
-m1.1 <- ulam( alist(
-  knsp ~ dbinom( 1 , p ) , 
-  logit(p) <-  a_bar + a[ID] * sigma_a ,
-  a[ID] ~ dnorm( 0 ,  1 ), 
-  a_bar ~ dnorm( 0 , 1.5 ), 
-  sigma_a ~ dexp(1)
-) , data=dat_list , chains=4 , cores=4 , log_lik=TRUE )
-
-precis(m1.1, depth = 2)
-
-
-
-
-
-
-
-
-#m1.2 add age#######
-
-dat_list <- list( 
-  knsp = df_IDsp$known ,
-  ID = df_IDsp$ID ,
-  age = rep(df_ID$age_st, each = sp)
-)
-
-m1.2 <- ulam( alist(
-  knsp ~ dbinom( 1 , p ) , 
-  logit(p) <-  a_bar + a[ID] * sigma_a + bA*age ,
-  a[ID] ~ dnorm( 0 , 1  ), 
-  a_bar ~ dnorm( 0 , 1.5 ), 
-  bA ~ dnorm(0,1),
-  sigma_a ~ dexp(1)
-) , data=dat_list , chains=4 , cores=4 , log_lik=TRUE )
-
-precis(m1.2, depth = 2)
-
-
-
-
-
-
+  
+  
+  
+  
+  
+  
+  
+  
+  ##original models######
 #individuals, species and age######
 
 #data
@@ -229,7 +248,3 @@ m1.8 <- ulam(
     sigma_h ~ dexp( 1 ),
     matrix[10,N_spp]:AE ~ normal(0,1)
   ) , data=dat_list , chains=4 , cores=4 , log_lik=TRUE , sample=TRUE )
-compare(m1.1, m1.2, m1.3, m1.5, m1.6, m1.7, m1.8)
-
-
-
