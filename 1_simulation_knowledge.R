@@ -6,22 +6,16 @@ sim_know <- function (N = 100,
                       M = 300, 
                       nact = 9, 
                       sy = 0,      #effect of years of school (between zero and one) 
-                      gr = 0,      #changes the slope of the logistic regression for knowledge of individuals with activities
+                      gr = 0.3,      #changes the slope of the logistic regression for knowledge of individuals 
                       mean_g = 0,    #age dependency of a question (slope of the logistic regression - how fast it improves with x)
                       sd_g = 1, 
                       mean_b = 0,    #difficulty of a question (where the center of the slope is placed over x)
-                      sd_b = 1) { 
+                      sd_b = 1,
+                      n_dimensions = 1) { #either one or more, creates answers that respond differently to activities
                                                                                                                         
-  
-  ##tried gr = 0.1, 0.3, 1
-  ##mean_g = 0, 1, 4
-  ##  sd_g = 1, 0.1, 4
-  ##mean_b = 0, 1, 4
-  ##  sd_b = 1, 0.1, 4
-  #
-  
-  ###people
-  
+#########
+###People
+#########  
   #age
   
   A <- abs(rnorm(N, 12, 3)) #age distribution more similar to real data, model doesn't seem to care
@@ -40,18 +34,10 @@ sim_know <- function (N = 100,
                                  (sex [i] + 1 +  y))           #number of sibilings reduces the school attendance (chaos with ys to avoid negative school years if child has 0 school years)
   }#N
   
-    
-  
+  #effective age calculated with school years
   a_eff <- A + (-sy * school_years) + rnorm (N, 0, 2)
   
-  
-  ## Knowledge
-  #easy - 1 dimension
-  K <- inv_logit( gr *(a_eff- mean(A))) #uses rethinking: invert_logit, which gives you logistic function without having to write it
- 
-  
-  
-  # knowledge with many dimensions by activities
+  # activities
   activity_matrix <- matrix(data=NA, nrow= N, ncol=nact)                #matrix to store values (rows = people, columns = activities)
   act_skew <- rep(NA,nact)                                #to save values for further analyses
   sex_diff <- rep(NA,nact)            
@@ -75,63 +61,61 @@ sim_know <- function (N = 100,
     
   }#nact
   
+############  
+###Knowledge
+############
+  #Create n_dimensions of knowledge, with effect of activites on dimensions
+  K <- matrix(NA, nrow = N, ncol = n_dimensions)
+  acteff  <- rep(1:3, length.out = nact)
+  for (i in 1:n_dimensions) {
+    K[,i] <- inv_logit( gr * ( 1+ rowSums(activity_matrix[ ,which(acteff == i)])) *(a_eff- mean(A)))
+  }
   
-  
-  
-  #create knowledge that responds to different activities
-  K_1 <- inv_logit( gr * ( 1+ rowSums(activity_matrix[ ,1:5])) *(a_eff- mean(A)))
-  K_2 <- inv_logit( gr * ( 1+ rowSums(activity_matrix[ ,6:7])) *(a_eff- mean(A)))
-  K_3 <- inv_logit( gr * ( 1+ rowSums(activity_matrix[ ,8:9])) *(a_eff- mean(A)))
-  
-  
-  
-  
-###items
-  
+########  
+###Items
+########
   # M items! each has unique difficulty (b) and discrimination (g)
+
+  item_type <- as.factor (rep( 1 : n_dimensions, length.out = M))
+  g <- matrix(NA, nrow = M, ncol = n_dimensions)
+  b <- matrix(NA, nrow = M, ncol = n_dimensions)
+  for(i in 1:n_dimensions){
+  g[,i] <- ifelse(item_type == i , 1 , 0) * abs(rnorm(M, mean_g, sd_g))
+  b[,i] <- rnorm(M, mean_b, sd_b)
+  }
   
-  #items belong to groups:
-  item_type <- as.factor (rep( 1 : 3, length.out = M))
+##########
+###Answers
+##########
   
-  
-  g_1 <- ifelse(item_type == 1 , 1 , 0) * abs(rnorm(M, mean_g, sd_g))
-  b_1 <- rnorm(M, mean_b, sd_b)
-  #b_1 <- b_1 - ifelse(item_type == 1 , 1 , 0)
-  
-  g_2 <- ifelse(item_type == 2 , 1 , 0) * abs(rnorm(M, mean_g, sd_g))
-  b_2 <- rnorm(M, mean_b, sd_b)
-  #b_2 <- b_2 - ifelse(item_type == 2 , 1 , 0)
-  
-  g_3 <- ifelse(item_type == 3 , 1 , 0) * abs(rnorm(M, mean_g, sd_g))
-  b_3 <- rnorm(M, mean_b, sd_b)
-  #b_3 <- b_3 - ifelse(item_type == 3 , 1 , 0)
-  
-  
-  
-  # simulate answers
-  
+  #select p with either one or multiple dimensions
   Y <- matrix(NA,nrow=N,ncol=M)
   for ( i in 1:N ) for( j in 1:M ) {
-    p <- inv_logit( g_1[j]*( K_1 [i] - b_1[j] ) + g_2[j]*( K_2 [i] - b_2[j] ) + g_3[j]*( K_3 [i] - b_3[j] ))
+    sum(for(k in 1:n_dimensions){
+    p <- inv_logit( g[j, k]*( K[i, k] - b[j, k] ))
+  }
+    )
     Y[i,j] <- rbern(1,p)
   }
+  
+ 
   
   #check correlation between knowledge and number of right answers
   
   y <- rowSums(Y)
 
-  
-  
+#########
+###Output
+#########
   return(list(N = N, M = M, nact = nact, 
               A = A, a_eff = a_eff, 
-              #K_1 = K_1, K_2 = K_2, K_3 = K_3,
               K = K,
               activity_matrix = activity_matrix,
               item_type = item_type,
-              g_1 = g_1, g_2 = g_2, g_3 = g_3,
-              b_1 = b_1, b_2 = b_2, b_3 = b_3,
-              Y = Y, y = y
+              g = g, b = b,
+              Y = Y, y = y,
+              n_dimensions = n_dimensions
   ))
 }
   
-biglist <- sim_know()
+
