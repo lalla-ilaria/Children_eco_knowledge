@@ -1,0 +1,3 @@
+04/08/2020 Number of IRT parameters: now the model has 2 parameters, for difficulty and discrimination of the questions, 
+	should we add a parameter for the probability of guessing? It represents the lower bound of the curve when k is the lowest - 
+	cause you can guess the right answer. It is different between the different types of questions (e.g. true false vs freelist)
