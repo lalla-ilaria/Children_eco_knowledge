@@ -3,7 +3,7 @@ library(rethinking)
 #loads simulation function
 if(!exists("sim_know", mode = "function")) source("~/Nextcloud/Project/Children_eco_knowledge/1_simulation_knowledge.R") 
 #runs simulation
-biglist_d <- sim_know( n_dimensions = 2, nact = 2, b_ac = c( 0.2, 0.9), N = 100, M = 500)
+biglist_d <- sim_know( n_dimensions = 2, nact = 2, b_ac = c( 0.2, 0.9), N = 100, M = 100)
 
 
 # model code
@@ -18,32 +18,29 @@ data{
 }
 parameters{
 	matrix[N,D] aK; // individual intercepts on knowledge
-	vector[D] bA; // coefficient relating age to knowledge
+	vector<lower=0>[D] bA; // coefficient relating age to knowledge
 	matrix[M,D] b;
 	matrix<lower=0>[M,D] g;
 }
 transformed parameters{
-  matrix[N,D] K;
-  for (j in 1:D) for (i in 1:N) K[i,j] =  aK[i,j] + bA[j]*A[i] ;// 
-  }
+    matrix[N,D] K;
+    for ( j in 1:D ) for ( i in 1:N ) K[i,j] = aK[i,j] + bA[j]*A[i] ;// 
+}
 model{
-	for (i in 1:D) aK[i] ~ normal(0,1);
-	bA ~ normal(0,0.5);
-  for (i in 1:D) b[i] ~ normal(0,1);
-  for (i in 1:D) g[i] ~ normal(0,1);
+	to_vector( aK ) ~ normal(0,1);
+	bA ~ normal( 0 , 0.5 );
+  to_vector( b ) ~ normal(0,1);
+  to_vector( g ) ~ normal(0,1);
 
 	for ( i in 1:N ) {
-		for (j in 1:M ) {
-			real p = inv_logit( dot_product( g[j,], (K[i,]-b[j,])));
-			Y[i,j] ~ bernoulli( p );
+		for ( j in 1:M ) {
+			real p = 0;
+            for ( k in 1:D ) p = p + g[j,k] * ( K[i,k] - b[j,k] );
+			Y[i,j] ~ bernoulli_logit( p );
 		}
 	}
 }
 '
-
-###use to compile the model without the data, then you can pass new data to it
-stan_model( model_code = model_code_d )
-
 
 #remember to make sure to get the data out of the right biglist
 dat <- list( N = biglist_d$N , 
@@ -63,9 +60,10 @@ m_d <- cstan( model_code = model_code_d , data = dat , chains = 3, cores = 3) # 
 post_d <- extract.samples(m_d)
 
 
-traceplot(m_d)
+tracerplot(m_d,pars="K")
+
 trankplot(m_d)
-precis(m_d)
+precis(m_d, depth = 2)
 
 
 # 

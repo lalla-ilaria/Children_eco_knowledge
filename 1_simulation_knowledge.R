@@ -2,40 +2,65 @@ library(rethinking)
 
 
 
-sim_know <- function (N = 100, 
-                      M = 300, 
-                      nact = 9, 
-                      sy = 0,      #effect of years of school (between zero and one) 
-                      gr = 0.3,      #changes the slope of the logistic regression for knowledge of individuals 
+sim_know <- function (N = 30, 
+                      M = 100, 
+                      H=floor(N/5),  #number of households
+                      nact = 1, 
+                      b_A = 0,     #effect of age in knowledge
+                      b_OS = 0,      #effect of older siblings
+                      b_YS = 0,      #effect of younger siblings
+                      b_ad = 0,      #effect of adults
+                      b_sy = 0,      #effect of years of school (between zero and one) 
+                      b_ac = 0,      #effect of activities
                       mean_g = 0,    #age dependency of a question (slope of the logistic regression - how fast it improves with x)
                       sd_g = 1, 
                       mean_b = 0,    #difficulty of a question (where the center of the slope is placed over x)
                       sd_b = 1,
+                      alpha_l = 0,    #guessing probability (make alpha zero to remove this element, make 5 to have an effect of guessing)
+                      beta_l = 5,
                       n_dimensions = 1) { #either one or more, creates answers that respond differently to activities
                                                                                                                         
 #########
 ###People
 #########  
   #age
-  
   A <- abs(rnorm(N, 12, 3)) #age distribution more similar to real data, model doesn't seem to care
   
-  
   #sex
-  sex <- (rbinom (N, 1, 0.5)*2 )-1                  #give people sex coded as 1 vs -1
+  sex <- (rbinom (N, 1, 0.5)*2 )-1 #give people sex coded as 1 vs -1
+  
+  #family
+  household <- round(runif(N, 1, H))                #children belong to a household
+  
+  hh_adults <- 1 + rbinom (H, 1, 0.8) + rbinom (H, 1, 0.4) + rbinom (H, 1, 0.2) #each household has a number of adults (> 20) 
+  
+  fam_adults <- rep (NA, N)
+  for (i in 1:N) {
+    fam_adults[i] <- hh_adults[household[i]]  
+  }
+  
+  old_sib <- rep (NA, N)                            #number of older children in the household per child
+  for (i in 1:N) {
+    old_sib[i] <- sum(household == household[i] & 
+                        A > A[i] ,na.rm = TRUE)
+  }
+  
+  young_sib <- rep (NA, N)                          #number of younger children in the household per child
+  for (i in 1:N) {
+    young_sib[i] <- sum(household == household[i] & 
+                          A < A[i] ,na.rm = TRUE)
+  }
+  
   
   #school years
-  school_years <- rep (NA, N)                       #children get years they spent at school
+  school_years <- rep (NA, N)      #children get years they spent at school
   
-  for (i in 1:N) {                                  #below seven, they never go to school. Over seven, they get a number of years of schooling between 0 and the total number of years if they had started at 7
-    
-    y <-  ifelse (A [i]< 7, 0, round(runif(1, 0, A[i]-6)))      #number of years gone to school. Will not be assigned if child below 7
+  for (i in 1:N) {                 #below seven, they never go to school. Over seven, they get a number of years of schooling between 0 and the total number of years if they had started at 7
+    y <-  ifelse (A [i]< 7, 0, round(runif(1, 0, A[i]-6)))        #number of years gone to school. Will not be assigned if child below 7
     school_years[i] <- ifelse (A [i]< 7, 0, rbinom(1, 1, 0.8) *   #probabolity not to go to school at all
-                                 (sex [i] + 1 +  y))           #number of sibilings reduces the school attendance (chaos with ys to avoid negative school years if child has 0 school years)
+                                 (sex [i] + 1 +  y))              #number of sibilings reduces the school attendance (chaos with ys to avoid negative school years if child has 0 school years)
   }#N
   
-  #effective age calculated with school years
-  a_eff <- A + (-sy * school_years) + rnorm (N, 0, 2)
   
   # activities
   activity_matrix <- matrix(data=NA, nrow= N, ncol=nact)                #matrix to store values (rows = people, columns = activities)
@@ -44,11 +69,10 @@ sim_know <- function (N = 100,
   school_effect <- rep(NA,nact)      
   
   for (j in 1:nact) {
-    
     act_skew[j] <- runif(1, 1, 20)                        #gives a rate of growth with age of prob performing activity
     sex_diff[j] <- rbinom(1, 1, 0.5)  * 2 - 1            #gives variability between activities in effect of sex on prob performing it (around zero so that some are more probable for boys, other for girls)
     school_effect[j] <- runif(1, 0, 1)                    #gives the proportion by which school years affect the specific activity. 0 school has no effect, 1 subtracts all years of schooling from experience
-     
+    
     for (i in 1:N) {                                     #per individual and activity, whether is performed or not. 
       p <- inv_logit( A[i]                             #probability of performing activity, in binomial below. Effect of age ()
                       - act_skew[j]                       #effect of activity
@@ -64,13 +88,20 @@ sim_know <- function (N = 100,
 ############  
 ###Knowledge
 ############
-  #Create n_dimensions of knowledge, with effect of activites on dimensions
+  #Create n_dimensions of knowledge, with effect of activities on dimensions
   K <- matrix(NA, nrow = N, ncol = n_dimensions)
-  acteff  <- rep(1:3, length.out = nact)
+  acteff  <- rep(1:n_dimensions, length.out = nact) #divide activities per each dimension
+  
   for (i in 1:n_dimensions) {
-    K[,i] <- inv_logit( gr * ( 1+ rowSums(activity_matrix[ ,which(acteff == i)])) *(a_eff- mean(A)))
+    K[,i] <-  b_A * standardize (A) + 
+              b_sy * standardize(school_years) + #adds the effect of school years
+              b_OS * old_sib + b_YS * young_sib + b_ad * fam_adults + #effect of families
+              apply(t ( t (activity_matrix[ ,which(acteff == i),drop = FALSE]) * b_ac), 1, sum) + #sums up the effect of each activity - as multiplied by an activity-specific coefficient
+              rnorm (N, 0, 1) #
   }
   
+  
+
 ########  
 ###Items
 ########
@@ -79,9 +110,12 @@ sim_know <- function (N = 100,
   item_type <- as.factor (rep( 1 : n_dimensions, length.out = M))
   g <- matrix(NA, nrow = M, ncol = n_dimensions)
   b <- matrix(NA, nrow = M, ncol = n_dimensions)
+  l <- matrix(NA, nrow = M, ncol = n_dimensions)
+  
   for(i in 1:n_dimensions){
-  g[,i] <- ifelse(item_type == i , 1 , 0) * abs(rnorm(M, mean_g, sd_g))
-  b[,i] <- rnorm(M, mean_b, sd_b)
+    g[,i] <- ifelse(item_type == i , 1 , 0) * abs(rnorm(M, mean_g, sd_g))
+    b[,i] <- rnorm(M, mean_b, sd_b)
+    l[,i] <- rbeta(M, alpha_l, beta_l)
   }
   
 ##########
@@ -95,7 +129,7 @@ sim_know <- function (N = 100,
     p <- inv_logit( g[j, k]*( K[i, k] - b[j, k] ))
   }
     )
-    Y[i,j] <- rbern(1,p)
+    Y[i,j] <- rbern(1,l[j]+(1-l[j])*p)
   }
   
  
@@ -108,11 +142,12 @@ sim_know <- function (N = 100,
 ###Output
 #########
   return(list(N = N, M = M, nact = nact, 
-              A = A, a_eff = a_eff, 
-              K = K,
+              A = A, S = sex, SY = school_years, 
+              HH = household, Nad = fam_adults, OS = old_sib, YS = young_sib,
               activity_matrix = activity_matrix,
+              K = K,
               item_type = item_type,
-              g = g, b = b,
+              g = g, b = b, l = l,
               Y = Y, y = y,
               n_dimensions = n_dimensions
   ))
