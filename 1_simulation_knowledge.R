@@ -12,12 +12,11 @@ sim_know <- function (N = 30,
                       b_ad = 0,      #effect of adults
                       b_sy = 0,      #effect of years of school (between zero and one) 
                       b_ac = 0,      #effect of activities
-                      mean_g = 0,    #age dependency of a question (slope of the logistic regression - how fast it improves with x)
-                      sd_g = 1, 
+                      eta_a = 1.5,    #age dependency of a question (slope of the logistic regression - how fast it improves with x) -exp distributed
                       mean_b = 0,    #difficulty of a question (where the center of the slope is placed over x)
                       sd_b = 1,
-                      alpha_l = 0,    #guessing probability (make alpha zero to remove this element, make 5 to have an effect of guessing)
-                      beta_l = 5,
+                      alpha_c = 0,    #guessing probability (make alpha zero to remove this element, make 5 to have an effect of guessing) - beta distributed
+                      beta_c = 5,
                       n_dimensions = 1) { #either one or more, creates answers that respond differently to activities
                                                                                                                         
 #########
@@ -95,7 +94,7 @@ sim_know <- function (N = 30,
   for (i in 1:n_dimensions) {
     K[,i] <-  b_A * standardize (A) + 
               b_sy * standardize(school_years) + #adds the effect of school years
-              b_OS * old_sib + b_YS * young_sib + b_ad * fam_adults + #effect of families
+              b_OS * standardize(old_sib) + b_YS * standardize(young_sib) + b_ad * standardize(fam_adults) + #effect of families
               apply(t ( t (activity_matrix[ ,which(acteff == i),drop = FALSE]) * b_ac), 1, sum) + #sums up the effect of each activity - as multiplied by an activity-specific coefficient
               rnorm (N, 0, 1) #
   }
@@ -108,14 +107,14 @@ sim_know <- function (N = 30,
   # M items! each has unique difficulty (b) and discrimination (g)
 
   item_type <- as.factor (rep( 1 : n_dimensions, length.out = M))
-  g <- matrix(NA, nrow = M, ncol = n_dimensions)
+  a <- matrix(NA, nrow = M, ncol = n_dimensions)
   b <- matrix(NA, nrow = M, ncol = n_dimensions)
-  l <- matrix(NA, nrow = M, ncol = n_dimensions)
+  c <- matrix(NA, nrow = M, ncol = n_dimensions)
   
   for(i in 1:n_dimensions){
-    g[,i] <- ifelse(item_type == i , 1 , 0) * abs(rnorm(M, mean_g, sd_g))
+    a[,i] <- ifelse(item_type == i , 1 , 0.1) * rexp(M, eta_a)
     b[,i] <- rnorm(M, mean_b, sd_b)
-    l[,i] <- rbeta(M, alpha_l, beta_l)
+    c[,i] <- rbeta(M, alpha_c, beta_c)
   }
   
 ##########
@@ -125,11 +124,11 @@ sim_know <- function (N = 30,
   #select p with either one or multiple dimensions
   Y <- matrix(NA,nrow=N,ncol=M)
   for ( i in 1:N ) for( j in 1:M ) {
-    sum(for(k in 1:n_dimensions){
-    p <- inv_logit( g[j, k]*( K[i, k] - b[j, k] ))
+    p <- 0
+    for(k in 1:n_dimensions){
+    p <-  p + a[j, k]*( K[i, k] - a[j, k] )
   }
-    )
-    Y[i,j] <- rbern(1,l[j]+(1-l[j])*p)
+    Y[i,j] <- rbern(1,c[j]+(1-c[j])* inv_logit(p))
   }
   
  
@@ -147,10 +146,9 @@ sim_know <- function (N = 30,
               activity_matrix = activity_matrix,
               K = K,
               item_type = item_type,
-              g = g, b = b, l = l,
-              Y = Y, y = y,
+              a = a, b = b, c = c,
+              Y = Y,
               n_dimensions = n_dimensions
   ))
 }
-  
 
