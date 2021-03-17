@@ -6,7 +6,7 @@ sim_know <- function (N = 30,
                       M = 100, 
                       H=floor(N/5),  #number of households
                       nact = 1, 
-                      b_A = 0,     #effect of age in knowledge
+                      b_A = 1,     #effect of age in knowledge
                       b_OS = 0,      #effect of older siblings
                       b_YS = 0,      #effect of younger siblings
                       b_ad = 0,      #effect of adults
@@ -91,12 +91,15 @@ sim_know <- function (N = 30,
   K <- matrix(NA, nrow = N, ncol = n_dimensions)
   acteff  <- rep(1:n_dimensions, length.out = nact) #divide activities per each dimension
   
+  # for (i in 1:n_dimensions) {
+  #   K[,i] <-  b_A * standardize (A) + 
+  #             b_sy * standardize(school_years) + #adds the effect of school years
+  #             b_OS * standardize(old_sib) + b_YS * standardize(young_sib) + b_ad * standardize(fam_adults) + #effect of families
+  #             apply(t ( t (activity_matrix[ ,which(acteff == i),drop = FALSE]) * b_ac), 1, sum) + #sums up the effect of each activity - as multiplied by an activity-specific coefficient
+  #             rnorm (N, 0, 1) #
+  # }
   for (i in 1:n_dimensions) {
-    K[,i] <-  b_A * standardize (A) + 
-              b_sy * standardize(school_years) + #adds the effect of school years
-              b_OS * standardize(old_sib) + b_YS * standardize(young_sib) + b_ad * standardize(fam_adults) + #effect of families
-              apply(t ( t (activity_matrix[ ,which(acteff == i),drop = FALSE]) * b_ac), 1, sum) + #sums up the effect of each activity - as multiplied by an activity-specific coefficient
-              rnorm (N, 0, 1) #
+    K[,i] <- standardize(A ^ b_A) + rnorm (N, 0, 0.5)
   }
   
   
@@ -126,7 +129,7 @@ sim_know <- function (N = 30,
   for ( i in 1:N ) for( j in 1:M ) {
     p <- 0
     for(k in 1:n_dimensions){
-    p <-  p + a[j, k]*( K[i, k] - a[j, k] )
+    p <-  p + a[j, k]*( K[i, k] - b[j, k] )
   }
     Y[i,j] <- rbern(1,c[j]+(1-c[j])* inv_logit(p))
   }

@@ -6,31 +6,31 @@ curve( (rnorm(1, 0, 1) + rnorm(1, 0, 0.5) + abs(rnorm (1, 0, 0.5)) * x + abs(rno
 for(i in 1:20) curve( (rnorm(1, 0, 1) +rnorm(1, 0, 0.5) + abs(rnorm (1, 0, 0.5)) * x + abs(rnorm (1, 0, 0.3)) * (x/3) ), add = TRUE, ylab = NULL)
 
 #extract posterior
-post <- extract.samples(m)
+post <- extract.samples(m_mi)
 
 #recover K
-plot( biglist$K, apply( post$Ki, 2, mean))
+plot( biglist$K, apply( post$K, 2, mean))
 abline( 0, 1)
-PI <- apply( post$Ki, 2, PI)
+PI <- apply( post$K, 2, PI)
 for( i in 1:biglist$N){
   lines( rep( biglist$K[i], 2), PI[,i])
 }
 
 #recover g
-plot( biglist$g, apply( post$g, 2, mean))
+plot( biglist$a, apply( post$a_l, 2, mean))
 abline( 0, 1)
-PI <- apply( post$g, 2, PI)
-for( i in 1:biglist$M){
-  lines( rep( biglist$g[i], 2), PI[,i])
-}
+# PI <- apply( post$a_l, 2, PI)
+# for( i in 1:biglist$M){
+#   lines( rep( biglist$a[i], 2), PI[,i])
+# }
 
 #recover b
-plot( biglist$b, apply( post$b, 2, mean))
+plot( biglist$b[1:50], apply( post$b_r, 2, mean))
 abline( 0, 1)
-PI <- apply( post$b, 2, PI)
-for( i in 1:biglist$M){
-  lines( rep( biglist$b[i], 2), PI[,i])
-}
+# PI <- apply( post$b, 2, PI)
+# for( i in 1:biglist$M){
+#   lines( rep( biglist$b[i], 2), PI[,i])
+# }
 
 #recover l
 plot( biglist$l, apply( post$l, 2, mean))
@@ -96,8 +96,78 @@ lines( rep(b_A[i], 2), c (bA_PI[i,]))
   
 
 
-#check p
-dens(apply(post$prob,2,mean))
+#compare models with multilevel individuals vs questions
+#want to see if the PI around K (but also a and b) is reduced more with pooling over individuals or questions
+diffs_K <- list()
+diffs_a <- list()
+diffs_b <- list()
+mean_K <- list()
+mean_a <- list()
+mean_b <- list()
+
+  biglist <- sim_know()
+#data
+#####
+#one dimensional model, pooled individuals, pooled questions
+dat <- list( N = biglist$N , #n individuals
+             L = biglist$M , #n freelist items
+             Q = 50,         #n questionnaire items
+             R = biglist$M/2,#n image recognition items
+             H = max(biglist$HH), #n households
+             A = standardize(biglist$A) , #standardized age
+             SY= standardize(biglist$SY), #standardized n of years of school
+             OS= standardize(biglist$OS), #standardized n older brothers
+             YS= standardize(biglist$YS), #standardized n younger brothers
+             AD= standardize(biglist$Nad),#standardized n adults
+             HH= biglist$HH, #integer for household
+             am= biglist$activity_matrix, #activities practiced
+             C = biglist$nact, #total n activities
+             Y_l = biglist$Y ,                  #answers freelist
+             Y_q = biglist$Y[,1:50] ,           #answers questionnaire
+             Y_r = biglist$Y[,1:(biglist$M/2)]  #answers picture recognition
+             )
+  #####
+  m <- cstan( file="~/Nextcloud/Project/Children_eco_knowledge/model_code.stan" , data=dat , chains=3, cores=3 )
+  m_mq <- cstan( file="~/Nextcloud/Project/Children_eco_knowledge/model_code_multi_qn.stan" , data=dat , chains=3, cores=3 )
+  m_mi <- cstan( file="~/Nextcloud/Project/Children_eco_knowledge/model_code_multi_ind.stan" , data=dat , chains=3, cores=3 )
+  compare(m, m_mq, m_mi) #pooling over questions seems to improve out of sample estimation, but this is not really relevant here
+
+post <- list()
+ post[[1]] <- extract.samples(m)
+ post[[2]] <- extract.samples(m_mq)
+ post[[3]] <- extract.samples(m_mi)
+ 
+
+PIs <- list()
+  for(i in 1:3) {
+   PIs[[i]] <- apply( post[[i]]$K, 2, PI)
+   diffs_K[[i]] <- (mean(diff(PIs[[i]])))
+   mean_K[[i]] <- apply( post[[i]]$K, 2, mean)
+  } #estimated Ks are very similar across the three models, 
+    #but pooling over questions increases considerably uncertainty of the measure. 
+    #Pooling over individuals seems to reduce it a bit
+ plot(biglist$K, mean_K[[1]], col = "red")
+ points(biglist$K, mean_K[[2]], col = "blue")
+ points(biglist$K, mean_K[[3]], col = "green")
+#same for b and a
+ PIs <- list()
+ for(i in 1:3) {
+   PIs[[i]] <- apply( post[[i]]$a_l, 2, PI)
+   diffs_a[[i]] <- (mean(diff(PIs[[i]])))
+   mean_a[[i]] <- apply( post[[i]]$a_l, 2, mean)
+ }
+ plot(biglist$a, mean_a[[1]], col = "red")
+ points(biglist$a, mean_a[[2]], col = "blue")
+ points(biglist$a, mean_a[[3]], col = "green")
+ PIs <- list()
+ for(i in 1:3) {
+   PIs[[i]] <- apply( post[[i]]$b_l, 2, PI)
+   diffs_b[[i]] <- (mean(diff(PIs[[i]])))
+   mean_b[[i]] <- apply( post[[i]]$b_l, 2, mean)
+  }
+
+
+
 
 #####
 #multiple dimensions  
@@ -118,7 +188,7 @@ for (j in 1:biglist_d$n_dimensions) {
   
 for (j in 1:biglist_d$n_dimensions) {
   for(k in 1: biglist_d$n_dimensions) {
-  plot( biglist_d$g[,j], apply( post_d$g[,,k], 2, mean), xlab = paste("simulated g n." , j), ylab = paste("estimated g n." , k))
+  plot( biglist_d$a[,j], apply( post_d$a_l[,,k], 2, mean), xlab = paste("simulated a n." , j), ylab = paste("estimated a n." , k))
   abline( 0, 1)
   # PI <- apply( post_d$g[,,k], 2, PI)
   # for( i in 1:biglist_d$M){
@@ -129,7 +199,7 @@ for (j in 1:biglist_d$n_dimensions) {
 
 for (j in 1:biglist_d$n_dimensions) {
   for(k in 1: biglist_d$n_dimensions) {
-  plot( biglist_d$b[,j], apply( post_d$b[,,k], 2, mean), xlab = paste("simulated b n." , j), ylab = paste("estimated b n." , k))
+  plot( biglist_d$b[,j], apply( post_d$b_l[,,k], 2, mean), xlab = paste("simulated b n." , j), ylab = paste("estimated b n." , k))
   abline( 0, 1)
   # PI <- apply( post_d$b[,,k], 2, PI)
   # for( i in 1:biglist_d$N){

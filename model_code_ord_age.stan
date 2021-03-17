@@ -24,7 +24,7 @@ transformed parameters{
   vector[N] K;
   vector[O] delta_j;
   delta_j = append_row(0, delta);
-  for ( i in 1:N ) K[i] =  aK[i] + bA * sum (delta_j[min(A):A[i] - min(A)+1]) ; //activity effects
+  for ( i in 1:N ) K[i] =  aK[i] + bA * sum (delta_j[ 1 : A[i]]) ; //activity effects
 }
 
 model{

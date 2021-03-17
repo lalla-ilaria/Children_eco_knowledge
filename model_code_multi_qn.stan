@@ -15,7 +15,7 @@ data{
 	real AD[N];//n of adults in the household of individuals
 	int HH[N]; //household of individuals
 	row_vector[C]am[N] ; //activities performed by individuals
-}
+}//data
 
 parameters{
   //individual parameters
@@ -47,14 +47,14 @@ parameters{
 	real<lower=0> b_q_sigma;
 	real<lower=0> b_r_sigma;
 	real<lower=0> c_q_sigma;
-}
+}//parameters
 
 transformed parameters{
   vector[N] K;
   for ( i in 1:N ) K[i] =  aK[i]+ bA * A[i] + bSY * SY[i] + // individual effects
                            aHH[HH[i]] + bOS * OS[i] + bYS * YS[i] + bAD * AD[i] + // household and family effects
                            dot_product( AE, am[i]); //activity effects
-}
+}//transformed parameters
 
 model{
   //priors for individual parameters
@@ -85,54 +85,69 @@ model{
 	b_r_sigma ~ exponential(1);
 	
 	//model
+
 	//freelist
 	for ( i in 1:N ) {
-		for (j in 1:L ) {
-			real p = inv_logit(a_l[j] * a_l_sigma * (K[i] - b_l[j] * b_l_sigma));
-			Y_l[i,j] ~ bernoulli( p );
-		}
-	}
-	//fuestions
+	  vector[L] p = rep_vector(0, L);
+	  p =  (a_l * a_l_sigma) .* (K[i] - b_l * b_l_sigma);
+		target += bernoulli_logit_lpmf( Y_l[i,] | p );
+	}//N
+
+	//questions
 	for ( i in 1:N ) {
-		for (j in 1:Q ) {
-			real p = inv_logit(a_q[j] * a_q_sigma * (K[i] - b_q[j] * b_q_sigma));
-			Y_q[i,j] ~ bernoulli(c_q[j] * c_q_sigma + ( 1 - c_q[j] * c_q_sigma) * p);
-		}
-	}
+	  vector[Q] p = rep_vector(0, Q);
+    vector[Q] logit_p;
+		p = (a_q * a_q_sigma) .* (K[i] - b_q * b_q_sigma);
+    // log odds 3PL is log[(Exp[p]+c)/(1-c)]
+    logit_p = log( exp(p) + c_q * c_q_sigma ) - log1m( c_q );
+    target += bernoulli_logit_lpmf( Y_q[i,] | logit_p );
+	}//N
+	
 	//image recognition
 	for ( i in 1:N ) {
-		for (j in 1:R ) {
-			real p = inv_logit(a_r[j] * a_r_sigma * (K[i] - b_r[j] * b_r_sigma));
-			Y_r[i,j] ~ bernoulli( p );
-		}
-	}
-}
+	  vector[R] p = rep_vector(0, R);
+	  p = (a_r * a_r_sigma) .* (K[i] - b_r * b_r_sigma);
+		target += bernoulli_logit_lpmf( Y_r[i,] | p );
+	}//N
+}//model
 
 generated quantities {
    vector [N * L + N * Q + N * R] log_lik;
 {
-   int k = 1;
-    for ( i in 1:N ) {
+    int k = 1;
+    
+    //freelist
+		for ( i in 1:N ) {
+      vector[L] p = rep_vector(0, L);
+	    p = (a_l * a_l_sigma) .* (K[i] - b_l * b_l_sigma);
   		for (j in 1:L ) {
-  			real p = inv_logit(a_l[j] * a_l_sigma * (K[i] - b_l[j] * b_l_sigma));
-  			log_lik[k] = bernoulli_lpmf( Y_l[ i, j] | p );
+  			log_lik[k] = bernoulli_logit_lpmf( Y_l[ i, j] | p[j] );
    	  	k = k + 1;
    	  	} // L
       } // N
-    for ( i in 1:N ) {
+      
+    //questions
+		for ( i in 1:N ) {
+      vector[Q] p = rep_vector(0, Q);
+      vector[Q] logit_p;
+	    p = (a_q * a_q_sigma) .* (K[i] - b_q * b_q_sigma);
+		  logit_p = log( exp(p) + c_q * c_q_sigma ) - log1m( c_q );
   		for (j in 1:Q ) {
-  			real p = inv_logit(a_q[j] * a_q_sigma * (K[i] - b_q[j] * b_q_sigma));
-  			log_lik[k] = bernoulli_lpmf( Y_l[ i, j] | c_q[j] * c_q_sigma + ( 1 - c_q[j] * c_q_sigma) * p );
+  			log_lik[k] = bernoulli_logit_lpmf( Y_q[i,j] | logit_p[j]);
    	  	k = k + 1;
    	  	} // Q
       } // N
-    for ( i in 1:N ) {
+    
+    //image recognition
+		for ( i in 1:N ) {
+      vector[R] p = rep_vector(0, R);
+	    p = (a_r * a_r_sigma) .* (K[i] - b_r * b_r_sigma);
   		for (j in 1:R ) {
-  			real p = inv_logit(a_r[j] * a_r_sigma * (K[i] - b_r[j] * b_r_sigma));
-  			log_lik[k] = bernoulli_lpmf( Y_l[ i, j] | p );
+  			log_lik[k] = bernoulli_logit_lpmf( Y_r[ i, j] | p[j] );
    	  	k = k + 1;
    	  	} // R
       } // N
+
   } 
 }
 
