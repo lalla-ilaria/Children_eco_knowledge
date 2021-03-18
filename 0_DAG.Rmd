@@ -1,0 +1,57 @@
+---
+title: "DAG"
+author: "Ilaria Pretelli"
+date: "3/17/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+library(dagitty)
+```
+
+## A WORD ON KNOWLEDGE
+Knowledge is interpreted here as a latent trait of individuals which underlay the probability of answering correctly to the questions in the sample. Henceforth, statments such 'knowledge is influenced by' can be read as 'the probability of answering correctly to the questions in the sample is influenced by'. Despite this practical approach, we did our best to improve the construct validity of our study, by both developing the questionnaire and managing the resulting data in collaboration with informants sharing language and culture with the interviewees. We then expect knowledge, as measured by our model, to reflect the general ecological knowledge possessed by individuals, but do not deal with general epistemological considerations on the connection between the two.
+
+## FACTORS INFLUENCING KNOWLEDGE
+To explicitly define causal relationships we are testing with this analysis, here follows a description of the factors we expect are exerting an influence on knowledge
+
+### Age
+Knowledge changes as individual get older. We expect to observe an increase with age, with individual differences that can emerge as a result of several factors. Age has a direct effect on knowledge, in virtue of the increasing cognitive abilities of human brains that allow to store and manage information (Age $\rightarrow$ Know). But also, and maybe more importantly, the total effect of Age include paths passing through the other factors: as individuals get older, other traits change, which have an effect on knowledge. As individuals age, the time they spend performing specific activities varies (Age $\rightarrow$ Act), they start or stop going to school (Age $\rightarrow$ Sch), or their family situation changes (e.g. new siblings are born, Age $\rightarrow$ Fam).
+
+### Sex
+We do not expect a direct effect of sex of individuals on knowledge. Rather, we imagine gender differences to influence both the probability at which activities are performed, some tasks being typically done by girls and other by boys, as well as, potentially, school attendance  (Sex $\rightarrow$ Act and Sex $\rightarrow$ Sch).
+
+
+### Family
+Family context, such as the presence of parents or older siblings, influences what and how much children know (Fam $\rightarrow$ Know). Engaging in activities with parents, can have an impact on the acquisition of knowledge related to those activities. Also, the simple presence of adults in the households can have a similar effect of knowledge just by exposing children to conversations about subjects. Domestic situations can have large effect on the activities children perform (Fam $\rightarrow$ Act). Older same sex siblings can have positive effect on knowledge by representing a model and introducing individuals to specific activities (imagine an older brother teaching to shoot with a slingsho) or have negative effect if they fulfill a specific role in the household (only one person is suffucient to take care of the cattle of a single family). Younger siblings could change the expected time allocation into activities (for example reducing the time one can spend roaming the forest in exchange for time spend taking care of them). Family context and attitudes can also influences the effort children are allowed, or pushed, to put in formal education (Fam $\rightarrow$ Sch).
+
+### Activites
+In our expectations, the activites children perform more frequently have a strong influence on knowledge (Act $\rightarrow$ Know), both because of the exposure to the relevant information while performing the activity and of the increased returns derived from learning these information. When not in school, children in Bandarikuu spend their time doing domestic or farming chores, hunting, collecting seashells, fishing or playing, at different probabilities as they get older. Some of these activites, such as hunting, are expected to have a larger effect on the knowledge of the natural environment.
+
+### School
+The time and effort children invest in forma education can have different effects on knowledge of the natural environment. On the one hand, it can increase the the amount of information individual can manage. Ont the other hand, it can imply an opportunity cost by reducing the contact with natural environment (Sch $\rightarrow$ Know). 
+
+
+Summarizing, we expect knowledge to increase with age, to vary in accordance to which activities are performed, as certain activities favor the learning of ecological knowledge; by family, as access to knowledge depends on the access to older individuals able to transmit it, for example; and probably by access to schools, that provide certain types of knowledge but not others. 
+
+
+```{r dag}
+DAG1 <- dagitty("dag{
+                Age -> Know   
+                Act -> Know   
+                Fam -> Know  
+                Sch -> Know     
+                Sex -> Act    
+                Fam -> Act
+                Age -> Act
+                Sch -> Act   
+                Age -> Sch  
+                Fam -> Sch
+                Sex -> Sch
+                }")
+
+coordinates(DAG1) <- list ( x= c(Age=1, Know=1, Sex=0, Act=0, Fam=2, Sch=2), y= c(Age=0, Sex=0, Fam=0, Act=1, Sch=1, Know=2))
+
+plot(DAG1)
+```
