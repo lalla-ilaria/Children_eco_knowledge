@@ -41,23 +41,25 @@ model{
   //model
 	//freelist
 	for ( i in 1:N ) {
-		for (j in 1:L ) {
-			real p = inv_logit(a_l[j] * (K[i] - b_l[j]));
-			Y_l[i,j] ~ bernoulli( p );
-		}
-	}
-}
- generated quantities {
-   vector [N * L ] log_lik;
-{
-   int k = 1;
-    for ( i in 1:N ) {
-  		for (j in 1:L ) {
-  			real p = inv_logit(a_l[j] * (K[i] - b_l[j]));
-  			log_lik[k] = bernoulli_lpmf( Y_l[ i, j] | p );
-   	  	k = k + 1;
-   	  	} // L
-      } // N
-   } 
-}
+	  vector[L] p = rep_vector(0, L);
+	  p = a_l .* (K[i] - b_l);
+		target += bernoulli_logit_lpmf( Y_l[i,] | p );
+	}//N
 
+}
+//  generated quantities {
+//    vector [N * L ] log_lik;
+// {
+//    int k = 1;
+//        //freelist
+// 		for ( i in 1:N ) {
+//       vector[L] p = rep_vector(0, L);
+// 	    p = a_l .* (K[i] - b_l);
+//   		for (j in 1:L ) {
+//   			log_lik[k] = bernoulli_logit_lpmf( Y_l[ i, j] | p[j] );
+//    	  	k = k + 1;
+//    	  	} // L
+//       } // N
+//    } 
+// }
+// 

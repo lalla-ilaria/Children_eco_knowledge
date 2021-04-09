@@ -111,11 +111,11 @@ sim_know <- function (N = 30,        #number of individuals
               apply(t ( t (activity_matrix[ ,which(acteff == i),drop = FALSE]) * b_ac), 1, sum) + #sums up the effect of each activity - as multiplied by activity coefficient
               rnorm (N, 0, 0.5) #
   }
-  #for making knowledge depend non linearly from age and explore this with model m_ord_age
+  # #for making knowledge depend non linearly from age and explore this with model m_ord_age
   # for (i in 1:n_dimensions) {
   #   K[,i] <- standardize(A ^ b_A) + rnorm (N, 0, 0.5)
   # }
-  
+
   
 
 ########  

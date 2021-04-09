@@ -2,7 +2,7 @@
 library(rethinking)
 
 #loads simulation function
-if( !exists( "sim_know", mode = "function")) source("~/../Nextcloud/Project/Children_eco_knowledge/1_simulation_knowledge.R") 
+if( !exists( "sim_know", mode = "function")) source("~/Nextcloud/Project/Children_eco_knowledge/Children_eco_knowledge/1_simulation_knowledge.R") 
 #runs simulation
 biglist <- sim_know()
         #Available arguments and defaults
@@ -51,18 +51,32 @@ m_mi <- cstan( file="~/Nextcloud/Project/Children_eco_knowledge/model_code_multi
 compare(m, m_mq, m_mi)
 
 #ordered categorical age
+biglist <- sim_know(b_A = 7, N = 100, M = 300)
+#with each year a step
 dat <- list( N = biglist$N , 
              L = biglist$M , 
-             A = round(biglist$A) - round(min(biglist$A)) + 1 , #standardized age
+             A = round(biglist$A) - round(min(biglist$A)) + 2 , #standardized age
              Y_l = biglist$Y ,
-             O = length(min(round(biglist$A)):max(round(biglist$A))),
-             alpha = rep(2,length(min(round(biglist$A)):max(round(biglist$A)))-1)
+             O = length(min(round(biglist$A)):max(round(biglist$A)))+1,
+             alpha = rep(2,length(min(round(biglist$A)):max(round(biglist$A))))
              )
-m_ord <- cstan( file="~/../Nextcloud/Project/Children_eco_knowledge/old_files/model_code_ord_age.stan" , data=dat , chains=3, cores=3 )
+#with ages grouped in 5 groups
+dat <- list( N = biglist$N , 
+             L = biglist$M , 
+             A = ifelse(biglist$A <= 6, 2, #set max or min to values out of the sample?
+                 ifelse(biglist$A <= 10, 3, 
+                 ifelse(biglist$A <= 14, 4, 
+                 ifelse(biglist$A <= 18, 5, 6))) ) , #age group
+             Y_l = biglist$Y ,
+             O = 6,
+             alpha = rep(2,5)
+             )
+
+m_ord <- cstan( file="~/Nextcloud/Project/Children_eco_knowledge/Children_eco_knowledge/models/model_code_ord_age.stan" , data=dat , chains=3, cores=3 )
 
 
 #multiple dimensions
-biglist <- sim_know(n_dimensions = 3, nact = 9, b_ac = 0, N = 30, M = 100)
+biglist <- sim_know(n_dimensions = 3, nact = 9, b_ac = 0.6, N = 30, M = 100)
 dat <- list( D = biglist$n_dimensions,
              N = biglist$N , 
              L = biglist$M , 
@@ -83,7 +97,20 @@ dat <- list( D = biglist$n_dimensions,
              )
 
 m_d <- cstan( file="~/Nextcloud/Project/Children_eco_knowledge/Children_eco_knowledge/models/model_code_dimensions.stan" , data=dat , chains=3, cores=3, init = 0 )
+m_de <- cstan( file="~/Nextcloud/Project/Children_eco_knowledge/Children_eco_knowledge/models/model_code_dimensions_empty.stan" , data=dat , chains=3, cores=3, init = 0 )
 
+#structural model
+biglist <- sim_know(b_A = 0.6, b_sy = 0.4)
+dat <- list( N = biglist$N ,              #n individuals
+             L = biglist$M ,              #n freelist items
+             A = standardize(biglist$A) , #standardized age
+             SY= standardize(biglist$SY), #standardized n of years of school
+             Y_l = biglist$Y              #answers freelist
+             )
+
+#structural model, 1 dimension
+m_s <- cstan( file="~/Nextcloud/Project/Children_eco_knowledge/Children_eco_knowledge/models/model_code_structural.stan" , data=dat , chains=3, cores=3 )
+m_a <- cstan( file="~/Nextcloud/Project/Children_eco_knowledge/Children_eco_knowledge/models/sy.stan" , data=dat , chains=3, cores=3 )
 
 
 #WAIC and PSIS
