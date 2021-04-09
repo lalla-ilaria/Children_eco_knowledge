@@ -167,6 +167,31 @@ PIs <- list()
   }
 
 
+####
+#ordered age
+plot (precis(m_ord, 2, pars = "delta_j"))
+#it  is very hard to see any difference in the delta values. 
+#No matter how the effect of age on knowledge changes with ages, 
+#the deltas are not very different. 
+#Only by grouping ages in pretty big groups some pattern emerges
+post <- extract.samples(m_ord)
+#sum deltas per each extracted sample, so that each year/group has the estimated delta per that age/group
+year_eff <- apply(post$delta_j, 1, cumsum)
+year_eff_tot <- year_eff * mean(post$bA)#multiplying the deltas by the coefficient for age increase, we get a comparable effect
+plot(jitter (rep(1:nrow(year_eff), 1500)), year_eff_tot, col = col.alpha("black", 0.3))
+#estimated increase per each age/group is very overlapping
+mu_year_eff <- apply(year_eff, 1, mean)#make a mean
+pi_year_eff <- apply(year_eff, 1, PI)#get distribution center
+plot( 1:nrow(year_eff), mu_year_eff)
+for (i in 1:nrow(year_eff)) {
+  lines(rep(i, 2), pi_year_eff[,i])
+}
+#min(round(biglist$A)):max(round(biglist$A))#need this if you want to plot over actual years
+#Only in the most extreme cases the increase appears to be skewed. In most cases the increase is very linear
+
+pairs(m_ord, pars = "delta")
+
+
 
 
 #####
@@ -234,3 +259,36 @@ for (i in 1:length(D)) {
 m_d[i] <- cstan( model_code = model_code_d , data = dat , chains = 3, cores = 3) # ,control = list(adapt_delta = 0.9, max_treedepth = 15) use cstan cause it uses commandstan
 }
 compare(m_d[[1]], m_d[[2]], m_d[[3]])
+
+
+#structural equation model
+############
+
+precis(m_a)
+#    mean  sd 5.5% 94.5% n_eff Rhat4
+# bA 0.42 0.1 0.26  0.59   107  1.01
+precis(m_s)
+
+#with no effect of SY
+#    mean  sd 5.5% 94.5% n_eff Rhat4
+# bA 0.42 0.1 0.26  0.59   107  1.01
+
+#           mean   sd  5.5% 94.5% n_eff Rhat4
+# bA        0.45 0.12  0.27  0.63    58  1.09
+# bSY      -0.07 0.11 -0.24  0.10    77  1.03
+# a_sy      0.00 0.08 -0.13  0.13  2271  1.00
+# b_sy      0.53 0.09  0.39  0.66  2691  1.00
+# sigma_sy  0.86 0.06  0.77  0.97  2169  1.00
+
+#with effect of SY
+#    mean   sd 5.5% 94.5% n_eff Rhat4
+# bA  0.5 0.18 0.21   0.8   216  1.01
+
+#          mean   sd  5.5% 94.5% n_eff Rhat4
+# bA       0.47 0.17  0.19  0.76   313     1
+# bSY      0.06 0.16 -0.19  0.32   191     1
+# a_sy     0.01 0.17 -0.26  0.28  2533     1
+# b_sy     0.27 0.19 -0.02  0.57  2081     1
+# sigma_sy 1.01 0.15  0.80  1.26  1537     1
+
+compare(m_a, m_s)
