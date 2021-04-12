@@ -1,0 +1,65 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+
+\title{Knowledge paper}
+\author{Ilaria Pretelli}
+\date{December 2020}
+
+\begin{document}
+
+\maketitle
+
+\section{Introduction}
+%Lek acquisition in HG and other groups with low market integration
+%Link to fitness and evolutionary theory
+%   Knowledge -> returns -> fitness (unclear evidence)
+%Knowledge acquisition as part of embodied capital hypothesis
+%But there's variation in knowledge
+
+\section{Goal}
+%Understand role of multiple factors in variation in knowledge
+%DAG and explain pieces
+
+\section{Material and Methods}
+\subsection{Ethnographic notes}
+Data collection was carried on in the village of Bandarikuu, located between the sea and the forest, north-east in the Island of Pemba, Zanzibar (TZ). 
+
+Children comprise a big part of the growing population of Pemba, and Bandarikuu is no exception, with rxxx of the rxxx inhabitants below 20 years of age. Young individuals divide their time between domestic and farming chores, education at both the state and Koranic schools and play. Foraging is carried on at variable levels by children and teenagers, according to individual inclination and contingent family or environmental conditions. These activities include mainly gathering of seashells in the shores lining the mangrove forest, and hunting birds in the forested areas around the village. Hunting and gathering are considered somewhere in between work and play, as children are normally not required to engage in such activities, but are always praised if they bring home extra proteins. The bulk of the food consumed by families is composed of cassava roots, rice and other products high in carbohydrates, so that the shells and meat brought back by the children are often a very welcome addition. 
+Children themselves report that they forage in order to provide food for the family and for themselves, saying that hunger is one of the main drives for engaging in such activities. Hence, despite not having measured direct fitness benefits deriving from foraging, we expect children to learn about the natural environment in order to exploit its resources through foraging, with variation derived by familiar and other contingencies. 
+
+%if needed, describe more about subsistence, marital pattern, school etc in Bandarikuu.
+
+\subsection{Data collection procedure}
+Interviews with children and their families were conducted between June and August 2019. After receiving approval by Governmental and local authorities, all households in the village were visited to collect the full census and other household level characteristics, as well as to discuss the nature of the project and approval of future interviews with the children. These interviews were then conducted with an opportunistic sampling procedure, for which children volunteered for being interviewed in the time span available. 
+
+The children interviews themselves consist of three blocks of questions, namely: (i) Three freelisting questions in which children were asked to name all the living creatures found in the village/cultivated fields, in the forest or in the sea. The reported items were then checked for misspelling, and then again with local collaborators to ensure appropriate management of the answers. (ii) A list of 50 multiple choice questions with two options, developed with the help of both the local Department of Forestry and NonRenewable Natural Resources as well as through focus group with adults in the village. (iii) A task of image recognition using pictures collected around the village or elsewhere on Pemba, in which children were asked to name all the living beings appearing in a sequence of 27 pictures. Each answer given to each picture was rated as acceptable or non-acceptable during a focus group following data collection. 
+
+\subsection{Analysis}
+Data were analyzed using a Bayesian IRT model developed in Stan. IRT models, initially developed as a mean to grade tests in pedagogy, aim at estimating one or multiple latent traits, such as knowledge, from answers to questions. They estimate individual level traits while simultaneously allowing questions to vary in difficulty ($\beta$) and discrimination($\alpha$). The model treats the three different types of questions independently, estimating simultaneously the two main parameters for the freelist and image recognition tests (2PL) and also probability of guessing for the questionnaire (3PL), which include probability of guessing ($\gamma$), while estimating also a knowledge parameter for each interviewee ($K$). Knowledge is intended as a latent trait influencing the probability of naming a certain object in the freelist, of answering correctly to the questionnaire or of listing each of the creatures appearing in the images. $K$ in turn depends on a linear model that estimates the effect of individual level traits on knowledge. These include: Age ($A$), as reported by the children themselves;
+%if other things are included in the definition of age, add here
+time spent in school ($SY$), estimated using as a proxy the grade in which students are currently enrolled or that they have completed last, assuming that older children enrolled in earlier classes have spent less time in school or school related tasks;
+
+
+
+$$
+Y_i,j \sim Bernoulli(p) \\
+logit(p) = \gamma_j * (Ki_i - \beta_j) \\
+logit(K_i) = \alpha_i + \alpha_h + \beta_a * A_i + \beta_y * SY_i + \beta_s * SIB_i + \sum \alpha_a 
+$$
+
+
+\section{Model}
+\subsection{Theory}
+%latent dimension of knowledge emerging from model
+\subsection{Mechanism}
+%pieces of the model
+\subsection{Results}
+
+\section{Discussion}
+
+\section{Conclusion}
+
+%MAYBE
+\section{Part 2: emerging categorization of items}
+
+\end{document}
