@@ -9,16 +9,16 @@ The whole development of the project is described here with commented scripts. T
 
 ## The repo contains:
 - 0_DAG.Rmd: a Directed Acyclic Graph that illustrates the causal relations between factors influencing knowledge. 
-- models: folder containing all the statistical models used in the project, both for mock and real analysis.
+- models: contains stan code for the models.
 - 1\_Simulation: contains all the scripts for running the mock analysis  
-	- 1\_simulation\_knowledge.r: a script for simulating data esplicitly developed for testing the statistical model.
-	- 2\_mock\_analysis.r: a script to test the main statistical models on the simulated data
-	- 3\_checks\_model\_knowledge: a (chaotic) script describing some more models and exploration of directions of analysis
-- 2\_Data\_preparation: contains the scripts used to organize the data and the anonymized data used to run the models
-	- 1\_answers.r: script producing a set of matrices with the answers (each row is an individual, each column an item, zeroes and ones mark correct vs wrong answers).
-	- 2\_individuals.r: script organizing the individual level data from the children's interviews.
-	- 3\_households.r: script including the data about individuals and household from the household interviews.
-	- d.csv: the anonymized data ready for analysis.
+	- 1\_simulation\_knowledge.r: simulates data for mock analysis.
+	- 2\_mock\_analysis.r: tests main statistical models on the simulated data.
+	- 3\_checks\_model\_knowledge.r: describes more in detail the process of developing the statistical models.
+- 2\_Data\_preparation: scripts for translating data into the dataset used in the analysis
+	- anonymized_data: contains anonymized data to be processed, plus complementary data for processing.
+	- 0\_anonimize\_data.r: translates raw data into anonymized data. It is not executable as it requires raw data, which can not be made available because contain identifying information.
+	- 1\_process\_data.r: translates anonymized data into processed data. Executable.
+	- processed_data.csv: data ready for analysis.
 - 3\_Analysis
 - 4\_Outputs
 - 5\_Text

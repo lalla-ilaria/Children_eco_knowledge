@@ -1,9 +1,10 @@
 #load required packages
 library(rethinking)
-library(here)
+
+setwd("../")
 
 #loads simulation function
-if( !exists( "simulation", mode = "function")) source(paste ( here(), "1_Simulation/1_simulation_knowledge.R", sep = "/") )
+if( !exists( "simulation", mode = "function")) source( "1_Simulation/1_simulation_knowledge.R" )
 #runs simulation
         #Available arguments and defaults for simulation 
         # N = 30,        #number of individuals
@@ -42,7 +43,7 @@ for (i in 1:length(D)) {
              Y_l = sim_data$Y 
              )
 
-m_d[i] <- cstan( file = paste( here(), "models/1_dimensions_intercept_only.stan", sep = "/") , data=dat , chains=3, cores=3, init = 0 )
+m_d[[i]] <- cstan( file = "models/1_dimensions_intercept_only.stan", data=dat , chains=3, cores=3, init = 0 )
 }
 #model comparison
 compare(m_d[[1]], m_d[[2]], m_d[[3]])
@@ -61,4 +62,4 @@ dat <- list( N = sim_data$N ,
              O = length (0 : max (round (sim_data$A) ) ),
              alpha = rep( 2, length (1:max( round (sim_data$A) ) -1 ) )
              )
-m_ord <- cstan( file = paste ( here(), "models/model_code_ord_age.stan", sep = "/") , data=dat , chains=3, cores=3, control = list(adapt_delta = 0.9))
+m_ord <- cstan( file =  "models/2_model_code_ord_age.stan", data=dat , chains=3, cores=3)

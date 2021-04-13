@@ -6,7 +6,7 @@ curve( (rnorm(1, 0, 1) + rnorm(1, 0, 0.5) + abs(rnorm (1, 0, 0.5)) * x + abs(rno
 for(i in 1:20) curve( (rnorm(1, 0, 1) +rnorm(1, 0, 0.5) + abs(rnorm (1, 0, 0.5)) * x + abs(rnorm (1, 0, 0.3)) * (x/3) ), add = TRUE, ylab = NULL)
 
 #extract posterior
-post <- extract.samples(m_mi)
+post <- extract.samples(m_d[[1]])
 
 #recover K
 plot( sim_data$K, apply( post$K, 2, mean))
@@ -201,7 +201,7 @@ pairs(m_ord, pars = "delta")
 
 #####
 #multiple dimensions  
-post_d <- extract.samples(m_d)
+post_d <- extract.samples(m_d[[2]])
 
 par( mfrow = c( sim_data_d$n_dimensions, sim_data_d$n_dimensions))
 
