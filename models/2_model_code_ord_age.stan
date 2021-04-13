@@ -35,7 +35,7 @@ model{
   
 
 	//priors for item parameters
-	a_l ~ lognormal(0, 0.5); //value constrained above zero
+	a_l ~ normal(0, 0.5); //value constrained above zero WITH LOGNORMAL THE MODEL DOES NOT RECOVER THE SIGMOID RELATION, WITH NORMAL IT DOES. ALSO, HOW IS THIS CONSTRAINED ABOVE ZERO?
 	b_l ~ normal(0,1);
 
   //model

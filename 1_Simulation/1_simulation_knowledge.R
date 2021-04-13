@@ -5,23 +5,25 @@
 library(rethinking)
 
 #define function to simulate knowledge
-sim_know <- function (N = 30,        #number of individuals
-                      M = 100,       #number of questions
-                      H=floor(N/5),  #number of households
-                      nact = 1,      #number of activites individuals can perform
-                      b_A = 0,       #direct effect of age on knowledge
-                      b_OS = 0,      #effect of older siblings
-                      b_YS = 0,      #effect of younger siblings
-                      b_ad = 0,      #effect of adults
-                      b_sy = 0,      #effect of years of school (between zero and one) 
-                      b_ac = 0,      #effect of activities
-                      eta_a = 1.5,   #age dependency of a question (slope of the logistic regression - how fast it improves with x) -exp distributed
-                      mean_b = 0,    #difficulty of a question (where the center of the slope is placed over x)
-                      sd_b = 1,
-                      alpha_c = 0,   #guessing probability (make alpha zero to remove this element, make 5 to have an effect of guessing) - beta distributed
-                      beta_c = 5,
-                      n_dimensions = 1) { #either one or more, creates answers that respond differently to activities
-                                                                                                                        
+#all  factor parameters default to zero - no effect. 
+simulation <- function (N = 30,        #number of individuals
+                        M = 100,       #number of questions
+                        H=floor(N/5),  #number of households
+                        nact = 1,      #number of activities individuals can perform
+                        beta_A = 0,    #direct effect of age on knowledge (note that this can be a coefficient in a linear function, power of exponential or scale in a logistic)
+                        beta_OS = 0,   #effect of older siblings
+                        beta_YS = 0,   #effect of younger siblings
+                        beta_AD = 0,   #effect of adults
+                        beta_SY = 0,   #effect of years of school (between zero and one) 
+                        beta_AC = 0,   #effect of activities
+                        eta_a = 1.5,   #age dependency of a question (slope of the logistic regression - how fast it improves with x) -exp distributed
+                        mean_b = 0,    #difficulty of a question (where the center of the slope is placed over x)
+                        sd_b = 1,
+                        alpha_c = 0,   #guessing probability (make alpha zero to remove this element, make 5 to have an effect of guessing) - beta distributed
+                        beta_c = 5,
+                        n_dimensions = 1,     #either one or more, creates answers that respond differently to activities
+                        age_eff = "linear") { #defines effect of age on knowledge among linear, exponential, sigmoid
+                                                                                                                          
 #########
 ###People
 #########  
@@ -99,29 +101,50 @@ sim_know <- function (N = 30,        #number of individuals
 ###Knowledge
 ############
   #Create n_dimensions of knowledge, with effect of activities on dimensions
+  #note that the difference in the dimensions of knowledge depends only on which activities are practiced.
+  #this is not the best way, I guess, but it works
   K <- matrix(NA, nrow = N, ncol = n_dimensions)
   #divide activities per each dimension
   acteff  <- rep(1:n_dimensions, length.out = nact) 
   
-  #assign knowledge to individuals incliuding all factors
+  #assign knowledge to individuals including all factors
+  #to decide between function of age effect
+  #for making knowledge depend non linearly from age and explore this with model m_ord_age
+  #if exponential:
+  if (age_eff == "exponential") { 
+      for (i in 1:n_dimensions) {
+        K[,i] <- standardize(A ^ beta_A) + rnorm (N, 0, 0.5)
+        }#K
+  } else {
+  #if sigmoid:
+   if  (age_eff == "sigmoid") { #
+      for (i in 1:n_dimensions) {
+        K[,i] <- standardize(plogis (beta_A * standardize(A)))+ rnorm (N, 0, 0.3)
+        } #K
+  } else {
+  #if linear:
+      for (i in 1:n_dimensions) {
+        K[,i] <- beta_A * standardize (A) +
+                 beta_SY * standardize(school_years) + #adds the effect of school years
+                 beta_OS * standardize(old_sib) + beta_YS * standardize(young_sib) + beta_AD * standardize(fam_adults) + #effect of families
+                 apply(t ( t (activity_matrix[ ,which(acteff == i),drop = FALSE]) * beta_AC), 1, sum) + #sums up the effect of each activity - as multiplied by activity coefficient
+                 rnorm (N, 0, 0.5) #
+        } #K
+      }#second else
+    }#first else
+
+if ( n_dimensions >= 2) {
   for (i in 1:n_dimensions) {
-    K[,i] <-  b_A * standardize (A) +
-              b_sy * standardize(school_years) + #adds the effect of school years
-              b_OS * standardize(old_sib) + b_YS * standardize(young_sib) + b_ad * standardize(fam_adults) + #effect of families
-              apply(t ( t (activity_matrix[ ,which(acteff == i),drop = FALSE]) * b_ac), 1, sum) + #sums up the effect of each activity - as multiplied by activity coefficient
-              rnorm (N, 0, 0.5) #
+    other_K <- matrix(0, nrow = N, ncol = n_dimensions) 
+    for (j in which (1:n_dimensions != i) ) other_K[,j] <- K[, j]
+    other_K[,i] <- rowSums(other_K)
+    K[,i] <- K[,i] - 0.3 * other_K[i]
   }
-  # #for making knowledge depend non linearly from age and explore this with model m_ord_age
-  # for (i in 1:n_dimensions) {
-  #   K[,i] <- standardize(A ^ b_A) + rnorm (N, 0, 0.5)
-  # }
-
-  
-
+}
 ########  
 ###Items
 ########
-  # M items, each has unique difficulty (b) and discrimination (a)
+  # M items, each has unique difficulty (b) and discrimination (a), per each dimension of knowledge
   item_type <- as.factor (rep( 1 : n_dimensions, length.out = M)) #assigns item to different groups which are associated to dimensions of knowledge
   a <- matrix(NA, nrow = M, ncol = n_dimensions) #discrimination
   b <- matrix(NA, nrow = M, ncol = n_dimensions) #difficulty
@@ -136,22 +159,22 @@ sim_know <- function (N = 30,        #number of individuals
 ##########
 ###Answers
 ##########
-  
-  #select p with either one or multiple dimensions
+  #create a matrix to store answers
   Y <- matrix(NA,nrow=N,ncol=M)
+  #per each individual and question, find the probability p of a correct answer
   for ( i in 1:N ) for( j in 1:M ) {
     p <- 0
-    for(k in 1:n_dimensions){
+    for(k in 1:n_dimensions){ #summing across dimensions
     p <-  p + a[j, k]*( K[i, k] - b[j, k] )
-  }
+  } 
+    #assign correct or incorrect answer depending on prob of correct answer
     Y[i,j] <- rbern(1,c[j]+(1-c[j])* inv_logit(p))
   }
   
  
   
   #check correlation between knowledge and number of right answers
-  
-  y <- rowSums(Y)
+  #y <- rowSums(Y)
 
 #########
 ###Output

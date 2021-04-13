@@ -1,38 +1,27 @@
 # Children_eco_knowledge
 
-## Background
+## The study
+Humans live in complex niches where survival and reproduction are conditional on the acquisition of large amounts of knowledge. As individuals are born naive, a great deal of learning has to happen during development in order to ensure fitness when they become adults. The rate at which knowledge is acquired depends on several factors, both intrinsic, such as the physiology of the brain, and extrinsic, such as the frequency of learinig opportunities. With this study we aim at inferring the pattern of knowledge increase with age from a set of interviews to children of a village in the Island of Pemba, Zanzibar. We also consider the effect of other factors on age specific knowledge, including perfomed activities, school commitment and familiar contingencies. We focus on knowledge of the environment, as this represents a subsettable area of information with ripercussions on life quality of the individuals who posses it, as well as being widely discussed in studies of traditional ecological knowledge. To do so, we developed a series of Bayesian IRT models to estimate knowledge as a latent dimension emerging from the answers to the questionnaire. 
 
-Among the hypotheses that try to explain the late age at first reproduction in humans, the Embodied Capital Hypothesis suggests that we need extra time to learn skills and information in order to exploit the complex niche we live in. Several studies tried to quantify the role of learning in the elongation of the pre-reproductive period, but in the literature is missing a broad picture of how knowledge changes with age in quantity and structure, as well as of the determinants of individual variation. 
-
-To contribute to this debate, we estimate individual knowledge in children of a village in the Island of Pemba, Zanzibar. 
+## Thought process
+The whole development of the project is described here with commented scripts. To summarize, we started by parsing all the factors influencing the emergence of knowledge's age dependence. We hence drew a Directed Acyclic Graph that summarizes the causal structure of our question (0\_DAG.Rmd). Based on the relations predicted according to our DAG, we simulated mock data to generatively develop the analytical models and test their effectiveness (in the 1\_Simulation folder). We collected the data according to the requirements of the models and organized them for analysis (in 2\_Data\_preparation). Only after developing the analysis plan, we run the model on real data (in 3\_Analysis). Finally, we structure the figure and results (in 4\_Outputs). The script for compiling the text is also included in the repository (5\_Text).
 
 
 ## The repo contains:
 - 0_DAG.Rmd: a Directed Acyclic Graph that illustrates the causal relations between factors influencing knowledge. 
-- 1_simulation_knowledge.r: a script for simulating data esplicitly developed for testing the statistical model.
-- 2_mock_analysis.r: a script to test various statistical models on the simulated data
-- 3_checks_model_knowledge: a (chaotic) script to observe the results of the statistical models
+- models: folder containing all the statistical models used in the project, both for mock and real analysis.
+- 1\_Simulation: contains all the scripts for running the mock analysis  
+	- 1\_simulation\_knowledge.r: a script for simulating data esplicitly developed for testing the statistical model.
+	- 2\_mock\_analysis.r: a script to test the main statistical models on the simulated data
+	- 3\_checks\_model\_knowledge: a (chaotic) script describing some more models and exploration of directions of analysis
+- 2\_Data\_preparation: contains the scripts used to organize the data and the anonymized data used to run the models
+	- 1\_answers.r: script producing a set of matrices with the answers (each row is an individual, each column an item, zeroes and ones mark correct vs wrong answers).
+	- 2\_individuals.r: script organizing the individual level data from the children's interviews.
+	- 3\_households.r: script including the data about individuals and household from the household interviews.
+	- d.csv: the anonymized data ready for analysis.
+- 3\_Analysis
+- 4\_Outputs
+- 5\_Text
+	- main.Rtex: main part of the text
+	- notes.tex: additional space for work
 
-
-
-## check this stuff, prob useless
-## Data
-### Study population
-The population with which data will be collected lives in Pemba, Tanzania. This is the northernmost island  of  the  archipelago  of  Zanzibar,  50km  from  the  east  coast  of  Africa,  in  the  Indian  Ocean. Pemba's climate and geological composition make it the most fertile of the Spices Island. Its coastal Swahili population lives off small scale agriculture, fishing and an historically relevant production of cloves. They also partially rely on natural resources for subsistence.  Children and teenagers, in particular, engage in many forms of foraging. The village where the research will be conducted, Bandari Kuu, lies close to the north west coast of the island. The houses and the fields are enclosedbetween coastal mangroves and the main forest of Pemba, Ngezi. This gives children the opportunity to hunt birds and other animals living in the forest, as well as to collect shellfish and harvestdifferent types of marine resources.
-
-### Data collection
-Data  will  be  collected  between  May  and  September  2019.   All  interviews  will  be  performed  in Swahili, mother tongue of the informants. Data will be collected in two phases:
-1. Household level survey. Census of all of the households in the village that agree to be part ofthe study (total 150 ca) and reproductive history of women. No individual payment is budgeted (but probably a contribution to village infrastructure or social life). 
-2. Individual level interview to a subset of the total population between 5 and 20 years old. Participants recruited between individuals who volunteer for being interviewed. The interview will include a set of free listing questions and an image recognition test. The interview will be recorded and the file processed to extract the data.
-
-## Data analysis
-### Mock analysis
-We developed the statistical models on simulated data before collecting real data. This allows, on the one hand, to develop a statistical analysis able to properly explore the causal relations between the variables considered in the model. On the other hand, it helps to define which structure the data to be collected should have in order to be analyzed in the model. The simulated data were constructed according to the imagined generative process for the data.
-In file v_pemba.r, I started by creating a bunch of people (N) with age (5 to 20) and sex (-1 or 1). Each individual belong to a household and the other individuals within the same household are its older and younger siblings. In each household lives also a certain number of people above 20 years of age. Children have spent a certain number of years going to school. All children below seven years and a certain proportion of the total population have never been to school. Seven years and older children have spent some years in school, with older children that can have more years of schooling. One of the two sexes has, on average, less years of education. A higher number of siblings also reduces schooling. Children can perform any of the possible activities. Each of these is more common among older than younger children, at different levels, and some activities are practiced more by children of one of the two sexes. School years reduce the probability of performing certain activities, whereas the number of siblings can have positive or negative effect. This way all mock children have individual characteristics.
-Now I assign them species known (equivalent to listed in the free list, whereas the not known are those not listed). A certain number of species were created with a curve of probabilities of being known at different ages. Each species can be listed by each child. The probability of it being listed increases with age, as children knowledge increase. Each child's knowledge of species depends, thus on its age. Other traits of the child affect the probability of knowing each species: the activities a child practices create an offset of ‘knowledge years’. For example, by practicing an activity, a child has the same probability of knowing a species of older children (or younger, as some activities impede the acquisition of ecological knowledge). Years spent in school reduce the probability of knowing a species. The same does the number of younger siblings, while the number of older siblings increases species known (i.e. the position in the sibship has an effect). Adults in the household also increase knowledge, each additional adult adding a bit less knowledge than the previous one. At the end, each individual receives a list of species known. The probability of a species to be known depends on the age of the child, on the activities performed, on the number of years the child spent in school and on the number of adults in the household as well as on the number of younger and older siblings
-In timed_pemba.r, I simulated the audio record of the freelist data, where children name species that belong to different groups sequentially and each word is named at a specific time. Species of the same group are listed in a sparse order within the group, before changing to naming the species of another group. The time lag between items in the same group is shorter than the time lag between items of a different group. In the picture, each line is the freelist of a child, and time is on the horizontal axis. The words belong to different groups, as shown by their color, and they’re named at sequential times. The time between items of different groups is on average longer. 
-These data are not fully representative of what we expect to have from the actual freelist. There is no effect of age or other characteristics on how children group items yet. On the contrary, all children include the species in exactly the same categories. But they are a start to start developing a model to analyze this kind of data.
-
-### Analysis
-We made two main types of models to analyze these mock data. They are developed in a Bayesian framework and approach separatedly the total amount of knolwedge of children and the structure of this knowledge as emerging by the grouping in the freelist. The first model is a cross classified logistic regression which includes the effect on knowledge of individual children and species, as well as children age, family, activities practiced and years of school. The probability of a species being known by a child depends on the child, the species and the child’s characteristics. You can find the full and partial models in analysis.r. 
-The second group of models are Hidden Markov Models. They infer the category of each item listed by the time passing between the word and the preceding one.

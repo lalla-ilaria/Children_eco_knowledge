@@ -99,7 +99,7 @@ model{
     vector[Q] logit_p;
 		p = (a_q * a_q_sigma) .* (K[i] - b_q * b_q_sigma);
     // log odds 3PL is log[(Exp[p]+c)/(1-c)]
-    logit_p = log( exp(p) + c_q * c_q_sigma ) - log1m( c_q );
+    logit_p = log( exp(p) + c_q ) - log1m( c_q );
     target += bernoulli_logit_lpmf( Y_q[i,] | logit_p );
 	}//N
 	

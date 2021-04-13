@@ -1,0 +1,73 @@
+ID image,Item,organism,e_name,s_name,OK
+1,a,animal,green spotted snake,ukukwi,"gangawia,jangawia"
+1,b,insect,ant,koyokoyo,kojokojo
+1,c,plant,Cremaspora triflora,mkanja jike,mkanja
+2,a,animal,vervet monkey,tumbili,"ngedere,tumbilipevu,koogwe,mwenda"
+2,b,palm,coconnut palm,mnazi,"minazi,nazi,mchikichi,mchikicjchi,michikich"
+2,c,plant,,"mwarobaini,msisi",mlangilangi
+3,a,bird,crowned hornbill,kwembe,NA
+3,b,plant_bra,Erythropholeum suavolensis,mwavi,NA
+3,c,plant_leav,,,NA
+4,a,root,,mchochoni,chochoni
+5,a,bird,pemba sunbird,chozi mdume,"vichozi,kibulu,chozi,chozi kibulu"
+5,b,tree,Alophyllus spp.,mshembeli,"shembeli,mchembele"
+6,a,bird,pemba sunbird,chozi jike,"kichozi,vichozi,kibulu dike,tausi,manja,kimanja,ninga,tongo,kwau,kihodi,kuku,njiwa,kijimbi msitu,chozi,kibulu"
+6,b,tree,naphaleum lappaceum,mshokishoki,"mchokichoki,chokichoki,mchoki choki,mshoki shoki"
+7,a,bird,black kite,mwewe,NA
+8,a,bird,pied kingfisher,makame kijasi,"kijimbi msitu,kijimbimsitu"
+8,b,tree,mangrove,mkandaa,"mikandaa,mikanda"
+9,a,tree,Casuarina equisetifolia,mvinje,"mivinje,muinje"
+10,a,bird,,njiwa,"pugi,ninga,njiwa kuku,njiwa mwitu,"
+11,a,bird,pied crow,kunguru matanjaa,"kunguru wa bara,kunguru fuju,kunguu,kunguru,kungu"
+11,b,tree,casuarine,mvinje,"mivinje,mkinje,muinje"
+12,a,animal,frog,ukewe,"chura,ukoka,ukee"
+12,b,plant,,nyasi,"mfenesi,fenesi"
+13,a,bird,heron,kongoo majoka,"daktari ya ngombe,kongo hadia,dokta hadia,kongohadia,kongo majoka,kongo,koongo,koonjgo majoka,daktariwangombe,kongomajoka,kungu majoka,kongoo,daktari wangombe,kungo majoka"
+13,b,tree,indian almond,mkungu ya kienieji,"mkungu,uchanja,mtandakanga"
+13,c,tree,mohogany,mbabakofi,"mkungu,mtandakanga,uchanja"
+13,d,plant,,mtambu,NA
+13,e,plant,bungo,bungo,mbungo
+14,a,fruit_green,custard apple,stafeli,mastafele
+14,b,fruit_yel,,tonga,NA
+14,c,fruit_red,,msisimizi,"kanja,sisimizi"
+15,a,animal,pemba flying fox,popo,NA
+15,b,tree,,mkuyu,"mti wa popo,mim ya popo, mpopo"
+16,a,animal,chameleon ,kinyonga,NA
+17,a,fruit,,kituguu,"vituguu,uituguu,vitunguu,tuguu,ktuguu,kituguv,mtuguu"
+18,a,tree,mango,mwembe,NA
+18,b,bird,white browed coucal,fufu,njiwa
+19,a,bird_ko,palm vulture,koho,"kobe la minazi,makoho,kipanga,vipanga,kobela minazi,furukombe"
+19,b,bird_fu,,furukombe,"mwewe,kipanga,vipanga"
+20,a,palm,coconnut palm,mnazi,minazi
+20,b,plant_mu,cassava,muhogo,"visiki,mihogo,mchocha"
+20,c,tree,casuarine,mvinje,"mgomba,migomba,mwembe,mbono,mvumanyuki,miriba,mchanga,miembe,mkungu,mlimau,mkungo,migomba,mparachichi,dongo,mikungu,mkunguu"
+20,d,tree,mango,mvinje,"mgomba,migomba,mwembe,mbono,mvumanyuki,miriba,mchanga,miembe,mkungu,mlimau,mkungo,migomba,mparachichi,dongo,mikungu,mkunguu"
+20,e,plant,Anthogleista grandiflora,mvinje,"mgomba,migomba,mwembe,mbono,mvumanyuki,miriba,mchanga,miembe,mkungu,mlimau,mkungo,migomba,mparachichi,dongo,mikungu,mkunguu"
+20,f,bird,chicken,kuku,NA
+20,g,bird,egrett,daktari ya ngombe,kongoo
+21,a,palm,banana tree,migomba,"mgomba,migouba,mtgomba"
+21,b,plant_wat,water lily,yungiyungi,"mayungi,miyungiyungi,mayungiyungi,mayungayunga"
+21,c,plant,,msisimizi,"mipera,mpera,nyasi,sisimizi"
+22,a,palm_pa,wild palm,papindi,"mparapindi,mpapindi,mipapindi,mpopoo,mipopoo,mpapind,mipopo"
+22,b,plant,bungo,bungo,NA
+22,c,palm_m,oil palm,mchikichi,mbu
+23,a,insect,caterpillar,chamvi,"kichamvichamvi,kichomvi,funza,kifunza,kichamvi,kichamu chamui,kfunza,kichamuichamvi,michamui chamvi,chamui,kichamui,kichamuichamui,chamvichamvi,kuchamvichamvi,chamvi chamvi,kifunzi,mfunza-chamvi,mchamvi,chamui,kichamvi chamvi"
+23,b,plant,,mkanja,mikanja
+24,a,fish_big,,bunju chewa,"bunju chui,bunjo,totovu,bonjo,bunju"
+24,b,fish_black,,kijungu mafuta,"kipepeo,totovu"
+24,c,fish_red,,kunda mawe,"kamatea chini,vipepero,vipepeo,kipepeo"
+24,d,fish_blu,,chozi bahari,kipepeo
+24,e,coral,,macheme,"matubae,mwani,matumbawe"
+25,a,fish_lion,lion fish,chale,NA
+25,b,fish_black,,kunda mawe,"kijungu mafuta,kundaji,kijongu mafuta,vijungu mafuta"
+25,c,fish_red,,kijungu mafuta,"kamatea chini,vijungu mafuta"
+25,d,fish_grey,,tapaa,kundaji
+25,e,coral,,macheme,"matubae,kundaji,matumbawe,machame,mtumbawe"
+26,a,fish,frog fish,bocho,"chura cha pwani,chura wa pwani"
+26,b,shell,,mwemize,mwamize
+26,c,coral,,macheme,"matumbawe,tumbawe"
+27,a,cucumber,sea cucumber,jongoo kiuwa,"fuza,chamvichamvi,chomvi,jongoo la pwani,funza,kichamvi,fingafingu,jongoo,jongoo ca pwani,jongoolapwam,jiongoo la pwani,jongoola pwani,jongoo wa pwani,finga fingu"
+27,b,fish_yel,,kande,NA
+27,c,fish_black,,kijungu mafuta,kande
+27,d,fish_blu,,chozi bahari,kande
+27,e,coral,,macheme,"matumbawe,tumbawe"
