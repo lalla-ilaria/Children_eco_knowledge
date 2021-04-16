@@ -1,3 +1,7 @@
+##################
+#PRIOR SIMULATION#
+##################
+
 #exploration of the prior
 curve( inv_logit(rlnorm(1, 0, 0.5) * ( x - rnorm(1, 0, 1) ) ), xlim = c(-4, 4) , ylim = c(0, 1) )
 for(i in 1:20)curve( inv_logit(rlnorm(1, 0, 0.5) * ( x - rnorm(1, 0, 1) ) ), add = TRUE)
@@ -5,8 +9,14 @@ for(i in 1:20)curve( inv_logit(rlnorm(1, 0, 0.5) * ( x - rnorm(1, 0, 1) ) ), add
 curve( (rnorm(1, 0, 1) + rnorm(1, 0, 0.5) + abs(rnorm (1, 0, 0.5)) * x + abs(rnorm (1, 0, 0.3)) * (x/3)  ), xlim = c(-5, 5) , ylim = c(-5, 5), ylab = "K" )
 for(i in 1:20) curve( (rnorm(1, 0, 1) +rnorm(1, 0, 0.5) + abs(rnorm (1, 0, 0.5)) * x + abs(rnorm (1, 0, 0.3)) * (x/3) ), add = TRUE, ylab = NULL)
 
+###########
+#MODEL FIT#
+###########
+#add here basic model
+precis(m)
+
 #extract posterior
-post <- extract.samples(m_d[[1]])
+post <- extract.samples(m)
 
 #recover K
 plot( sim_data$K, apply( post$K, 2, mean))
@@ -40,6 +50,12 @@ for( i in 1:sim_data$M){
   lines( rep( sim_data$l[i], 2), PI[,i])
 }
 
+
+############
+#AGE EFFECT#
+############
+  ############
+#LINEAR A
 #evaluate A estimation
 plot( sim_data$A, apply( post$Ar, 2, mean))
 abline( 0, 1)
@@ -95,7 +111,39 @@ lines( rep(b_A[i], 2), c (bA_PI[i,]))
 }
   
 
+  ######################
+#ORDERED CATEGORICAL A
 
+plot (precis(m_ord, 2, pars = "delta_j"))
+#it  is very hard to see any difference in the delta values. 
+#No matter how the effect of age on knowledge changes with ages, 
+#the deltas are not very different. 
+#Only by grouping ages in pretty big groups some pattern emerges
+post <- extract.samples(m_ord)
+#sum deltas per each extracted sample, so that each year/group has the estimated delta per that age/group
+year_eff <- apply(post$delta_j, 1, cumsum)
+plot(1:nrow(year_eff), year_eff[,1], type = "l")
+for (i in 1:ncol(year_eff)) {
+ lines(1:nrow(year_eff), year_eff[,i], type = "l", col = col.alpha( 'black', alpha = 0.1))
+}
+
+year_eff_tot <- year_eff * mean(post$bA)#multiplying the deltas by the coefficient for age increase, we get a comparable effect
+plot(jitter (rep(1:nrow(year_eff), 1500)), year_eff_tot, col = col.alpha("black", 0.3))
+#estimated increase per each age/group is very overlapping
+mu_year_eff <- apply(year_eff, 1, mean)#make a mean
+pi_year_eff <- apply(year_eff, 1, PI)#get distribution center
+plot( 1:nrow(year_eff), mu_year_eff)
+for (i in 1:nrow(year_eff)) {
+  lines(rep(i, 2), pi_year_eff[,i])
+}
+#min(round(sim_data$A)):max(round(sim_data$A))#need this if you want to plot over actual years
+#Only in the most extreme cases the increase appears to be skewed. In most cases the increase is very linear
+
+pairs(m_ord, pars = "delta")
+
+################
+#ADDING POOLING#
+################
 #compare models with multilevel individuals vs questions
 #want to see if the PI around K (but also a and b) is reduced more with pooling over individuals or questions
 diffs_K <- list()
@@ -107,7 +155,7 @@ mean_b <- list()
 
   sim_data <- sim_know()
 #data
-#####
+  #####
 #one dimensional model, pooled individuals, pooled questions
 dat <- list( N = sim_data$N , #n individuals
              L = sim_data$M , #n freelist items
@@ -167,39 +215,9 @@ PIs <- list()
   }
 
 
-####
-#ordered age
-plot (precis(m_ord, 2, pars = "delta_j"))
-#it  is very hard to see any difference in the delta values. 
-#No matter how the effect of age on knowledge changes with ages, 
-#the deltas are not very different. 
-#Only by grouping ages in pretty big groups some pattern emerges
-post <- extract.samples(m_ord)
-#sum deltas per each extracted sample, so that each year/group has the estimated delta per that age/group
-year_eff <- apply(post$delta_j, 1, cumsum)
-plot(1:nrow(year_eff), year_eff[,1], type = "l")
-for (i in 1:ncol(year_eff)) {
- lines(1:nrow(year_eff), year_eff[,i], type = "l", col = col.alpha( 'black', alpha = 0.1))
-}
-
-year_eff_tot <- year_eff * mean(post$bA)#multiplying the deltas by the coefficient for age increase, we get a comparable effect
-plot(jitter (rep(1:nrow(year_eff), 1500)), year_eff_tot, col = col.alpha("black", 0.3))
-#estimated increase per each age/group is very overlapping
-mu_year_eff <- apply(year_eff, 1, mean)#make a mean
-pi_year_eff <- apply(year_eff, 1, PI)#get distribution center
-plot( 1:nrow(year_eff), mu_year_eff)
-for (i in 1:nrow(year_eff)) {
-  lines(rep(i, 2), pi_year_eff[,i])
-}
-#min(round(sim_data$A)):max(round(sim_data$A))#need this if you want to plot over actual years
-#Only in the most extreme cases the increase appears to be skewed. In most cases the increase is very linear
-
-pairs(m_ord, pars = "delta")
-
-
-
-
-#####
+###############################
+#TESTING MODEL WITH DIMENSIONS#
+###############################
 #multiple dimensions  
 post_d <- extract.samples(m_d[[2]])
 
@@ -274,9 +292,9 @@ m_d[i] <- cstan( file="~/Nextcloud/Project/Children_eco_knowledge/Children_eco_k
 }
 compare(m_d[[1]], m_d[[2]], m_d[[3]])
 
-
-#structural equation model
-############
+###########################
+#STRUCTURAL EQUATION MODEL#
+###########################
 
 precis(m_a)
 precis(m_s)

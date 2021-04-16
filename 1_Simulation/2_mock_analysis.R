@@ -32,7 +32,7 @@ if( !exists( "simulation", mode = "function")) source( "1_Simulation/1_simulatio
   # data simulated with three dimensions, model comparison should favor model with three dimension
   # intercept only for individual knowledge
 #simulate data
-sim_data <- simulation( n_dimensions = 2, nact = 9, beta_AC = 0.5)
+sim_data <- simulation( n_dimensions = 3, nact = 9, beta_AC = 0.5)
 D <- c(1:3)
 m_d <- list()
 #run the model with 1:3 number of dimensions
@@ -40,13 +40,22 @@ for (i in 1:length(D)) {
   dat <- list( D = D[i],
              N = sim_data$N , 
              L = sim_data$M , 
-             Y_l = sim_data$Y 
+             Q = 50,         #n questionnaire items
+             R = sim_data$M/2,#n image recognition items
+             A = standardize(sim_data$A) , #standardized age
+             Y_l = sim_data$Y ,                  #answers freelist
+             Y_q = sim_data$Y[,1:50] ,           #answers questionnaire
+             Y_r = sim_data$Y[,1:(sim_data$M/2)]  #answers picture recognition
              )
+
 
 m_d[[i]] <- cstan( file = "models/1_dimensions_intercept_only.stan", data=dat , chains=3, cores=3, init = 0 )
 }
 #model comparison
-compare(m_d[[1]], m_d[[2]], m_d[[3]])
+compare(m_d[[1]], m_d[[2]], m_d[[3]], func = "WAIC")
+compare(m_d[[1]], m_d[[2]], m_d[[3]], func = "PSIS")
+#model comparison with WAIC or PSIS should favor the model with the same number of dimension as the simulated data
+plot(compare(m_d[[1]], m_d[[2]], m_d[[3]], func = "WAIC"))
 
 ##################
 #AGE TOTAL EFFECT#
@@ -54,12 +63,26 @@ compare(m_d[[1]], m_d[[2]], m_d[[3]])
 #ordered categorical age
 sim_data <- simulation( N = 100, M = 300, beta_A = 3, age_eff = "sigmoid")
 #with each year a step
-dat <- list( N = sim_data$N , 
+dat <- list( D = sim_data$n_dimensions,
+             N = sim_data$N , 
              L = sim_data$M , 
+             Q = 50,         #n questionnaire items
+             R = sim_data$M/2,#n image recognition items
              A = round (sim_data$A) , #round age
              S = sim_data$S,
              Y_l = sim_data$Y ,
+             Y_q = sim_data$Y[,1:50] ,           #answers questionnaire
+             Y_r = sim_data$Y[,1:(sim_data$M/2)],  #answers picture recognition
              O = length (0 : max (round (sim_data$A) ) ),
              alpha = rep( 2, length (1:max( round (sim_data$A) ) -1 ) )
              )
 m_ord <- cstan( file =  "models/2_model_code_ord_age.stan", data=dat , chains=3, cores=3)
+
+###################################
+#OTHER FACTORS AFFECTING KNOWLEDGE#
+###################################
+  #structural equation modeling
+##############################
+
+  #multiple models and DO calculus
+##################################

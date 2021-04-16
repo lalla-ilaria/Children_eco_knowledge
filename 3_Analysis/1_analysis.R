@@ -18,10 +18,16 @@ D <- c(1:3)
 m_d <- list()
 #run the model with 1:3 number of dimensions
 for (i in 1:length(D)) {
-  dat <- list( D = D[i],
-               N = d$N , 
-               L = d$L , 
-               Y_l = d$Y_l 
+  dat <- list( D = D[i],    #loop through dimensions
+               N = d$N ,    #n of individuals 
+               L = d$L ,    #n questionnaire items
+               Q = d$Q ,    #n questionnaire items
+               R = d$R ,    #n image recognition items
+               A = standardize(d$A) , #standardized age
+               Y_l = d$Y_l , #answers freelist
+               Y_q = d$Y_q , #answers questionnaire
+               Y_r = d$Y_r   #answers picture recognition
+              
   )
   
   m_d[[i]] <- cstan( file = "models/1_dimensions_intercept_only.stan", data=dat , chains=3, cores=3, init = 0 )
