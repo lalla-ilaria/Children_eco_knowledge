@@ -2,8 +2,6 @@
 library(rethinking)
 library(rlist)
 
-setwd("../")
-
 d <- list.load("2_Data_preparation/processed_data.RData")
 
 
@@ -42,9 +40,26 @@ compare(m_d[[1]], m_d[[2]], m_d[[3]])
 #with each year a step
 dat <- list( N = d$N , 
              L = d$L , 
-             A = round (d$A) , #round age
-             Y_l = d$Y_l ,
-             O = length (0 : max (round (d$A) ) ),
-             alpha = rep( 2, length (1:max( round (d$A) ) -1 ) )
-)
+             A = d$A [d$A <= 50] , # age #[d$A <= 50] 
+             Y_l = d$Y_l [rownames(d$Y_l) != "19586",] , #answers freelist #[rownames(d$Y_l) != "19586",] 
+             Y_q = d$Y_q [rownames(d$Y_q) != "19586",] , #answers questionnaire
+             Y_r = d$Y_r [rownames(d$Y_r) != "19586",] , #answers picture recognition
+             O = length (0 : 26 ) ,
+             alpha = rep( 2, length (0:26 ) -1 ) 
+             )
+
 m_ord <- cstan( file =  "models/2_model_code_ord_age.stan", data=dat , chains=3, cores=3)
+
+#continuous age
+dat <- list( D = 1,
+             N = d$N -1, 
+             L = d$L , 
+             Q = d$Q ,    #n questionnaire items
+             R = d$R ,    #n image recognition items
+             A = standardize( d$A [d$A <= 50] ) , #round age
+             Y_l = d$Y_l [rownames(d$Y_l) != "19586",] ,
+             Y_q = d$Y_q [rownames(d$Y_q) != "19586",] , #answers questionnaire
+             Y_r = d$Y_r [rownames(d$Y_r) != "19586",]  #answers picture recognition
+              )
+
+m_lin <- stan( file =  "models/model_code_age.stan", data=dat , chains=3, cores=3)

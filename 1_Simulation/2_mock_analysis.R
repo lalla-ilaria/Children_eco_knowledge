@@ -1,8 +1,6 @@
 #load required packages
 library(rethinking)
 
-setwd("../")
-
 #loads simulation function
 if( !exists( "simulation", mode = "function")) source( "1_Simulation/1_simulation_knowledge.R" )
 #runs simulation
@@ -74,7 +72,7 @@ dat <- list( D = sim_data$n_dimensions,
              Y_q = sim_data$Y[,1:50] ,           #answers questionnaire
              Y_r = sim_data$Y[,1:(sim_data$M/2)],  #answers picture recognition
              O = length (0 : max (round (sim_data$A) ) ),
-             alpha = rep( 2, length (1:max( round (sim_data$A) ) -1 ) )
+             alpha = rep( 2, length (1:max( round (sim_data$A) ) ) )
              )
 m_ord <- cstan( file =  "models/2_model_code_ord_age.stan", data=dat , chains=3, cores=3)
 

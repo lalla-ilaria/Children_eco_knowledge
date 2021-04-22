@@ -93,19 +93,19 @@ for(i in 2 : nrow(freelist_corrections)){
 
 #ADD not_a_creature column
 ######
-not_a_creature <- c("ANDAZI", "ASALI", 
-                    "BAHARI", "BAISIKELI", "BAKORA", "BAKULI", "BALBU", "BANDARI", "BANGILI", "BAO", "BARABARA", "BARAZA", "BATI", "BEGI", "BESENI", "BETTRY", "BISCUTI", "BO", "BODABODA", "BOKSI", "BOTI", "BUKTA", "BUKU", "BUSATI",
+not_a_creature <- c("ALI", "ANDAZI", "ASALI", 
+                    "BAHARI", "BAISIKELI", "BAKORA", "BAKULI", "BALBU", "BANDARI", "BANGILI", "BAO", "BARABARA", "BARAZA", "BATI", "BEGI", "BESENI", "BETTRY", "BISCUTI", "BO", "BODABODA", "BOKSI", "BOTI", "BUKTA", "BUSATI",
                     "CAMERA", "CHAI", "CHAJATI", "CHAKULA", "CHANDARUA", "CHAURO", "CHEMSOO", "CHUJIO", "CHUMVI", "CHUPA", 
                     "DAKIKA", "DARAJA BOVU", "DARASA LA KWANZA", "DAU", "DAWA", "DEKI", "DEKSI", "DIRISHA", "DISHI","DISHI LA UMEME", "DULA LA SHINDANO", "DUMU",
                     "FAGIO", "FAIBA", "FENI", "FINISH", "FIRIMBI MDOMO", "FLASHI", "FONDESHENI", "FONI", "FORONYA", "FREMU", "FULANA", "FUMBUKA", 
                     "GAMBA", "GARI", "GATI", "GLASI", "GODORO", "GOME", "GOME LA MTI", "GONGO", "GUNDI",
                     "HAMIRA", "HARUSI", "HELICOPTER", "HELMETI", "HERINI", 
-                    "JAGI", "JAHAZI", "JARIFE", "JEMBE", "JIKO", "JIKO LA UMEME", "JINI", "JIWE", "JUISI", 
-                    "KABATI", "KAHAWIA", "KALAMU", "KANZU", "KARAI", "KARATASI", "KATA", "KAURE", "KAVA", "KIBANDA", "KIBAPA", "KIBATI CHA DAWA", "KICHUPA CHA PODA", "KICHWA", "KIDEVU", "KIDOA", "KIDOO", "KIDUDE CHA KUPIMIA MCHELE", "KIFUA", "KIFUKO", "KIFUNGO", "KIFUNIKIO", "KIFUU", "KIHANJIFU", "KIJIKO", "KIJUZUU", "KIKOBA CHA NYUMA", "KILEMBA", "KIPANDE CHA MNAZI", "KIPIMO", "KIREMBO", "KIROHO", "KISADO", "KISAGIO", "KISIMA", "KISIWA", "KISUGUDI", "KITABU", "KITAMBAA", "KITANDA", "KITI", "KIUNGO", "KIUNGO CHA NGUU", "KIUNO", "KIWEMBE", "KIWI", "KIZIO", "KOFIA", "KOKOCHI", "KOKOTO", "KOKWA ZA FENESI", "KOMA", "KONDE", "KOPA", "KOPE", "KORIDO", "KOROBWE", "KOROGWE", "KOROMA", "KOTI", "KOYA", "KU PAKUA", "KUFULI", "KULA", "KUMVI", "KUNI", "KUPIMA", "KUSUUNZA", "KUTAMBA", 
+                    "JAGI", "JAHAZI", "JARIFE", "JEMBE", "JIKO", "JIKO LA UMEME", "JINI", "JITI", "JIWE", "JUISI", 
+                    "KABATI", "KAHAWIA", "KALAMU", "KANZU", "KARAI", "KARATASI", "KATA", "KAURE", "KAVA", "KIBANDA", "KIBAPA", "KIBATI CHA DAWA", "KICHUPA CHA PODA", "KICHWA", "KIDEVU", "KIDOA", "KIDOO", "KIDUDE CHA KUPIMIA MCHELE", "KIFUA", "KIFUKO", "KIFUNGO", "KIFUNIKIO", "KIFUU", "KIHANJIFU", "KIJIKO", "KIJUZUU", "KIKOBA CHA NYUMA", "KILEMBA", "KIPANDE CHA MNAZI", "KIPIMO", "KIREMBO", "KIROHO", "KISADO", "KISAGIO", "KISIMA", "KISIWA", "KISUGUDI", "KITABU", "KITAMBAA", "KITANDA", "KITI", "KIUNGO", "KIUNGO CHA NGUU", "KIUNO", "KIWEMBE", "KIWI", "KIZIO", "KOFIA", "KOKOCHI", "KOKOTO", "KOKWA ZA FENESI", "KOMA", "KONDE", "KOPA", "KOPE", "KORIDO", "KOROGWE", "KOROMA", "KOTI", "KOYA", "KU PAKUA", "KUFULI", "KULA", "KUMVI", "KUNI", "KUPIMA", "KUSUUNZA", "KUTAMBA", 
                     "LEGEZA",
-                    "MACHO", "MADE YA VITANDA", "MADIRA", "MAEPO", "MAFYA", "MAGLAVU", "MAGUBI", "MAJI", "MAJIMAJI", "MAKARARA", "MAKOPO", "MAKOSA", "MAKOSA KUUGWA", "MAKUMBI", "MAKUTI", "MANJANO", "MAPELE", "MASHUA", "MASIKIO", "MATAKO", "MATUTA", "MAVA", "MAVIMAVI", "MAZIWA", "MBEGU", "MBOGA", "MBOGABOGA", "MCHANGA", "MCHOKO", "MCHUZI", "MDOMO", "MELI", "MENO", "MESA", "MFEREJI", "MFUKO", "MFUNIKIO", "MFUNIKIO WA SIMU", "MFUPA WA KUKU", "MFUPI", "MGELEMA", "MGOGONI", "MGUU", "MHIMBILI", "MICHEWENI", "MIKO", "MITA", "MITI YA SHAMBA", "MKAA", "MKIA WA NGOMBE", "MKOANI", "MKONO", "MKONO WA SAA", "MKUFU", "MLANGO", "MNARANI", "MOTO", "MPINI", "MPIRA", "MSAAFU", "MSHIPI", "MSIKITI", "MSINGI", "MSITU", "MSKITINI", "MSTARI", "MSUAKI", "MSUKA", "MSUMENO", "MTANDIO", "MTI", "MTO", "MTOTO", "MTUHALIWA", "MTUMBWI", "MUWASHO", "MWALIMU", "MWIBA", "MWIKO", "MZIGO",  
+                    "MACHO", "MADE YA VITANDA", "MADIRA", "MAEPO", "MAFYA", "MAGLAVU", "MAGUBI", "MAJI", "MAJIMAJI", "MAKARARA", "MAKOPO", "MAKOSA", "MAKOSA KUUGWA", "MAKUMBI", "MAKUTI", "MAJANI", "MANJANO", "MAPELE", "MASHUA", "MASIKIO", "MATAKO", "MATUTA", "MAVA", "MAVIMAVI", "MAZIWA", "MBEGU", "MBOGA", "MBOGABOGA", "MCHANGA", "MCHOKO", "MCHUZI", "MDOMO", "MELI", "MENO", "MESA", "MFEREJI", "MFUKO", "MFUNIKIO", "MFUNIKIO WA SIMU", "MFUPA WA KUKU", "MFUPI", "MGELEMA", "MGOGONI", "MGUU", "MHIMBILI", "MICHEWENI", "MIKO", "MITA", "MITI YA SHAMBA", "MKAA", "MKIA WA NGOMBE", "MKOANI", "MKONO", "MKONO WA SAA", "MKUFU", "MLANGO", "MMEA", "MNARANI", "MOTO", "MPINI", "MPIRA", "MSAAFU", "MSHIPI", "MSIKITI", "MSINGI", "MSITU", "MSKITINI", "MSTARI", "MSUAKI", "MSUKA", "MSUMENO", "MTANDIO", "MTI", "MTO", "MTOTO", "MTUHALIWA", "MTUMBWI", "MUWASHO", "MWALIMU", "MWIBA", "MWIKO", "MWITU", "MZIGO",  
                     "NDEGE", "NDOANA", "NDOO", "NEMBO", "NGARAWA", "NGUMU", "NGUO", "NJANO", "NJUKUTI", "NOHA", "NSEME", "NYAMA", "NYAVU", "NYAYO", "NYOTA", "NYUMBA", "NYUNDO", "NYUSI", "NYWELE",
-                    "PAIPU", "PAJA", "PAURO", "PEMPAS", "PENI", "PENSELI", "PENSI", "PESA", "PETE", "PEZI", "PICHA", "PIKIPIKI", "POLO", "POVU", "PUA", "PUKUSA", "PWANI", 
+                    "PAIPU", "PAJA", "PAURO", "PEMPAS", "PENI", "PENSELI", "PENSI", "PESA", "PETE", "PEZI", "PICHA", "PIKIPIKI", "PIPI", "POLO", "POVU", "PUA", "PUKUSA", "PWANI", 
                     "RANGI", "RANGI MBILI", "RAYANI", "REDIO", "REZA", "RINGA", 
                     "SAMAKI", "SAA", "SABUFA", "SABUNI", "SABUNI ZA TUMBILI", "SAHANI", "SAMLI", "SARUJI", "SEKUNDE", "SERUNI", "SHANGA", "SHANUO", "SHATI", "SHEITANI", "SHIMO", "SHIMO LA JONGOO", "SHINA LA MBIRIMBI", "SHINDANO", "SHINGO", "SHUKA", "SHUNGI", "SIAGI", "SIMU", "SINGBODI", "SINGILENDI", "SIPIKA", "SKETI", "SOLAR", "SUFURIA", "SUKARI", "SUMAKU", "SUNGUSUNGU", "SURUALI", "SUSA",
                     "TANGI", "TANGO", "TIME", "TITI", "TORCHI", "TUFALI", "TUI", "TV", "UBONGO", "UCHAFU", "UFUNGUO", "UKUTA", "UMEME", "UNGUJA", "URIMBO", "UZI", 
@@ -122,9 +122,136 @@ freelists$not_a_creature <- ifelse( freelists$response  %in% not_a_creature, 1, 
 #subset freelist to include only creatures
 freelists <- freelists[which (freelists$not_a_creature == 0),] 
 
+
+#add type of item
+#################
+#list all items by type
+N <- c("BABA WATOTO", "BATA", "BATA KANARI", "BATA MZINGA","BUNDI",  "CHAKIAMWEZI", 
+       "CHAKIVALE",  "CHECHELE", "CHORE", "CHOZI", "FUFU", "FURUKOMBE", "KANGA", 
+       "KASUKU", "KIBULUU", "KICHONGA", "KIHODI", "KIJIMBI MSITU", "KIJUNGU MALIKO", 
+       "KINYONYOFUO", "KIPANGA", "KIPANGA ZUNGU", "KITWITWI", "KOBEA MINAZI", "KOHO",
+       "KONGO", "KONGO HADIA", "KONGO MAJOKA", "KONGO MANGA", "KONGO NGOMBE", "KONGO WEUPE",
+       "KOZI", "KUKU", "KUKU KUCHI", "KUKU PONI", "KUKU WA PWANI", "KUKU ZIWA", "KULASTARA",
+       "KUNGURU", "KUNGURU WA BARA", "KUNGURU WA UNGUJA", "KUNGURU WA PEMBA", 
+       "KWARARA", "KWAU", "KWECHE", "KWEMBE", "MAKAME KIJASI", "MANJA", "MBILIWILI",
+       "MBILIWILI KIBATI", "MBUNI", "MEMBE", "MNANA", "MNANA CHANJAA", "MNANA WA KWECHE", 
+       "MRAMBA", "MWEWE", "NINGA", "NJIWA", "NJIWA MANGA", "NJIWA MWITU", "NZI",
+       "PANGA ZUNGU", "POPO MGOMBA", "POPO", "PUGI", "PUGI KIKOMBE", "PWERA", "SALILE",
+       "SAUTI", "SAUTI KIPANGA", "SHAKE", "TAUSI", "TETERE", "TIGA", "TONGO", "VIPOPO", 
+       "VUNJA JUNGU", "YOMBEYOMBE", "ZIWARDE",
+       "CHANJE", "CHANJE MOTO", "CHANJE SUELE", "CHANJE UZIWA", "DAKTARI WA NGOMBE", 
+       "CHONJWE", "MKRIMU", "MRAMBA BARA", "TATARA")
+S <- c("BAKARI KICHWA", "BOCHO", "BOMBO", "BOMBO MTOJU", "BOMBO SHIMO",  
+       "BULIBULI", "BUMBULA", "BUNJU", "BUNJU MIBA", "BUNJU MPIA", 
+       "BUNJU TOTOVU", "CHAA", "CHANGU", "CHANGU KIDOA", "CHANGU NOOMO", "CHELEMA", 
+       "CHEWA", "CHONGOE", "CHORE", "CHUI", "DAGAA", "DAGAA KIWEMBE", 
+       "DAGAA MDUNJI", "DAGAA MSUMARI", "DAGAA SARADINI", "DUNGAZI", "DUVI", "JODARI", 
+       "KAMAMBA", "KAMBA DOKO", "KAMBA UZI", "KAMBARE", "GOLDI", "GONGEO", "HAMSINI",
+       "HUMSA", "KAMBISI", "KANDAZA", "KANDE", "KANGAJA", "KANGU", "KARARE", "KENENGWA",
+       "KIBAMBA", "KIBOMA", "KIBORA", "KIBUA", "KICHALE", "KICHUNA",
+       "KICHUNA NGOZI", "KIJUNGU MAFUTA", "KINYENGA", "KISUMBA", "KOANA", 
+       "KOLEKOLE", "KOLEKOLE KIDIZARI", "KOLEKOLE SALEHE", "KOLEKOLE UZI", "KUBU", "KUNDAJI",
+       "MBONO", "MBONO BLU", "MCHAKUFA", "MCHECHE", "MCHECHE BAPA", "MDUNJI",
+       "MKALAMU", "MKUNGA", "MKUNGA CHUI", "MKUNGA MAREMBO", "MKUNGA MTO",
+       "MKUNGA MWEUPE", "MKUNGA PAKA", "MORANI", "MPIA", "MSUSA",
+       "MTURUTURU", "MWEWE", "MWIVA", "MZIPWE", "MZIRA", "NDODOZI", "NDUARO", 
+       "NDUARO MBUYU", "NDUGUDI", "NGISI", "NGISI GOME", "NGISI MWANZI", "NGOGO",
+       "NGOMBE WA PWANI", "NGAWA", "NGURU", "NGUVA", "NJANA", "NJANA NDOMO",
+       "NUNGU", "NUNGU IVI", "NUNGU MIBA", "NYANGUMI", "NYENGA", "PAANZI", "PANJI",
+       "PAPA", "PAPA KOJO", "PAPA UPANGA", "PARAGUNDA", "PEREGE", "POMBOO", "PONO",
+       "PONO MAFUA", "PONO MWANI", "PUJU", "PUJU UPEMBE", "PWEZA", "PWEZA JOWEZI",
+       "PWEZA MWANDAA", "SAMAKI MAJIBA", "SANGE", "SEHEWA", "SONGORO", "TAA", 
+       "TANGARANGA", "TASI", "TAZO", "TEMBO", "TEMBO KIDOA", "TEMBO UZI", "TENGA",
+       "TOTOVU", "TUMBO", "TUMBO KOTI", "TUNA", "UNA", "UNA MACHO", "UNGA KUKU", 
+       "USUNGU", "VIROHO", "VUMBUKA", "WAYO",
+       "ALI JUMA", "BOMBO RESI", "BUNJU CHUI", "KAMBA", "SADA KIREMBO") #"BOMBWE","BOMBWE RESI","DAGAA KIBAMBA","KIBOMBO", "KIBOMBWE", "KISANGE","MABULIBULI","MKUNGA WA PWANI", 
+W <- c("BUKU", "CHATU", "CHECHE", "CHESI", "CHIMBACHI (MDUDU)", "CHUI", "DRAGONI", 
+       "FARASI", "FISI", "KANGAROO", "KIBOKO", "KIFARU", "KIMA", "KIMA PUNJU", "KOMBA",
+       "KONDOO", "KOROBWE", "MAJIBWA", "MAMBA", "MBWA", "MBUZI", "MBWA MWITU" , "NGAWA",
+       "NGAMIA", "NGEDERE", "NGOMBE", "NGOMBE MWITU", "NGURUWE", "NYANI", "NYATI",
+       "NYUMBU", "PAKA", "PANYA", "PELELE", "PAA", "POPO", "PUNDA", "PUNDAMILIA",
+       "SIMBA", "SOKWE", "SUNGURA", "SWALA", "TEMBO", "TUMBILI", "TWIGA", "ZEBRA",
+       "BEBERU", "GORILLA")
+D <- c("BUIBUI", "BUUNZI", "CHAMVI", "CHUMA MBUZI", "CHUNGUCHUNGU", "CHURA", "DOKAA", 
+       "DUDU MBUYU", "FUNGAPINGU", "FUNZA", "GANGAWIA", "JONGOO", "JONGOO CHECHE", 
+       "JONGOO LA PWANI", "JONGOO MWITU", "JONGOO TAMBI", "JUSIJUSI", "JUSKAFIRI", 
+       "KAA", "KADONDO", "KADONDO MAVI", "KAFKONDE", "GURUGURU", "HARIRI", "IENENDA NGUO", 
+       "KANENE", "KARAKAKA", "KASA", "KAYAKAYA", "KENGE", "KICHOMVI", 
+       "KIJINU", "KILUILUI", "KIMETEMETE", "KINUKAVUNDU", "KINYONGA", "KIPEPEO", "KIPIMA",
+       "KIROBOTO", "KISAKUNDE", "KOBE", "KOKOKO", "KOME", "KONYESA", 
+       "KORONGONJO", "KOYOKOYO", "KUNGUNI", "KUPA", "KUPE", "KURUMBIZA", "MAKAU", "MAKOME",
+       "MAJOKA", "MATANDU", "MBURUNZI", "MBUUE", "MCHWA", "MENDE", "MJUSI", "MKUNGUGU",
+       "MMBU", "MNYOO WA PWANI", "MSUELE", "MTI JUU", "MWARI", "MWATA", 
+       "MZENENGO", "NKWI", "NNGE", "NYALE", "NYAMATA", "NYENJE", "NYOKA", "NYOKA WA PWANI",
+       "NYUKI", "NYUNGWINYUNGWI", "NYUO", "PAANZI", "PANGA", "PANGA NOLE", "PARAPE",
+       "PEPE", "POPO", "RENGA PAU", "SAGATOPE", "SASINDA", "SIAFU", "SISIMIZI", 
+       "SISIMIZI JICHWA", "SISIMIZI MBIOMBIO", "SISIMIZI SIAFU", "TANDU", "UKEWE",
+       "UKEWE WA PWANI", "UVI NYUNDO", "UVI", "UTITIRI", "USUBI", "ZINGADONDA",
+       "CHAZA", "FUKULILE", "FUKULILE MTAMBWE",
+       "CHEPU", "KOMBE", "TONDO", "UKUKWI") #"KICHAMVICHAMVI", "KOMBE LA PWANI", "MWATA LA PWANI",
+M <- c("BEGU", "BUKOBA", "BUSTANI", "KABICHI", "KAJAKAJA", "HAUNGONGWA", "KIFA UONGO",
+       "KIJIMBI", "KIRUKIA", "KITANGO", "KITUNGUU", "KITUNGUU SAUMU", "KIVUMBASI", 
+       "KUNDE", "KUNDE NYKA", "MAHARAGUE", "MAHARI YA PAKA", "MATANGO", "MBILINGANI", 
+       "MBIRIMBI", "MBIRIMBI WA KIZUNGU", "MBONO", "MBUNGO", "MBUNGO WA KIZUNGU",
+       "MBUNI", "MBURA", "MBUYU", "MCHAICHAI", "MCHAPIA TUMBILI", "MCHEKECHU", "MCHEKWA",
+       "MCHENZA", "MCHENZA MSITU", "MCHICHA", "MCHICHA BONDE", "MCHIKICHI", "MCHOCHA",
+       "MCHOCHONI", "MCHONGOMA", "MCHOROKO", "MCHU", 'MCHUNGWA', "MCHUNGWA KALI",
+       "MCHUNGWA KITAMU", "MCHUOA ULIMI", "MDALASINI", "MDAMUDAMU", "MCHEKUNDU", "MDIMU",
+       "MDODO", "MDORIANI", "MDRESI", "MDUN GUDUNGU", "MFENESI", "MFIAGIO", "MFUU", 
+       "MGOMBA", "MGOMBA MSITU", "MGULELE", "MHARITA", "MNANASI", "MIWA", 
+       "MJIMBI", "MKADI", "MKANDAA", "MKANDAA MWEKUNDU", "MKANDAA MWEUSI", "MKANGAGA", 
+       "MKANJA", "MKARAFUU", "MKARATI", "MKARATUSI", "MKARKADE", "MKEKEWA", "MKESHIA", 
+       "MKINDU", "MKOKO", "MKOKWA", "MKOMAMANGA", "MKONO WATEMBO", "MKOROSHO",
+       "MKUNAZI", "MKUNDE", "MKUNDE NYIKA", "MKUNGU", "MKUNGUMA", "MKUU WA USIKU",
+       "MKUYU", "MKWAJU", "MKWAMBA", "MLANDEGE", "MLANGILANGI", "MLIMAU", "MLOZI", "MLUA",
+       "MMUMUNYA", "MNAMIA MAJI", "MNAZI", "MNYAMBONYAMBO", "MNYANYA", "MPACHA", "MPAPAI", 
+       "MPAPINDI", "MPARACHICHI", "MPATA KUVA", "MPEA", "MPEASI", "MPELEWA", "MPERA", 
+       "MPESHENI", "MPILIPILI", "MPILIPILI HOHO", "MPILIPILI KICHAA", "MPILIPILI MANGA", 
+       "MPILIPILI MBOGA", "MPILIPILI MBUZI", "MPILIPILI SIGARA", "MPINDAPINDAPO",
+       "MPIRIKICHI", "MPO", "MPOFUA MACHO", "MPOPOO", "MPUNGA", "MPURAPUMBU", "MRIBA", 
+       "MRIBA BONDE", "MRIHANI", "MSABUNI", "MSAJI", "MSANAKA", "MSASA", 
+       "MSATARI", "MSEIPRAS", "MSHELISHELI", "MSHEMBELI", "MSHOKISHOKI", "MSHUBILI", 
+       "MSIKUNDAZI", "MSINDUZI", "MSISIMIZI", "MSONOBARI", "MSOO", "MSTAFELI", "MSUFI",
+       "MSUTI", "MTAKAWA", "MTAKAWA PWANI", "MTAMA", "MTANDAKANGA", "MTANGAWIZI", 
+       "MTANGO", "MTENDE", "MTENGELE", "MTI ULAYA", "MTIKTI", "MTOMOKO", "MTOMONDO",
+       "MTONDOO", "MTONGA", "MTUFAA", "MTUFAA LA KIZUNGU", "MTUGUU", "MTULE", "MTUMBAKU",
+       "MTUNGUJA", "MTUNGULE", "MTUPA", "MTUTUTU", "MUA", "MUANZI", "MTUTUTU",
+       "MUA", "MUANZI", "MUEMBE", "MUEMBE BAADI", "MUEMBE BAKORA", "MUEMBE BORBO", 
+       "MUEMBE BWARE", "MUEMBE DODU", "MUEMBE KECHE", "MUEMBE KISUKARI", "MUEMBE KOMO",
+       "MUEMBE MOSHI", 'MUEMBE NJURE', "MUEMBE NYONYO", "MUEMBE PAPAI", "MUEMBE PEMBENI", "MUEMBE PUNDA",
+       "MUEMBE SAKUA", "MUEMBE SIAGI", "MUHALIZETI", "MUHINA", "MUHINA MWITU", 
+       "MUHINDI", "MUHOGO", "MUHOGO PIRA", "MUILIKI", "MUINGA JINI", "MUIVUIVU", "MUWARDI",
+       "MVANILLA", "MVINJE", "MVUJE", "MVULE", "MVUMANYUKI", "MVUMO", "MVUNJASHOKA",
+       "MWALE", "MWAMBO", "MWANI", "MWANI MTIMBI", "MWAROBAINI", "MWASMINI", "MWAVI",
+       "MYUNGIYUNGI", "MZABIBU", "MZAITUNI", "MZALIA NYUMA", "MZAMBARAU", "NDUMA", 
+       "NGANO", "NYASI", "UNYONDWE", "UWANGA", "UYOGA", "UZILE", "KIAZI", "VIKUA", 
+       "VIKUWA", "VIPO", "VITORI", "WENI",
+       "KARANGA", "KAROTI", "KIAZI KIKUU", "KIAZI KITAMU", "MBELUNGI", 'MBAAZI', 
+       "TUNGULE")#""MBOGA", "MIANZI","MSAKUA", "MTUNGUU", "MUHARITA",
+#add others from list - which are NA but you know
+# #DOUBLE <- C("CHORE", "CHUI", "MBONO", "MBUNI", "MWEWE", "NGAWA", "PAANZI", "POPO", 
+#             "TEMBO")#POPO 3X
+# #CHECK <- C("MKARKADE", "MDAMUDAMU", "MCHEKUNDU", "MPILIPILI SIGARA", "MUEMBE BAKORA", 
+#            "MWEMBE DODU", 'MUEMBE NJURE', "MVANILLA", "NUNGU IVI", "SAUTI KIPANGA",
+#            "TUNA", "CHAZA", "FUKULILE", "FUKULILE MTAMBWE",
+#            "CHANJE", "CHANJE MOTO", "CHANJE SUELE", "CHANJE UZIWA", "DAKTARI WA NGOMBE")
+###############
+#add column
+freelists$type <- ifelse( freelists$response  %in% N, "N", 
+                  ifelse( freelists$response  %in% S, "S", 
+                  ifelse( freelists$response  %in% W, "W", 
+                  ifelse( freelists$response  %in% D, "D", 
+                  ifelse( freelists$response  %in% M, "M", NA)))))
+
 #check results
 all_items <- freelists %>% group_by(response) %>% count()
 all_items <- all_items[-1,]
+all_items$type <- ifelse( all_items$response  %in% N, "N", 
+                  ifelse( all_items$response  %in% S, "S", 
+                  ifelse( all_items$response  %in% W, "W", 
+                  ifelse( all_items$response  %in% D, "D", 
+                  ifelse( all_items$response  %in% M, "M", NA)))))
+
 
 #PREPARE DATA
 #matrix of answers
@@ -201,7 +328,7 @@ questionnaire$swahili[which(questionnaire$english == "sharks_dangerous")] <- "pa
 
 #load correct answers
 correct_answers <- read.csv("2_Data_preparation/anonymized_data/questions_correct_answers.csv")
-correct_answers <- correct_answers %>%  select(QN.number, Right.answer ) %>% 
+correct_answers <- correct_answers %>%  select(QN.number, Right.answer, area ) %>% 
   rename( swahili = QN.number, right_answer = Right.answer) 
 correct_answers$right_answer <- tolower(correct_answers$right_answer)
 
@@ -374,6 +501,21 @@ for(i in 1: nrow(recognition)){
 #remove impossible task - leaves in picture 3
 recognition <- recognition[-which(recognition$picture_id == "3_c_plant_leav"),]
 
+#organize type of questions
+type_r <- unique(recognition$picture_id)
+type_r[ str_detect(type_r, "bird", negate = FALSE)] <- "bird"
+type_r[ str_detect(type_r, "plant", negate = FALSE)] <- "plant"
+type_r[ str_detect(type_r, "tree", negate = FALSE)] <- "plant"
+type_r[ str_detect(type_r, "palm", negate = FALSE)] <- "plant"
+type_r[ str_detect(type_r, "root", negate = FALSE)] <- "plant"
+type_r[ str_detect(type_r, "fruit", negate = FALSE)] <- "fruit"
+type_r[ str_detect(type_r, "animal", negate = FALSE)] <- "animal"
+type_r[ str_detect(type_r, "fish", negate = FALSE)] <- "sea"
+type_r[ str_detect(type_r, "shell", negate = FALSE)] <- "sea"
+type_r[ str_detect(type_r, "coral", negate = FALSE)] <- "sea"
+type_r[ str_detect(type_r, "cucumber", negate = FALSE)] <- "sea"
+type_r[ str_detect(type_r, "insect", negate = FALSE)] <- "insect"
+
 #create matrix of answers
 Y_r <- matrix(data = NA, nrow = length(interviews$anonyme_id) , ncol = length(unique(recognition$picture_id)), dimnames = list( interviews$anonyme_id, unique(recognition$picture_id)))
 for (i in 1:length(interviews$anonyme_id)) {
@@ -393,9 +535,13 @@ d <- list( N = nrow(interviews),                         #n individuals
            H = length(unique(interviews$hh_id)),         #n households
            HH= interviews$hh_id,                         #integer for household
            A = as.numeric(interviews$age) ,              #standardized age
+           S = interviews$sex,
            SY= as.numeric(interviews$class_new),         #standardized n of years of school
            am= activities,                               #activities practiced
            C = ncol(activities),                         #n of activities
+           type_l = all_items$type,                      #type of items freelist
+           type_q = correct_answers$area,                #type of items questions
+           type_r = type_r,                               #type of items picture recognition
            L = ncol(Y_l),                                #n of items in freelist
            Q = ncol(Y_q),                                #n of items in questions
            R = ncol(Y_r),                                #n of items in picture recognition
@@ -422,6 +568,8 @@ rm( all_items,
     ql, qs,
     questionnaire,
     recognition,
+    type_r,
+    D, M, W, N, S,
     Y_l, Y_q, Y_r)
 
 
