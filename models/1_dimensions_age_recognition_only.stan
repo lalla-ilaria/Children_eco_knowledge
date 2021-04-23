@@ -1,10 +1,10 @@
 data{
 	int D; //n dimensions
 	int N; //n individuals
-	int L; //n items freelist
+	int R; //n items freelist
 	real A[N]; //age of individuals
 	int S[N];  //sex of individuals
-	int Y_l[N,L]; //answers freelist
+	int Y_r[N,R]; //answers freelist
 }//data
 
 parameters{
@@ -15,9 +15,9 @@ parameters{
 	
 	//item parameters
 	//discrimination
-	matrix<lower=0>[L,D] a_l;
+	matrix<lower=0>[R,D] a_r;
 	//difficulty
-	matrix[L,D] b_l;
+	matrix[R,D] b_r;
 
 }//parameters
 
@@ -35,30 +35,31 @@ model{
   to_vector(aS) ~ normal(0, 0.5);
   
 	//priors for item parameters
-	for(i in 1:D) for(j in 1:L)  a_l[j,i] ~ normal(0, 0.5) T[0,]; //value constrained above zero
-	to_vector(b_l) ~ normal(0,1);
+	for(i in 1:D) for(j in 1:R)  a_r[j,i] ~ normal(0, 0.5) T[0,]; //value constrained above zero
+	to_vector(b_r) ~ normal(0,1);
+
 
 
   //model
 	//freelist
 	for ( i in 1:N ) {
-	  vector[L] p = rep_vector(0, L);
-			for ( d in 1:D ) p = p + a_l[,d] .* (K[i,d] - b_l[,d]);
-      target += bernoulli_logit_lpmf( Y_l[i,] | p );
+	  vector[R] p = rep_vector(0, R);
+			for ( d in 1:D ) p = p + a_r[,d] .* (K[i,d] - b_r[,d]);
+      target += bernoulli_logit_lpmf( Y_r[i,] | p );
 		}//N
 		
 }//model
  generated quantities {
-   vector [N * L ] log_lik;
+   vector [N * R ] log_lik;
 {
    int k = 1;
 
     //freelist
 		for ( i in 1:N ) {
-      vector[L] p = rep_vector(0, L);
-	    for ( d in 1:D ) p = p + a_l[,d] .* (K[i,d] - b_l[,d]);
-      for (j in 1:L ) {
-  			log_lik[k] = bernoulli_logit_lpmf( Y_l[ i, j] | p[j] );
+      vector[R] p = rep_vector(0, R);
+	    for ( d in 1:D ) p = p + a_r[,d] .* (K[i,d] - b_r[,d]);
+      for (j in 1:R ) {
+  			log_lik[k] = bernoulli_logit_lpmf( Y_r[ i, j] | p[j] );
    	  	k = k + 1;
    	  	} // L
       } // N

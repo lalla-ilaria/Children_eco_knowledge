@@ -70,7 +70,7 @@ points(Ks, rep(0.5, length(Ks)),col = col.alpha("cornflowerblue", 0.7))
 ############
 #DIMENSIONS#
 ############
-post_d <- extract.samples(m_d[[3]])
+post_d <- extract.samples(m_d3)
 
 #check the correlation between dimensions
 par( mfrow = c( 1,3))
@@ -162,10 +162,10 @@ b_ls_1 <- apply(post_d$b_l[,,1], 2, mean)
 curve(inv_logit(a_ls_1[1] * ( x - b_ls_1[1])), 
       xlim = c(-7, 5), ylim = c(0, 1), 
       xlab = "knowledge dimension 1", ylab = "p correct answer",
-      col = col.alpha( all_items$color, 0.2))
+      col = col.alpha( d$color_l, 0.2))
 for(i in 1: length(a_ls_1)){
   curve(inv_logit(a_ls_1[i] * ( x - b_ls_1[i])), 
-        col = col.alpha(all_items$color[i], 0.2), add = TRUE)
+        col = col.alpha(d$color_l[i], 0.2), add = TRUE)
 }
 points(Ks_1, rep(0.5, length(Ks_1)), col = col.alpha("cornflowerblue", 0.7))  
 
@@ -176,10 +176,10 @@ b_ls_2 <- apply(post_d$b_l[,,2], 2, mean)
 curve(inv_logit(a_ls_2[1] * ( x - b_ls_2[1])), 
       xlim = c(-7, 5), ylim = c(0, 1), 
       xlab = "knowledge dimension 2", ylab = "p correct answer",
-      col = col.alpha(all_items$color, 0.2))
+      col = col.alpha(d$color_l, 0.2))
 for(i in 1: length(a_ls_2)){
   curve(inv_logit(a_ls_2[i] * ( x - b_ls_2[i])), 
-        col = col.alpha(all_items$color[i], 0.2), add = TRUE)
+        col = col.alpha(d$color_l[i], 0.2), add = TRUE)
 }
 points(Ks_2, rep(0.5, length(Ks_2)),col = col.alpha("cornflowerblue", 0.7))  
 
@@ -190,9 +190,9 @@ b_ls_3 <- apply(post_d$b_l[,,3], 2, mean)
 curve(inv_logit(a_ls_3[1] * ( x - b_ls_3[1])), 
       xlim = c(-7, 5), ylim = c(0, 1), 
       xlab = "knowledge dimension 3", ylab = "p correct answer",
-      col = col.alpha(all_items$color, 0.2))
+      col = col.alpha(d$color_l, 0.2))
 for(i in 1: length(a_ls_3)){
   curve(inv_logit(a_ls_3[i] * ( x - b_ls_3[i])), 
-        col = col.alpha(all_items$color[i], 0.2), add = TRUE)
+        col = col.alpha(d$color_l[i], 0.2), add = TRUE)
 }
 points(Ks_3, rep(0.5, length(Ks_3)),col = col.alpha("cornflowerblue", 0.7))  

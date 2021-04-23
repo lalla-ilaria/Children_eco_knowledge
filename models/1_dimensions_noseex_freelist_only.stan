@@ -3,7 +3,6 @@ data{
 	int N; //n individuals
 	int L; //n items freelist
 	real A[N]; //age of individuals
-	int S[N];  //sex of individuals
 	int Y_l[N,L]; //answers freelist
 }//data
 
@@ -11,8 +10,7 @@ parameters{
   //individual parameters
 	matrix[N,D] aK; // individual intercepts on knowledge
   vector<lower=0>[D] bA; // coefficient relating age to knowledge
-	matrix[2,D] aS; //sex effect
-	
+
 	//item parameters
 	//discrimination
 	matrix<lower=0>[L,D] a_l;
@@ -25,7 +23,7 @@ transformed parameters{
   matrix[N,D] K;
   for ( j in 1:D ) 
     for ( i in 1:N ) 
-      K[i,j] = aK[i,j] + bA[j]*A[i] + aS[S[i],j]; 
+      K[i,j] = aK[i,j] + bA[j]*A[i] ; 
 }//transformed parameters
 
 model{
