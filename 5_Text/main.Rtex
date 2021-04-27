@@ -40,12 +40,11 @@ Data were analyzed using a Bayesian IRT model developed in Stan. IRT models, ini
 time spent in school ($SY$), estimated using as a proxy the grade in which students are currently enrolled or that they have completed last, assuming that older children enrolled in earlier classes have spent less time in school or school related tasks;
 
 
-
-$$
+\begin{align*}
 Y_i,j \sim Bernoulli(p) \\
 logit(p) = \gamma_j * (Ki_i - \beta_j) \\
-logit(K_i) = \alpha_i + \alpha_h + \beta_a * A_i + \beta_y * SY_i + \beta_s * SIB_i + \sum \alpha_a 
-$$
+K_i = \alpha_i + \alpha_h + \beta_a * A_i + \beta_y * SY_i + \beta_s * SIB_i + \sum \alpha_a \\
+\end{align*}
 
 
 \section{Model}
