@@ -1,0 +1,191 @@
+---
+title: "04_30 meet Richard"
+output: html_document
+---
+
+
+```{r intro}
+#rmarkdown::render("reports/04_30_meet_Richard.Rmd") #to compile with the environment
+knitr::opts_chunk$set(echo = TRUE)
+
+#load required packages
+library(rethinking)
+library(rlist)
+
+d <- list.load("../2_Data_preparation/processed_data.RData")
+d$sex_col <- ifelse(d$S == "m", "darkblue", "darkred")#assign color to each sex
+
+```
+
+## Age and sex as predictors of knowledge
+
+```{r continuous age model, cache=TRUE, eval = FALSE}
+#continuous  and sex
+dat <- list( D = 1,
+             N = as.integer(d$N - 1), 
+             L = d$L , 
+             Q = d$Q ,    #n questionnaire items
+             R = d$R ,    #n image recognition items
+             S = as.integer(ifelse(d$S == "m", 1, 2) [-60]),
+             A = standardize( d$A [d$A <= 50] ) ,  #round age [d$A <= 50]
+             Y_l = d$Y_l [rownames(d$Y_l) != "19586",], # [rownames(d$Y_l) != "19586",]
+             Y_q = d$Y_q [rownames(d$Y_l) != "19586",], #answers questionnaire
+             Y_r = d$Y_r [rownames(d$Y_l) != "19586",]  #answers picture recognition
+              )
+
+m_lin <- stan( file =  "../models/1_dimensions_age_all_items.stan", data=dat , chains=3, cores=3) #K[i,j] = aK[i,j] + aS[S[i],j] + bA[S[i],j]*A[i];
+```
+
+This model has intercepts for individuals, intercepts and a slope for each sex - in correlation with age. The difference between sexes is not huge, but seems reliable and increases with age.
+```{r plot age and sex}
+post_l <- extract.samples(m_lin) #extract samples
+plot_age_sex(post = post_l, d = d, dot_col = d$sex_col)
+
+```
+## ACTIVITIES
+
+```{r activities model, cache=TRUE, eval = FALSE}
+#ACTIVITIES
+dat <- list( D = 1,
+             N = as.integer(d$N - 1), 
+             L = d$L , 
+             Q = d$Q ,    #n questionnaire items
+             R = d$R ,    #n image recognition items
+             C = ncol(d$am), 
+             S = as.integer(ifelse(d$S == "m", 1, 2) [-60]),
+             A = standardize( d$A [d$A <= 50] ) ,  #round age [d$A <= 50]
+             AM = d$am [rownames(d$Y_l) != "19586",],
+             Y_l = d$Y_l [rownames(d$Y_l) != "19586",], # [rownames(d$Y_l) != "19586",]
+             Y_q = d$Y_q [rownames(d$Y_l) != "19586",], #answers questionnaire
+             Y_r = d$Y_r [rownames(d$Y_l) != "19586",]  #answers picture recognition
+)
+
+m_act <- stan( file =  "../models/2_activities.stan", data=dat , chains=3, cores=3)
+# K[i,j] = aK[i,j] + aS[S[i],j] + dot_product( aAM[,j], AM[i]) + bA[S[i],j]*A[i]
+```
+
+Now let's have a look at the effect of activities. 
+
+Some activities have non-zero effect. Interestingly, the most negative effect is given by household chores and algae collection (respectively activity 1 and 9), two activities mostly performed by girls, and the most positive are from hunting with dogs and diving (respectively activity 4 and 8), typically performed by older boys.
+```{r activities effect}
+plot (precis (m_act, 3, pars = "aAM"))
+```
+
+1 household_help    2 seashells   3 bird_hunting    4 hunt_with_dogs
+5 field_help    6 cow_help    7 fishing   8 diving    9 mwani   10 karafu  
+
+Once activities are in the model, the effect of sex disappears.
+```{r plot activities results}
+post_a <- extract.samples(m_act) #extract samples
+plot_age_sex(post = post_a, d = d, dot_col = d$sex_col)
+
+```
+
+
+## FAMILY
+```{r household model, cache=TRUE, eval = FALSE}
+#FAMILY
+HHs <- data.frame("HH" =sort(unique(d$HH)), "n" = 1:36)
+for (i in 1:nrow(HHs)) d$HHs [which(d$HH == HHs$HH[i])] <- HHs$n[i]
+#intercept for household
+dat <- list( D = 1,
+             N = as.integer(d$N - 1), 
+             L = d$L , 
+             Q = d$Q ,    #n questionnaire items
+             R = d$R ,    #n image recognition items
+             H = d$H ,    #n of households
+             S = as.integer(ifelse(d$S == "m", 1, 2) [-60]),
+             A = standardize( d$A [d$A <= 50] ) ,  #round age [d$A <= 50]
+             HH = d$HHs [-60], #household of individuals
+             Y_l = d$Y_l [rownames(d$Y_l) != "19586",], # [rownames(d$Y_l) != "19586",]
+             Y_q = d$Y_q [rownames(d$Y_l) != "19586",], #answers questionnaire
+             Y_r = d$Y_r [rownames(d$Y_l) != "19586",]  #answers picture recognition
+)
+
+m_fam <- stan( file =  "../models/2_family.stan", data=dat , chains=3, cores=3)
+# K[i,j] = aK[i,j] + aS[S[i],j] + aH[HH[i],j]+ bA[S[i],j]*A[i]; 
+```
+Some families have a pretty significant negative impact. 
+```{r families intercepts plot}
+plot(precis(m_fam, 3, pars = "aH"))
+```
+
+I don't think this is due to the fact that they are represented by only one, maybe young, child, right? Lots of families have only one child...
+```{r families representation}
+HHs <- data.frame("HH" =sort(unique(d$HH)), "n" = 1:36)
+for (i in 1:nrow(HHs)) d$HHs [which(d$HH == HHs$HH[i])] <- HHs$n[i]
+table(d$HHs)
+```
+
+## SCHOOL
+```{r school model, cache=TRUE, eval = FALSE}
+#SCHOOLING
+#linear effect of school years
+dat <- list( D = 1,
+             N = as.integer(d$N - 1), 
+             L = d$L , 
+             Q = d$Q ,    #n questionnaire items
+             R = d$R ,    #n image recognition items
+             S = as.integer(ifelse(d$S == "m", 1, 2) [-60]),
+             A = standardize( d$A [d$A <= 50] ) ,  #round age [d$A <= 50]
+             SY = standardize(d$SY) [-60] ,
+             Y_l = d$Y_l [rownames(d$Y_l) != "19586",], # [rownames(d$Y_l) != "19586",]
+             Y_q = d$Y_q [rownames(d$Y_l) != "19586",], #answers questionnaire
+             Y_r = d$Y_r [rownames(d$Y_l) != "19586",]  #answers picture recognition
+)
+
+m_sch <- stan( file =  "../models/2_schooling.stan", data=dat , chains=3, cores=3)
+# K[i,j] = aK[i,j] + aS[S[i],j] + bA[S[i],j]*A[i] + bSY[S[i],j]*SY[i]; 
+```
+
+there seem to be a slightly positive effect of spending time in school for the boys, not so much for the girls.
+```{r school years linear effect}
+precis(m_sch, 3, pars = "bSY")
+```
+
+
+The effect seems minimal, though (is this the way to look at it?)
+```{r what happens with school}
+post_s <- extract.samples(m_sch) #extract samples
+dot_col <- d$sex_col
+A_seq <- c( -2 : 3)#vector to loop over
+  mus1 <- matrix(nrow = 3000, ncol = length(A_seq)) #create empty matrix to store the fit model over the sequence of data
+  for (i in 1:length(A_seq)) {
+    mus1[,i] <- apply(post_s$aK, 1, mean) + post_s$aS[,1,] + post_s$bA[,1,] * A_seq[i]                #calculate regression over the sequence of data A_seq, given the post_serior
+  } #aK[i,j] + aS[S[i],j] + bA[S[i],j]*A[i]
+  mus1.mean <- apply(mus1, 2, mean) #calculate average regression line
+  mus1.PI <- apply(mus1, 2, PI) #calculate compatibility intervals
+  mus2 <- matrix(nrow = 3000, ncol = length(A_seq)) #create empty matrix to store the fit model over the sequence of data
+  for (i in 1:length(A_seq)) {
+    mus2[,i] <- apply(post_s$aK, 1, mean) + post_s$aS[,2,] +  post_s$bA[,2,] * A_seq[i]  #need to get the SY from the correlated SY to each A
+  } #aK[i,j] + aS[S[i],j] + bA[S[i],j]*A[i] 
+  mus2.mean <- apply(mus2, 2, mean)
+  mus2.PI <- apply(mus2, 2, PI)
+
+  mus1.1 <- matrix(nrow = 3000, ncol = length(A_seq)) #create empty matrix to store the fit model over the sequence of data
+  for (i in 1:length(A_seq)) {
+    mus1.1[,i] <- apply(post_s$aK, 1, mean) + post_s$aS[,1,] + post_s$bA[,1,] * A_seq[i] + post_s$bSY[,1,]*A_seq[i]                #calculate regression over the sequence of data A_seq, given the post_serior
+  } #aK[i,j] + aS[S[i],j] + bA[S[i],j]*A[i] + bSY[S[i],j]*SY[i]
+  mus1.1.mean <- apply(mus1.1, 2, mean) #calculate average regression line
+  mus1.1.PI <- apply(mus1.1, 2, PI) #calculate compatibility intervals
+  mus2.1 <- matrix(nrow = 3000, ncol = length(A_seq)) #create empty matrix to store the fit model over the sequence of data
+  for (i in 1:length(A_seq)) {
+    mus2.1[,i] <- apply(post_s$aK, 1, mean) + post_s$aS[,2,] +  post_s$bA[,2,] * A_seq[i] + post_s$bSY[,2,]*A_seq[i]   #need to get the SY from the correlated SY to each A
+  } #aK[i,j] + aS[S[i],j] + bA[S[i],j]*A[i] + bSY[S[i],j]*SY[i]
+  mus2.1.mean <- apply(mus2.1, 2, mean)
+  mus2.1.PI <- apply(mus2.1, 2, PI)
+
+    #plot
+  plot( d$A[d$A <= 50], apply(post_s$K, 2, mean), 
+        xlab = "Age", ylab = "Knowledge", xaxt='n', col = dot_col )
+  axis(1, c(5, 10, 15, 20, 25), at = )
+  A_seq_real <- A_seq  * sd(d$A[d$A <= 50]) + mean(d$A[d$A <= 50])
+  lines(A_seq_real, mus1.mean, col = "darkblue")
+  shade(mus1.PI, A_seq_real, col = col.alpha("darkblue", 0.2))
+  lines(A_seq_real, mus2.mean, col = "darkred")
+  shade(mus2.PI, A_seq_real, col =  col.alpha("darkred", 0.2))
+  lines(A_seq_real, mus1.1.mean, col = "blue")
+  shade(mus1.1.PI, A_seq_real, col = col.alpha("blue", 0.2))
+  lines(A_seq_real, mus2.1.mean, col = "red")
+  shade(mus2.1.PI, A_seq_real, col =  col.alpha("red", 0.2))
+```
