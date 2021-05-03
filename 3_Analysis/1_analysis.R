@@ -82,11 +82,19 @@ dat <- list( D = 1,
              L = d$L , 
              Q = d$Q ,    #n questionnaire items
              R = d$R ,    #n image recognition items
+<<<<<<< ours
+             S = ifelse(d$S == "m", 1, 2), #sex
+             A = standardize( d$A [d$A <= 50] ) , #round age
+             Y_l = d$Y_l [rownames(d$Y_l) != "19586",] ,
+             Y_q = d$Y_q [rownames(d$Y_q) != "19586",] , #answers questionnaire
+             Y_r = d$Y_r [rownames(d$Y_r) != "19586",]  #answers picture recognition
+=======
              S = as.integer(ifelse(d$S == "m", 1, 2) [-60]),
              A = standardize( d$A [d$A <= 50] ) ,  #round age [d$A <= 50]
              Y_l = d$Y_l [rownames(d$Y_l) != "19586",], # [rownames(d$Y_l) != "19586",]
              Y_q = d$Y_q [rownames(d$Y_l) != "19586",], #answers questionnaire
              Y_r = d$Y_r [rownames(d$Y_l) != "19586",]  #answers picture recognition
+>>>>>>> theirs
               )
 
 m_lin <- stan( file =  "models/1_age_sex_all_items.stan", data=dat , chains=3, cores=3)

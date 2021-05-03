@@ -14,7 +14,7 @@ data{
 parameters{
   //individual parameters
 	matrix[N,D] aK; // individual intercepts on knowledge
-	matrix[2,D] aS; //intercept for sex
+	matrix<lower=0>[2,D] aA; //intercept for sex
   matrix<lower=0>[2,D] bA; // coefficient relating age to knowledge
 	
 	//item parameters
@@ -35,14 +35,14 @@ transformed parameters{
   matrix[N,D] K;
   for ( j in 1:D ) 
     for ( i in 1:N ) 
-      K[i,j] = aK[i,j] + aS[S[i],j] + bA[S[i],j]*A[i]; 
+      K[i,j] = aK[i,j] + aA[S[i],j] * ( 1 - exp(-bA[S[i],j]*A[i])); 
 }//transformed parameters
 
 model{
   //priors for individual parameters
 	to_vector(aK) ~ normal(0,1);
-	to_vector(aS) ~ normal(0,1);
-  for(i in 1:D) for ( s in 1:2 ) bA[s,i] ~ normal( 0 , 0.5 ) T[0,];
+	for(i in 1:D) for ( s in 1:2 ) aA[s,i] ~ normal( 1, 0.5)T[0,];
+  for(i in 1:D) for ( s in 1:2 ) bA[s,i] ~ normal( 0.5, 0.5 )T[0,] ;
   
 	//priors for item parameters
 	for(i in 1:D) for(j in 1:L)  a_l[j,i] ~ normal(0, 0.5) T[0,]; //value constrained above zero

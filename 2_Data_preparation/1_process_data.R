@@ -60,10 +60,17 @@ activities <- as.matrix(activities[, -2]) #removes column for money making
 
 #####ATTENTION
 #some individuals have missing info on activities
-#add NA for people who are missing activities
+#add values sourced from the household interviews for people who are missing activities in the knowledge interviews
 na.activities <- matrix (NA, nrow = 3 , ncol = length (colnames (activities) ),
                          dimnames = list( interviews[ which (!interviews$anonyme_id  %in% rownames (activities) ), "anonyme_id"],
                                           colnames (activities) ) ) #these people. Need to try to add from hh interviews or add NA
+na.activities[ which(rownames(na.activities) == 132588),] <- c (0,0,1,0,0,0,0,0,0,1)
+na.activities[ which(rownames(na.activities) == 136745),] <- c (0,0,0,1,1,0,1,1,1,1)
+na.activities[ which(rownames(na.activities) == 236324),] <- c (1,1,0,0,0,0,0,0,0,0)
+
+
+
+
 activities <- rbind( activities, na.activities )
 #order by ID to match rest of data frames
 activities <- activities[order(rownames(activities)), ]
@@ -531,12 +538,12 @@ for (i in 1:length(interviews$anonyme_id)) {
 #PREPARE DATA#########
 ######################
 #create data list
-d <- list( N = nrow(interviews),                         #n individuals
-           H = length(unique(interviews$hh_id)),         #n households
-           HH= interviews$hh_id,                         #integer for household
-           A = as.numeric(interviews$age) ,              #standardized age
-           S = interviews$sex,
-           SY= as.numeric(interviews$class_new),         #standardized n of years of school
+d <- list( N = as.integer(nrow(interviews)),             #n individuals
+           H = as.integer(length(unique(interviews$hh_id))),#n households
+           HH= as.integer(interviews$hh_id),              #integer for household
+           A = as.integer(interviews$age) ,              #standardized age
+           S = interviews$sex,                           #sex of individuals
+           SY= as.integer(interviews$class_new),         #standardized n of years of school
            am= activities,                               #activities practiced
            C = ncol(activities),                         #n of activities
            type_l = all_items$type,                      #type of items freelist
@@ -548,6 +555,12 @@ d <- list( N = nrow(interviews),                         #n individuals
            Y_l = Y_l[order(rownames(Y_l)), ],            #matrix of answers for freelist
            Y_q = Y_q[order(rownames(Y_q)), ],            #matrix of answers for questions
            Y_r = Y_r[order(rownames(Y_r)), ])            #matrix of answers for picture recognition
+
+mode(d$Y_l) <- "integer"
+mode(d$Y_q) <- "integer"
+mode(d$Y_r) <- "integer"
+mode(d$am) <- "integer"
+
 
 list.save(d, '2_Data_preparation/processed_data.RData')
 
