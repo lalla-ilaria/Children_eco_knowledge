@@ -61,9 +61,12 @@ compare(m_d[[1]], m_d[[2]], m_d[[3]])
 ##################
 #ordered categorical age
 #with each year a step
-dat <- list( N = d$N , 
+dat <- list( D = 1,
+             N = as.integer(d$N - 1) , 
              L = d$L , 
-             A = d$A [d$A <= 50] , # age #[d$A <= 50] 
+             Q = d$Q ,    #n questionnaire items
+             R = d$R ,    #n image recognition items
+             A = as.integer(d$A [d$A <= 50]) , # age #[d$A <= 50] 
              Y_l = d$Y_l [rownames(d$Y_l) != "19586",] , #answers freelist #[rownames(d$Y_l) != "19586",] 
              Y_q = d$Y_q [rownames(d$Y_q) != "19586",] , #answers questionnaire
              Y_r = d$Y_r [rownames(d$Y_r) != "19586",] , #answers picture recognition
@@ -71,19 +74,86 @@ dat <- list( N = d$N ,
              alpha = rep( 2, length (0:26 ) -1 ) 
              )
 
-m_ord <- cstan( file =  "models/2_model_code_ord_age.stan", data=dat , chains=3, cores=3)
+m_ord <- stan( file =  "models/2_model_code_ord_age.stan", data=dat , chains=3, cores=3)
 
 #continuous age
 dat <- list( D = 1,
-             N = d$N -1, 
+             N = as.integer(d$N - 1), 
              L = d$L , 
              Q = d$Q ,    #n questionnaire items
              R = d$R ,    #n image recognition items
+<<<<<<< ours
              S = ifelse(d$S == "m", 1, 2), #sex
              A = standardize( d$A [d$A <= 50] ) , #round age
              Y_l = d$Y_l [rownames(d$Y_l) != "19586",] ,
              Y_q = d$Y_q [rownames(d$Y_q) != "19586",] , #answers questionnaire
              Y_r = d$Y_r [rownames(d$Y_r) != "19586",]  #answers picture recognition
+=======
+             S = as.integer(ifelse(d$S == "m", 1, 2) [-60]),
+             A = standardize( d$A [d$A <= 50] ) ,  #round age [d$A <= 50]
+             Y_l = d$Y_l [rownames(d$Y_l) != "19586",], # [rownames(d$Y_l) != "19586",]
+             Y_q = d$Y_q [rownames(d$Y_l) != "19586",], #answers questionnaire
+             Y_r = d$Y_r [rownames(d$Y_l) != "19586",]  #answers picture recognition
+>>>>>>> theirs
               )
 
-m_lin <- stan( file =  "models/model_code_age.stan", data=dat , chains=3, cores=3)
+m_lin <- stan( file =  "models/1_age_sex_all_items.stan", data=dat , chains=3, cores=3)
+
+
+###############
+#OTHER FACTORS#
+###############
+
+HHs <- data.frame("HH" =sort(unique(d$HH)), "n" = 1:36)
+for (i in 1:nrow(HHs)) d$HHs [which(d$HH == HHs$HH[i])] <- HHs$n[i]
+#FAMILY
+#intercept for household
+dat <- list( D = 1,
+             N = as.integer(d$N - 1), 
+             L = d$L , 
+             Q = d$Q ,    #n questionnaire items
+             R = d$R ,    #n image recognition items
+             H = d$H ,    #n of households
+             S = as.integer(ifelse(d$S == "m", 1, 2) [-60]),
+             A = standardize( d$A [d$A <= 50] ) ,  #round age [d$A <= 50]
+             HH = d$HHs [-60], #household of individuals
+             Y_l = d$Y_l [rownames(d$Y_l) != "19586",], # [rownames(d$Y_l) != "19586",]
+             Y_q = d$Y_q [rownames(d$Y_l) != "19586",], #answers questionnaire
+             Y_r = d$Y_r [rownames(d$Y_l) != "19586",]  #answers picture recognition
+)
+
+m_fam <- stan( file =  "models/2_family.stan", data=dat , chains=3, cores=3)
+
+#ACTIVITIES
+dat <- list( D = 1,
+             N = as.integer(d$N - 1), 
+             L = d$L , 
+             Q = d$Q ,    #n questionnaire items
+             R = d$R ,    #n image recognition items
+             C = ncol(d$am), 
+             S = as.integer(ifelse(d$S == "m", 1, 2) [-60]),
+             A = standardize( d$A [d$A <= 50] ) ,  #round age [d$A <= 50]
+             AM = d$am [rownames(d$Y_l) != "19586",],
+             Y_l = d$Y_l [rownames(d$Y_l) != "19586",], # [rownames(d$Y_l) != "19586",]
+             Y_q = d$Y_q [rownames(d$Y_l) != "19586",], #answers questionnaire
+             Y_r = d$Y_r [rownames(d$Y_l) != "19586",]  #answers picture recognition
+)
+
+m_act <- stan( file =  "models/2_activities.stan", data=dat , chains=3, cores=3)
+
+#SCHOOLING
+#linear effect of school years
+dat <- list( D = 1,
+             N = as.integer(d$N - 1), 
+             L = d$L , 
+             Q = d$Q ,    #n questionnaire items
+             R = d$R ,    #n image recognition items
+             S = as.integer(ifelse(d$S == "m", 1, 2) [-60]),
+             A = standardize( d$A [d$A <= 50] ) ,  #round age [d$A <= 50]
+             SY = standardize(d$SY) [-60] ,
+             Y_l = d$Y_l [rownames(d$Y_l) != "19586",], # [rownames(d$Y_l) != "19586",]
+             Y_q = d$Y_q [rownames(d$Y_l) != "19586",], #answers questionnaire
+             Y_r = d$Y_r [rownames(d$Y_l) != "19586",]  #answers picture recognition
+)
+
+m_sch <- stan( file =  "models/2_schooling.stan", data=dat , chains=3, cores=3)
