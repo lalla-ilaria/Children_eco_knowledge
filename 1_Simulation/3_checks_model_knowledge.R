@@ -9,6 +9,15 @@ for(i in 1:20)curve( inv_logit(rlnorm(1, 0, 0.5) * ( x - rnorm(1, 0, 1) ) ), add
 curve( (rnorm(1, 0, 1) + rnorm(1, 0, 0.5) + abs(rnorm (1, 0, 0.5)) * x + abs(rnorm (1, 0, 0.3)) * (x/3)  ), xlim = c(-5, 5) , ylim = c(-5, 5), ylab = "K" )
 for(i in 1:20) curve( (rnorm(1, 0, 1) +rnorm(1, 0, 0.5) + abs(rnorm (1, 0, 0.5)) * x + abs(rnorm (1, 0, 0.3)) * (x/3) ), add = TRUE, ylab = NULL)
 
+#checking priors for declining exponential relation of age
+curve( rnorm(1, 1, 1) *(1-exp(-rnorm(1, 1, 1)*x)), xlim = c(0, 5), ylim = c(0, 2) )
+for (i in 1:10) curve( rnorm(1, 1, 0.5) *(1-exp(-rnorm(1, 0.5, 0.5)*x)), add = TRUE)
+
+#with logistic
+curve( inv_logit(x), xlim = c(-4, 4), ylim = c(0, 2) )
+for (i in 1:10) curve( rnorm(1, 1, 0.5) * inv_logit( rnorm(1, 1, 1) * ( x - rnorm(1, 1, 1) )), add = TRUE)
+
+
 ###########
 #MODEL FIT#
 ###########
@@ -16,7 +25,7 @@ for(i in 1:20) curve( (rnorm(1, 0, 1) +rnorm(1, 0, 0.5) + abs(rnorm (1, 0, 0.5))
 precis(m)
 
 #extract posterior
-post <- extract.samples(m)
+post <- extract.samples(m_sig)
 
 #recover K
 plot( sim_data$K, apply( post$K, 2, mean))
@@ -140,6 +149,33 @@ for (i in 1:nrow(year_eff)) {
 #Only in the most extreme cases the increase appears to be skewed. In most cases the increase is very linear
 
 pairs(m_ord, pars = "delta")
+
+############
+#SEX EFFECT#
+############
+post <- extract.samples(m_lin)
+A_seq <- c( -2, 2)
+mus1 <- matrix(nrow = 1500, ncol = length(A_seq)) #create empty matrix to store the fit model over the sequence of data
+for (i in 1:length(A_seq)) {
+mus1[,i] <- apply(post$aK, 1, mean) + post$bA[,1,] * A_seq[i]                 #calculate regression over the sequence of data A_seq, given the posterior
+} #aK[i,j] + aS[S[i],j] + bA[S[i],j]*A[i]
+mus1.mean <- apply(mus1, 2, mean)
+mus1.PI <- apply(mus1, 2, PI)
+mus2 <- matrix(nrow = 1500, ncol = length(A_seq)) #create empty matrix to store the fit model over the sequence of data
+for (i in 1:length(A_seq)) {
+mus2[,i] <- apply(post$aK, 1, mean) + post$bA[,2,] * A_seq[i]                 #calculate regression over the sequence of data A_seq, given the posterior
+} #aK[i,j] + aS[S[i],j] + bA[S[i],j]*A[i]
+mus2.mean <- apply(mus2, 2, mean)
+mus2.PI <- apply(mus2, 2, PI)
+
+sim_data$sex_col <- ifelse(sim_data$S == 1, "darkblue", "darkred")
+plot( standardize (sim_data$A), apply(post$K, 2, mean), 
+      xlab = "st age", ylab = "knowledge", col = sim_data$sex_col )
+lines(A_seq, mus1.mean, col = "darkblue")
+shade(mus1.PI, A_seq, col = col.alpha("darkblue", 0.2))
+lines(A_seq, mus2.mean, col = "darkred")
+shade(mus2.PI, A_seq, col =  col.alpha("darkred", 0.2))
+
 
 ################
 #ADDING POOLING#

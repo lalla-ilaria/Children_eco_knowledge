@@ -59,7 +59,7 @@ plot(compare(m_d[[1]], m_d[[2]], m_d[[3]], func = "WAIC"))
 #AGE TOTAL EFFECT#
 ##################
 #ordered categorical age
-sim_data <- simulation( N = 100, M = 300, beta_A = 3, age_eff = "sigmoid")
+sim_data <- simulation( N = 100, M = 300, beta_A = 2, age_eff = "sigmoid")
 #with each year a step
 dat <- list( D = sim_data$n_dimensions,
              N = sim_data$N , 
@@ -76,6 +76,52 @@ dat <- list( D = sim_data$n_dimensions,
              )
 m_ord <- cstan( file =  "models/2_model_code_ord_age.stan", data=dat , chains=3, cores=3)
 
+
+#linear age and sex
+sim_data <- simulation(beta_A = 0.6, beta_AC = 0.5)
+sim_data <- simulation( beta_A = 2, age_eff = "sigmoid")
+dat <- list( D = sim_data$n_dimensions,
+             N = sim_data$N , 
+             L = sim_data$M , 
+             Q = 50,         #n questionnaire items
+             R = sim_data$M/2,#n image recognition items
+             A = standardize (sim_data$A) , #round age
+             S = ifelse(sim_data$S == 1, 1, 2),
+             Y_l = sim_data$Y ,
+             Y_q = sim_data$Y[,1:50] ,           #answers questionnaire
+             Y_r = sim_data$Y[,1:(sim_data$M/2)]  #answers picture recognition
+             )
+m_lin <- cstan( file =  "models/1_dimensions_age_all_items.stan", data=dat , chains=3, cores=3)
+
+
+dat <- list( D = sim_data$n_dimensions,
+             N = sim_data$N , 
+             L = sim_data$M , 
+             Q = 50,         #n questionnaire items
+             R = sim_data$M/2,#n image recognition items
+             A = (sim_data$A - min(sim_data$A)) / sd(sim_data$A) , #round age
+             S = ifelse(sim_data$S == 1, 1, 2),
+             Y_l = sim_data$Y ,
+             Y_q = sim_data$Y[,1:50] ,           #answers questionnaire
+             Y_r = sim_data$Y[,1:(sim_data$M/2)]  #answers picture recognition
+             )
+m_exp <- cstan( file =  "models/1_decelerating_exp_age.stan", data=dat , chains=3, cores=3)
+
+#sigmoid
+dat <- list( D = sim_data$n_dimensions,
+             N = sim_data$N , 
+             L = sim_data$M , 
+             Q = 50,         #n questionnaire items
+             R = sim_data$M/2,#n image recognition items
+             A = standardize(sim_data$A) , #round age
+             S = ifelse(sim_data$S == 1, 1, 2),
+             Y_l = sim_data$Y ,
+             Y_q = sim_data$Y[,1:50] ,           #answers questionnaire
+             Y_r = sim_data$Y[,1:(sim_data$M/2)]  #answers picture recognition
+             )
+m_sig <- cstan( file =  "models/1_logit_age.stan", data=dat , chains=3, cores=3)
+
+compare(m_lin, m_exp, m_sig)
 ###################################
 #OTHER FACTORS AFFECTING KNOWLEDGE#
 ###################################
@@ -84,3 +130,37 @@ m_ord <- cstan( file =  "models/2_model_code_ord_age.stan", data=dat , chains=3,
 
   #multiple models and DO calculus
 ##################################
+#continuous age and sex, activities
+sim_data <- simulation(beta_A = 0.6, beta_AC = 0.5)
+dat <- list( D = sim_data$n_dimensions,
+             N = sim_data$N , 
+             L = sim_data$M , 
+             Q = 50,         #n questionnaire items
+             R = sim_data$M/2,#n image recognition items
+             C = sim_data$nact,
+             A = standardize (sim_data$A) , #round age
+             S = ifelse(sim_data$S == 1, 1, 2),
+             AM = sim_data$activity_matrix,
+             Y_l = sim_data$Y ,
+             Y_q = sim_data$Y[,1:50] ,           #answers questionnaire
+             Y_r = sim_data$Y[,1:(sim_data$M/2)]  #answers picture recognition
+             )
+m_act <- cstan( file =  "models/2_activities.stan", data=dat , chains=3, cores=3)
+
+#schooling
+sim_data <- simulation(beta_A = 0.6, beta_AC = 0.5)
+dat <- list( D = sim_data$n_dimensions,
+             N = sim_data$N , 
+             L = sim_data$M , 
+             Q = 50,         #n questionnaire items
+             R = sim_data$M/2,#n image recognition items
+             A = standardize (sim_data$A) , #round age
+             S = ifelse(sim_data$S == 1, 1, 2),
+             SY = standardize(sim_data$SY),
+             Y_l = sim_data$Y ,
+             Y_q = sim_data$Y[,1:50] ,           #answers questionnaire
+             Y_r = sim_data$Y[,1:(sim_data$M/2)]  #answers picture recognition
+             )
+m_sch <- cstan( file =  "models/2_schooling.stan", data=dat , chains=3, cores=3)
+
+

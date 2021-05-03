@@ -79,6 +79,7 @@ dat <- list( D = 1,
              L = d$L , 
              Q = d$Q ,    #n questionnaire items
              R = d$R ,    #n image recognition items
+             S = ifelse(d$S == "m", 1, 2), #sex
              A = standardize( d$A [d$A <= 50] ) , #round age
              Y_l = d$Y_l [rownames(d$Y_l) != "19586",] ,
              Y_q = d$Y_q [rownames(d$Y_q) != "19586",] , #answers questionnaire
