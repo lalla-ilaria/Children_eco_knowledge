@@ -4,20 +4,24 @@ data{
 	int L; //n items freelist
 	int Q; //n items questionnaire
 	int R; //n items image recognition
+	int Os; //n og school classes
 	int S[N];  //sex of individuals 
-	real A[N]; //age of individuals
+	int A[N]; //age of individuals
+  int SY[N]; //years of school
 	int Y_l[N,L]; //answers freelist
   int Y_q[N,Q]; //answers questionnaire
   int Y_r[N,R]; //answers image recognition
+  vector[Os-1] alpha_s; //prior drichlet
 }//data
 
 parameters{
   //individual parameters
 	matrix[N,D] aK; // individual intercepts on knowledge
-	matrix<lower=0>[2,D] aA; //slope of knowledge
-  matrix[2,D] bA; //position of middle slope
-	matrix<lower=0>[2,D] cA; //max level of knowledge
-  
+	matrix[2,D] aS; //intercept for sex
+  matrix<lower=0>[2,D] bA; // coefficient relating age to knowledge
+  matrix[2,D] bSY; // coefficient relating age to knowledge
+  simplex[Os-1] delta_s; //age specific effects
+	
 	//item parameters
 	//discrimination
 	matrix<lower=0>[L,D] a_l;
@@ -34,17 +38,20 @@ parameters{
 
 transformed parameters{
   matrix[N,D] K;
+  vector[Os] delta_js;
+  delta_js  = append_row(0, delta_s);
   for ( j in 1:D ) 
     for ( i in 1:N ) 
-      K[i,j] = aK[i,j] + cA[S[i],j] * inv_logit( aA[S[i],j] * ( A[i] - bA[S[i],j] ));
+      K[i,j] = aK[i,j] + aS[S[i],j] + bA[S[i],j]*A[i] + bSY[S[i],j] * sum (delta_js[ 1 : SY[i] ]  ) ; 
 }//transformed parameters
 
 model{
   //priors for individual parameters
 	to_vector(aK) ~ normal(0,1);
-	for(i in 1:D) for ( s in 1:2 ) aA[s,i] ~ normal( 1, 1) T[0,];
-  for(i in 1:D) for ( s in 1:2 ) bA[s,i] ~ normal( 1, 1);
-	for(i in 1:D) for ( s in 1:2 ) cA[s,i] ~ normal( 1, 0.5)T[0,];
+	to_vector(aS) ~ normal(0,1);
+  for(i in 1:D) for ( s in 1:2 ) bA[s,i] ~ normal( 0 , 0.5 ) T[0,];
+	to_vector(bSY) ~ normal( 0 , 0.5 );
+  delta_s ~ dirichlet( alpha_s );
   
 	//priors for item parameters
 	for(i in 1:D) for(j in 1:L)  a_l[j,i] ~ normal(0, 0.5) T[0,]; //value constrained above zero

@@ -14,9 +14,9 @@ data{
 parameters{
   //individual parameters
 	matrix[N,D] aK; // individual intercepts on knowledge
-	matrix<lower=0>[2,D] aA; //slope of knowledge
+	matrix[2,D] aA; //slope of knowledge
   matrix[2,D] bA; //position of middle slope
-	matrix<lower=0>[2,D] cA; //max level of knowledge
+	matrix[2,D] cA; //max level of knowledge
   
 	//item parameters
 	//discrimination
@@ -42,9 +42,9 @@ transformed parameters{
 model{
   //priors for individual parameters
 	to_vector(aK) ~ normal(0,1);
-	for(i in 1:D) for ( s in 1:2 ) aA[s,i] ~ normal( 1, 1) T[0,];
-  for(i in 1:D) for ( s in 1:2 ) bA[s,i] ~ normal( 1, 1);
-	for(i in 1:D) for ( s in 1:2 ) cA[s,i] ~ normal( 1, 0.5)T[0,];
+	for(i in 1:D) for ( s in 1:2 ) aA[s,i] ~ normal( 0, 1);
+  for(i in 1:D) for ( s in 1:2 ) bA[s,i] ~ normal( 0, 1);
+	for(i in 1:D) for ( s in 1:2 ) cA[s,i] ~ normal( 0, 1);
   
 	//priors for item parameters
 	for(i in 1:D) for(j in 1:L)  a_l[j,i] ~ normal(0, 0.5) T[0,]; //value constrained above zero

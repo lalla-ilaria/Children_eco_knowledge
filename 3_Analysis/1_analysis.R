@@ -75,30 +75,73 @@ dat <- list( D = 1,
              )
 
 m_ord <- stan( file =  "models/2_model_code_ord_age.stan", data=dat , chains=3, cores=3)
+m_ord_relax <- stan( file =  "models/2_model_code_ord_age_relax.stan", data=dat , chains=3, cores=3)
 
 #continuous age
+#linear
 dat <- list( D = 1,
              N = as.integer(d$N - 1), 
              L = d$L , 
              Q = d$Q ,    #n questionnaire items
              R = d$R ,    #n image recognition items
-<<<<<<< ours
-             S = ifelse(d$S == "m", 1, 2), #sex
-             A = standardize( d$A [d$A <= 50] ) , #round age
-             Y_l = d$Y_l [rownames(d$Y_l) != "19586",] ,
-             Y_q = d$Y_q [rownames(d$Y_q) != "19586",] , #answers questionnaire
-             Y_r = d$Y_r [rownames(d$Y_r) != "19586",]  #answers picture recognition
-=======
              S = as.integer(ifelse(d$S == "m", 1, 2) [-60]),
              A = standardize( d$A [d$A <= 50] ) ,  #round age [d$A <= 50]
              Y_l = d$Y_l [rownames(d$Y_l) != "19586",], # [rownames(d$Y_l) != "19586",]
              Y_q = d$Y_q [rownames(d$Y_l) != "19586",], #answers questionnaire
              Y_r = d$Y_r [rownames(d$Y_l) != "19586",]  #answers picture recognition
->>>>>>> theirs
               )
 
 m_lin <- stan( file =  "models/1_age_sex_all_items.stan", data=dat , chains=3, cores=3)
 
+#with age non standardized
+dat <- list( D = 1,
+             N = as.integer(d$N - 1), 
+             L = d$L , 
+             Q = d$Q ,    #n questionnaire items
+             R = d$R ,    #n image recognition items
+             S = as.integer(ifelse(d$S == "m", 1, 2) [-60]),
+             A =  d$A [d$A <= 50]  ,  #round age [d$A <= 50]
+             Y_l = d$Y_l [rownames(d$Y_l) != "19586",], # [rownames(d$Y_l) != "19586",]
+             Y_q = d$Y_q [rownames(d$Y_l) != "19586",], #answers questionnaire
+             Y_r = d$Y_r [rownames(d$Y_l) != "19586",]  #answers picture recognition
+)
+
+m_lin_ns <- stan( file =  "models/1_age_sex_all_items.stan", data=dat , chains=3, cores=3)
+
+
+#decelerating exponential
+dat <- list( D = 1,
+             N = as.integer(d$N - 1), 
+             L = d$L , 
+             Q = d$Q ,    #n questionnaire items
+             R = d$R ,    #n image recognition items
+             S = as.integer(ifelse(d$S == "m", 1, 2) [-60]),
+             A = (d$A [d$A <= 50] - min(d$A)) / sd(d$A [d$A <= 50]),  #age [d$A <= 50]
+             Y_l = d$Y_l [rownames(d$Y_l) != "19586",], # [rownames(d$Y_l) != "19586",]
+             Y_q = d$Y_q [rownames(d$Y_l) != "19586",], #answers questionnaire
+             Y_r = d$Y_r [rownames(d$Y_l) != "19586",]  #answers picture recognition
+)
+
+m_exp <- stan( file =  "models/1_decelerating_exp_age.stan", data=dat , chains=3, cores=3)
+m_exp_min <- stan( file =  "models/1_decelerating_exp_age_minval.stan", data=dat , chains=3, cores=3)
+m_exp_relax <-stan(file =  "models/1_decelerating_exp_age_relax.stan", data=dat , chains=3, cores=3)
+
+#sigmoid
+dat <- list( D = 1,
+             N = as.integer(d$N - 1), 
+             L = d$L , 
+             Q = d$Q ,    #n questionnaire items
+             R = d$R ,    #n image recognition items
+             S = as.integer(ifelse(d$S == "m", 1, 2) [-60]),
+             A = standardize( d$A [d$A <= 50] ) ,  #round age [d$A <= 50]
+             Y_l = d$Y_l [rownames(d$Y_l) != "19586",], # [rownames(d$Y_l) != "19586",]
+             Y_q = d$Y_q [rownames(d$Y_l) != "19586",], #answers questionnaire
+             Y_r = d$Y_r [rownames(d$Y_l) != "19586",]  #answers picture recognition
+)
+
+m_sig <- stan( file =  "models/1_logit_age.stan", data=dat , chains=3, cores=3)
+m_sig_min <- stan( file =  "models/1_logit_age_minval.stan", data=dat , chains=3, cores=3)
+m_sig_relax <- stan( file =  "models/1_logit_age_relax.stan", data=dat , chains=3, cores=3)
 
 ###############
 #OTHER FACTORS#

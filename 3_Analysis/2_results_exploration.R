@@ -10,13 +10,13 @@ plot_age_sex <- function( post , d, dot_col ){
   A_seq <- c( -2 : 3)#vector to loop over
   mus1 <- matrix(nrow = 3000, ncol = length(A_seq)) #create empty matrix to store the fit model over the sequence of data
   for (i in 1:length(A_seq)) {
-    mus1[,i] <- apply(post$aK, 1, mean) + post$aS[,1,] + post$bA[,1,] * A_seq[i]                 #calculate regression over the sequence of data A_seq, given the posterior
+    mus1[,i] <- apply(post$aK, 1, mean) +  post$bA[,1,] * A_seq[i]                 #calculate regression over the sequence of data A_seq, given the posterior
   } #aK[i,j] + aS[S[i],j] + bA[S[i],j]*A[i]
   mus1.mean <- apply(mus1, 2, mean) #calculate average regression line
   mus1.PI <- apply(mus1, 2, PI) #calculate compatibility intervals
   mus2 <- matrix(nrow = 3000, ncol = length(A_seq)) #create empty matrix to store the fit model over the sequence of data
   for (i in 1:length(A_seq)) {
-    mus2[,i] <- apply(post$aK, 1, mean) + post$aS[,2,] +  post$bA[,2,] * A_seq[i]                 #calculate regression over the sequence of data A_seq, given the posterior
+    mus2[,i] <- apply(post$aK, 1, mean) +  post$bA[,2,] * A_seq[i]                 #calculate regression over the sequence of data A_seq, given the posterior
   } #aK[i,j] + aS[S[i],j] + bA[S[i],j]*A[i]
   mus2.mean <- apply(mus2, 2, mean)
   mus2.PI <- apply(mus2, 2, PI)
@@ -39,6 +39,67 @@ plot_age_sex <- function( post , d, dot_col ){
 post_l <- extract.samples(m_lin) #extract samples
 
 plot_age_sex(post = post_l, d = d, dot_col = d$sex_col)
+
+#########################
+#DIFFERENT AGE FUNCTIONS#
+#########################
+#exponential
+post_e<-extract.samples(m_exp)
+post_er<-extract.samples(m_exp_relax)
+post_em<-extract.samples(m_exp_min)
+post <- post_er
+A_seq <- c( -1 : 7 )#vector to loop over
+mus1 <- matrix(nrow = 3000, ncol = length(A_seq)) #create empty matrix to store the fit model over the sequence of data
+for (i in 1:length(A_seq)) {
+  mus1[,i] <- apply(post$aK, 1, mean) + post$aA[,1,] *( 1- exp( -post$bA[,1,] * A_seq[i]))                 #calculate regression over the sequence of data A_seq, given the posterior
+} #aK[i,j] + aA[S[i],j] * ( 1 - exp(-bA[S[i],j]*A[i]));
+mus1.mean <- apply(mus1, 2, mean) #calculate average regression line
+mus1.PI <- apply(mus1, 2, PI) #calculate compatibility intervals
+mus2 <- matrix(nrow = 3000, ncol = length(A_seq)) #create empty matrix to store the fit model over the sequence of data
+for (i in 1:length(A_seq)) {
+  mus2[,i] <- apply(post$aK, 1, mean) + post$aA[,2,] *( 1- exp( -post$bA[,2,] * A_seq[i]))                 #calculate regression over the sequence of data A_seq, given the posterior
+} #aK[i,j] + aS[S[i],j] + bA[S[i],j]*A[i]
+mus2.mean <- apply(mus2, 2, mean)
+mus2.PI <- apply(mus2, 2, PI)
+#plot
+plot( d$A[d$A <= 50], apply(post$K, 2, mean), 
+      xlab = "Age", ylab = "Knowledge", xaxt='n', col = dot_col )
+axis(1, c(5, 10, 15, 20, 25), at = )
+A_seq_real <- A_seq * sd(d$A [d$A <= 50]) +  min(d$A) #(d$A [d$A <= 50] - min(d$A)) / sd(d$A [d$A <= 50])* sd(d$A[d$A <= 50]) + mean(d$A[d$A <= 50])
+lines(A_seq_real, mus1.mean, col = "darkblue")
+shade(mus1.PI, A_seq_real, col = col.alpha("darkblue", 0.2))
+lines(A_seq_real, mus2.mean, col = "darkred")
+shade(mus2.PI, A_seq_real, col =  col.alpha("darkred", 0.2))
+
+#logistic
+post_s<-extract.samples(m_sig)
+post_sr<-extract.samples(m_sig_relax)
+post_sm<-extract.samples(m_sig_min)
+post <- post_s
+
+A_seq <- c( -4 : 4)#vector to loop over
+mus1 <- matrix(nrow = 3000, ncol = length(A_seq)) #create empty matrix to store the fit model over the sequence of data
+for (i in 1:length(A_seq)) {
+  mus1[,i] <-  apply(post$mA, 1, mean) +  post$cA[,1,] * inv_logit( post$aA[,1,] * ( A_seq[i] - post$bA[,1,]))
+} #aK[i,j] + cA[S[i],j] * inv_logit( aA[S[i],j] * ( A[i] - bA[S[i],j] ));
+mus1.mean <- apply(mus1, 2, mean) #calculate average regression line
+mus1.PI <- apply(mus1, 2, PI) #calculate compatibility intervals
+mus2 <- matrix(nrow = 3000, ncol = length(A_seq)) #create empty matrix to store the fit model over the sequence of data
+for (i in 1:length(A_seq)) {
+  mus2[,i] <- apply(post$mA, 1, mean) +  post$cA[,2,] * inv_logit( post$aA[,2,] * ( A_seq[i] - post$bA[,2,]))                 #calculate regression over the sequence of data A_seq, given the posterior
+} #aK[i,j] + cA[S[i],j] * inv_logit( aA[S[i],j] * ( A[i] - bA[S[i],j] ));
+mus2.mean <- apply(mus2, 2, mean)
+mus2.PI <- apply(mus2, 2, PI)
+#plot
+plot( standardize(d$A[d$A <= 50]), apply(post$K, 2, mean), 
+      xlab = "Age", ylab = "Knowledge", xaxt='n', col = dot_col )
+axis(1, c(5, 10, 15, 20, 25), at = )
+A_seq_real <- A_seq # * sd(d$A[d$A <= 50]) + mean(d$A[d$A <= 50])
+lines(A_seq_real, mus1.mean, col = "darkblue")
+shade(mus1.PI, A_seq_real, col = col.alpha("darkblue", 0.2))
+lines(A_seq_real, mus2.mean, col = "darkred")
+shade(mus2.PI, A_seq_real, col =  col.alpha("darkred", 0.2))
+
 
 ######################
 #ADDING OTHER FACTORS#
@@ -70,6 +131,22 @@ plot_age_sex(post = post_f, d = d, dot_col = as.character(d$HH))
 #SCHOOLING#
 ###########
 precis(m_sch, 3, pars = "bSY")
+
+#ordered schooling
+post_sc <- extract.samples(m_sch) #extract samples
+post <- post_sc
+sch_eff <- apply(post$delta_j, 1, cumsum)
+#aK[i,j] + aS[S[i],j] + bA[S[i],j]*A[i] + bSY[S[i],j] * sum (delta_js[ 1 : SY[i] ]  ) ; 
+plot(1:nrow(sch_eff), mean(post$bSY[,1,]) * sch_eff[,1], type = "l", 
+    xlab = "Age", ylab = "School effect on knowledge" ,
+    ylim = c(-1, 1), xaxt='n')
+axis(1, c("no_school", "some_el", "lot_el", "some_high", "lot_high"), at = c(1:5))
+for (i in 1:50) {
+  lines(1:nrow(sch_eff),  post$bSY[i,1,] * sch_eff[,i], type = "l", col = col.alpha( 'darkblue', alpha = 0.1))
+}
+for (i in 1:50) {
+  lines(1:nrow(sch_eff),  post$bSY[i,2,] * sch_eff[,i], type = "l", col = col.alpha( 'darkred', alpha = 0.1))
+}
 
 #plot effect of schooling
 post_s <- extract.samples(m_sch) #extract samples
@@ -120,8 +197,9 @@ shade(mus2.1.PI, A_seq_real, col =  col.alpha("red", 0.2))
 #ORDERED CATEGORICAL A#
 #######################
 #extract samples
-post <- extract.samples(m_ord)
+post_ma <- extract.samples(m_ord_mina)
 
+post <- post_ma
 #INDIVIDUALS
 ############
 #plot knowledge estimation by age
@@ -133,13 +211,24 @@ plot( Ks, aKs)
 plot(d$A [ d$A <= 50 ], aKs, xlab = "Age", ylab = "Individual effect on knowledge")
 
 #explore age effects
-plot (precis(m_ord_s, 2, pars = "delta_j"))
+plot (precis(m_ord_mina, 3, pars = "delta_j"))
 
 year_eff <- apply(post$delta_j, 1, cumsum)
-plot(1:nrow(year_eff), year_eff[,1], type = "l", 
+plot(d$A, apply(post$K, 2, mean), xlab = "Age", ylab = "Knowledge", col = dot_col )
+for (i in 1:50) {
+  lines(1:nrow(year_eff),  mean(post$mA) + mean(post$bA) * year_eff[,i], type = "l", col = col.alpha( 'darkblue', alpha = 0.1))
+}
+
+year_eff_1 <- apply(post$delta_j[,,1], 1, cumsum)
+year_eff_2 <- apply(post$delta_j[,,2], 1, cumsum)
+plot(1:nrow(year_eff), mean(post$mA) + apply(post$bA, 2, mean) * year_eff[,1], type = "l", 
      xlab = "Age", ylab = "Age specific effect on knowledge" )
-for (i in 1:ncol(year_eff)) {
-  lines(1:nrow(year_eff), year_eff[,i], type = "l", col = col.alpha( 'black', alpha = 0.1))
+plot(d$A[ d$A <= 50 ], apply(post$K, 2, mean), xlab = "Age", ylab = "Knowledge", col = dot_col )
+for (i in 1:50) {
+  lines(1:nrow(year_eff_1),  mean(post$mA) + mean(post$bA[,,1]) * year_eff_1[,i], type = "l", col = col.alpha( 'darkblue', alpha = 0.1))
+}
+for (i in 1:50) {
+  lines(1:nrow(year_eff_2),  mean(post$mA) + mean(post$bA[,,2]) * year_eff_2[,i], type = "l", col = col.alpha( 'darkred', alpha = 0.1))
 }
 
 

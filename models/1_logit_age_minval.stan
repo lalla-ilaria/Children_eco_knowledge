@@ -17,6 +17,7 @@ parameters{
 	matrix<lower=0>[2,D] aA; //slope of knowledge
   matrix[2,D] bA; //position of middle slope
 	matrix<lower=0>[2,D] cA; //max level of knowledge
+  real<upper=0> mA;
   
 	//item parameters
 	//discrimination
@@ -36,7 +37,7 @@ transformed parameters{
   matrix[N,D] K;
   for ( j in 1:D ) 
     for ( i in 1:N ) 
-      K[i,j] = aK[i,j] + cA[S[i],j] * inv_logit( aA[S[i],j] * ( A[i] - bA[S[i],j] ));
+      K[i,j] = aK[i,j] + mA + cA[S[i],j] * inv_logit( aA[S[i],j] * ( A[i] - bA[S[i],j] ));
 }//transformed parameters
 
 model{
@@ -45,7 +46,8 @@ model{
 	for(i in 1:D) for ( s in 1:2 ) aA[s,i] ~ normal( 1, 1) T[0,];
   for(i in 1:D) for ( s in 1:2 ) bA[s,i] ~ normal( 1, 1);
 	for(i in 1:D) for ( s in 1:2 ) cA[s,i] ~ normal( 1, 0.5)T[0,];
-  
+  mA ~ normal(-2, 3)T[,0];
+
 	//priors for item parameters
 	for(i in 1:D) for(j in 1:L)  a_l[j,i] ~ normal(0, 0.5) T[0,]; //value constrained above zero
 	for(i in 1:D) for(j in 1:Q)  a_q[j,i] ~ normal(0, 0.5) T[0,]; //value constrained above zero

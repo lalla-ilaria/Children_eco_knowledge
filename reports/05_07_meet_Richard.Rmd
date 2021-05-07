@@ -1,0 +1,288 @@
+---
+title: "05_07_meet_Richard"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+#rmarkdown::render("reports/05_07_meet_Richard.Rmd") #to compile with the environment
+
+knitr::opts_chunk$set(echo = TRUE)
+```
+## Exponential deceleration
+First I tried to fit the model with a decelerating exponential. The model fit, but the increase of knowledge with age was minimal.
+```{r decelerating exponential parameters}
+#post_e<-extract.samples(m_exp)
+post <- post_e
+
+curve(mean( post$aA[,1,]) *( 1- exp( - mean(post$bA[,1,]) * x)), xlim = c(0, 25))
+apply( post$aA, 2, mean)
+apply( post$bA, 2, mean)
+
+```
+Horrible flat line in the middle of the knowledge values.
+```{r decelerating exponential curve}
+#post_e<-extract.samples(m_exp)
+post <- post_e
+A_seq <- c( -1 : 7 )#vector to loop over
+mus1 <- matrix(nrow = 3000, ncol = length(A_seq)) #create empty matrix to store the fit model over the sequence of data
+for (i in 1:length(A_seq)) {
+  mus1[,i] <- apply(post$aK, 1, mean) + post$aA[,1,] *( 1- exp( -post$bA[,1,] * A_seq[i]))                 #calculate regression over the sequence of data A_seq, given the posterior
+} #aK[i,j] + aA[S[i],j] * ( 1 - exp(-bA[S[i],j]*A[i]));
+mus1.mean <- apply(mus1, 2, mean) #calculate average regression line
+mus1.PI <- apply(mus1, 2, PI) #calculate compatibility intervals
+mus2 <- matrix(nrow = 3000, ncol = length(A_seq)) #create empty matrix to store the fit model over the sequence of data
+for (i in 1:length(A_seq)) {
+  mus2[,i] <- apply(post$aK, 1, mean) + post$aA[,2,] *( 1- exp( -post$bA[,2,] * A_seq[i]))                 #calculate regression over the sequence of data A_seq, given the posterior
+} #aK[i,j] + aS[S[i],j] + bA[S[i],j]*A[i]
+mus2.mean <- apply(mus2, 2, mean)
+mus2.PI <- apply(mus2, 2, PI)
+#plot
+plot( d$A[d$A <= 50], apply(post$K, 2, mean), 
+      xlab = "Age", ylab = "Knowledge", xaxt='n', col = dot_col )
+axis(1, c(5, 10, 15, 20, 25), at = )
+A_seq_real <- A_seq * sd(d$A [d$A <= 50]) +  min(d$A) #(d$A [d$A <= 50] - min(d$A)) / sd(d$A [d$A <= 50])* sd(d$A[d$A <= 50]) + mean(d$A[d$A <= 50])
+lines(A_seq_real, mus1.mean, col = "darkblue")
+shade(mus1.PI, A_seq_real, col = col.alpha("darkblue", 0.2))
+lines(A_seq_real, mus2.mean, col = "darkred")
+shade(mus2.PI, A_seq_real, col =  col.alpha("darkred", 0.2))
+```
+
+Basically, all the variation in knowledge remained in the intercepts:
+```{r}
+plot( apply(post$K, 2, mean),  apply(post$aK, 2, mean))
+```
+
+As I was thinking about this, I noticed- again- that all the knowledge values are so negative. So I started wondering if, by keeping all the parameters defining the shape of this relation constrained to be positive, I was forcing the curve to flatten above zero. 
+ 
+So I tried something weird, just adding an offset to bring all of this to the negative side. And it seems to work: 
+```{r decelerating exponential curve min value}
+#K[i,j] = aK[i,j] + mA + aA[S[i],j] * ( 1 - exp(-bA[S[i],j]*A[i]))
+#exponential
+#post_em<-extract.samples(m_exp_min)
+post <- post_em
+A_seq <- c( -1 : 7 )#vector to loop over
+mus1 <- matrix(nrow = 3000, ncol = length(A_seq)) #create empty matrix to store the fit model over the sequence of data
+for (i in 1:length(A_seq)) {
+  mus1[,i] <- post$mA + post$aA[,1,] *( 1- exp( -post$bA[,1,] * A_seq[i]))                 #calculate regression over the sequence of data A_seq, given the posterior
+} #aK[i,j] + aA[S[i],j] * ( 1 - exp(-bA[S[i],j]*A[i]));
+mus1.mean <- apply(mus1, 2, mean) #calculate average regression line
+mus1.PI <- apply(mus1, 2, PI) #calculate compatibility intervals
+mus2 <- matrix(nrow = 3000, ncol = length(A_seq)) #create empty matrix to store the fit model over the sequence of data
+for (i in 1:length(A_seq)) {
+  mus2[,i] <- post$mA + post$aA[,2,] *( 1- exp( -post$bA[,2,] * A_seq[i]))                 #calculate regression over the sequence of data A_seq, given the posterior
+} #aK[i,j] + aS[S[i],j] + bA[S[i],j]*A[i]
+mus2.mean <- apply(mus2, 2, mean)
+mus2.PI <- apply(mus2, 2, PI)
+#plot
+plot( d$A[d$A <= 50], apply(post$K, 2, mean), 
+      xlab = "Age", ylab = "Knowledge", xaxt='n', col = dot_col,
+      xlim = c(0, 30))
+axis(1, c(5, 10, 15, 20, 25), at = )
+A_seq_real <- A_seq * sd(d$A [d$A <= 50]) +  min(d$A) #(d$A [d$A <= 50] - min(d$A)) / sd(d$A [d$A <= 50])* sd(d$A[d$A <= 50]) + mean(d$A[d$A <= 50])
+lines(A_seq_real, mus1.mean, col = "darkblue")
+shade(mus1.PI, A_seq_real, col = col.alpha("darkblue", 0.2))
+lines(A_seq_real, mus2.mean, col = "darkred")
+shade(mus2.PI, A_seq_real, col =  col.alpha("darkred", 0.2))
+```
+
+Also now the slope parameter bA is strongly positive and the intercept does NOT contain the same info as the knowledge value.
+```{r ordered categorical minval intercepts }
+# precis(m_exp_min, 3, pars = "bA")
+#         mean   sd 5.5% 94.5% n_eff Rhat4
+# bA[1,1] 0.92 0.15 0.70  1.19  3107     1
+# bA[2,1] 0.72 0.24 0.39  1.16  5322     1
+plot( apply(post$K, 2, mean), apply(post$aK, 2, mean))
+```
+
+## Sigmoid function
+Satisfied with the model working but not with the fit to the data, I had fun trying make the model more sensible, e.g. sigmoid. I used a logistic regression plus a multiplicating factor that allows the curve to level off above 1.
+First without the global intercept, and I got the same problem - a weird flattened curve in the middle of the data distribution, almost no effect of age.
+```{r sigmoid curve}
+#aK[i,j] + cA[S[i],j] * inv_logit( aA[S[i],j] * ( A[i] - bA[S[i],j] ))
+#post_s<-extract.samples(m_sig)
+post <- post_s
+
+A_seq <- c( -4 : 4)#vector to loop over
+mus1 <- matrix(nrow = 3000, ncol = length(A_seq)) #create empty matrix to store the fit model over the sequence of data
+for (i in 1:length(A_seq)) {
+  mus1[,i] <-  apply(post$aK, 1, mean) +  post$cA[,1,] * inv_logit( post$aA[,1,] * ( A_seq[i] - post$bA[,1,]))
+} #aK[i,j] + cA[S[i],j] * inv_logit( aA[S[i],j] * ( A[i] - bA[S[i],j] ));
+mus1.mean <- apply(mus1, 2, mean) #calculate average regression line
+mus1.PI <- apply(mus1, 2, PI) #calculate compatibility intervals
+mus2 <- matrix(nrow = 3000, ncol = length(A_seq)) #create empty matrix to store the fit model over the sequence of data
+for (i in 1:length(A_seq)) {
+  mus2[,i] <- apply(post$aK, 1, mean) +  post$cA[,2,] * inv_logit( post$aA[,2,] * ( A_seq[i] - post$bA[,2,]))                 #calculate regression over the sequence of data A_seq, given the posterior
+} #aK[i,j] + cA[S[i],j] * inv_logit( aA[S[i],j] * ( A[i] - bA[S[i],j] ));
+mus2.mean <- apply(mus2, 2, mean)
+mus2.PI <- apply(mus2, 2, PI)
+#plot
+plot( standardize(d$A[d$A <= 50]), apply(post$K, 2, mean), 
+      xlab = "Age", ylab = "Knowledge", xaxt='n', col = dot_col )
+axis(1, c(5, 10, 15, 20, 25), at = )
+A_seq_real <- A_seq # * sd(d$A[d$A <= 50]) + mean(d$A[d$A <= 50])
+lines(A_seq_real, mus1.mean, col = "darkblue")
+shade(mus1.PI, A_seq_real, col = col.alpha("darkblue", 0.2))
+lines(A_seq_real, mus2.mean, col = "darkred")
+shade(mus2.PI, A_seq_real, col =  col.alpha("darkred", 0.2))
+```
+
+And then with the global intercept, which gave nicer curves:
+```{r sigmoid curve with global intercept}
+#aK[i,j] + mA + cA[S[i],j] * inv_logit( aA[S[i],j] * ( A[i] - bA[S[i],j] ))
+#post_sm<-extract.samples(m_sig_min)
+post <- post_sm
+
+A_seq <- c( -4 : 4)#vector to loop over
+mus1 <- matrix(nrow = 3000, ncol = length(A_seq)) #create empty matrix to store the fit model over the sequence of data
+for (i in 1:length(A_seq)) {
+  mus1[,i] <-  post$mA +  post$cA[,1,] * inv_logit( post$aA[,1,] * ( A_seq[i] - post$bA[,1,]))
+} #aK[i,j] + cA[S[i],j] * inv_logit( aA[S[i],j] * ( A[i] - bA[S[i],j] ));
+mus1.mean <- apply(mus1, 2, mean) #calculate average regression line
+mus1.PI <- apply(mus1, 2, PI) #calculate compatibility intervals
+mus2 <- matrix(nrow = 3000, ncol = length(A_seq)) #create empty matrix to store the fit model over the sequence of data
+for (i in 1:length(A_seq)) {
+  mus2[,i] <- post$mA +  post$cA[,2,] * inv_logit( post$aA[,2,] * ( A_seq[i] - post$bA[,2,]))                 #calculate regression over the sequence of data A_seq, given the posterior
+} #aK[i,j] + cA[S[i],j] * inv_logit( aA[S[i],j] * ( A[i] - bA[S[i],j] ));
+mus2.mean <- apply(mus2, 2, mean)
+mus2.PI <- apply(mus2, 2, PI)
+#plot
+plot( standardize(d$A[d$A <= 50]), apply(post$K, 2, mean), 
+      xlab = "Age", ylab = "Knowledge", xaxt='n', col = dot_col )
+axis(1, c(5, 10, 15, 20, 25), at = )
+A_seq_real <- A_seq # * sd(d$A[d$A <= 50]) + mean(d$A[d$A <= 50])
+lines(A_seq_real, mus1.mean, col = "darkblue")
+shade(mus1.PI, A_seq_real, col = col.alpha("darkblue", 0.2))
+lines(A_seq_real, mus2.mean, col = "darkred")
+shade(mus2.PI, A_seq_real, col =  col.alpha("darkred", 0.2))
+```
+
+STILL, QUESTIONS?
+is mA legal?
+why are the curves so far from the data? 
+  -is it normal, wrong plotting, or need to relax priors so that they can move farther from zero?
+
+Then as I was walking Riana through this mess, I realized that this might have been the same problem for the ordered categorical model. First I removed the constraints to the parameters. bA went all the way negative, but not great sampling.
+```{r ordered categorical relaxed parameters}
+precis(m_ord_relax, 2, "bA")
+```
+
+Observing the curve of the effect of each age , it seemed to confirm my initial idea: the whole age curve here has a hard job of bringing the curve from zero to where the actual knowledge is, i.e. well below zero.
+```{r ordered categorical relaxed age effect}
+#post_o <- extract.samples(m_ord_relax)
+post <- post_o
+plot(1:nrow(year_eff), apply(post$bA, 2, mean) * year_eff[,1], type = "l", 
+     xlab = "Age", ylab = "Age specific effect on knowledge" )
+for (i in 1:50) {
+  lines(1:nrow(year_eff),  apply(post$bA, 2, mean) * year_eff[,i], type = "l", col = col.alpha( 'black', alpha = 0.1))
+}
+points(d$A[ d$A <= 50 ], apply(post$K, 2, mean))
+```
+
+Again, individual intercepts in this model correlate very strictly with the estimated knowledge, because BA cannot capture the age effect. But they are on a much more positive scale, because most of the negative effect is taken by bA and the effects of each age.
+
+```{r ordered categorical relaxed intercepts }
+plot( apply(post$K, 2, mean), apply(post$aK, 2, mean))
+```
+
+And finally I tried to use the global intercept trick with the ordered categorical model, and it seemed to me that the results were much improved! First, the coefficient for the effect of age is now strongly positive and sampling more efficient. Second, there is variation between the effect of each age, suggesting a non linear effect of age.
+
+```{r parameters ordered categoricalwith global intercept}
+precis(m_ord_min, 3, pars = "bA")
+plot (precis(m_ord_min, 3, pars = "delta_j"))
+
+```
+
+Third, when plotted over the data, the effect of age * the coefficient for age show some tracking of the data. Anthough my previous concerns remain.
+```{r curve ordered categorical with global intercept}
+#post_m <- extract.samples(m_ord_min)
+post <- post_m
+year_eff <- apply(post$delta_j, 1, cumsum)
+plot(d$A[ d$A <= 50 ], apply(post$K, 2, mean), xlab = "Age", ylab = "Knowledge", col = dot_col )
+for (i in 1:100) {
+  lines(1:nrow(year_eff),  post$mA[i] + post$bA[i] * year_eff[,i], type = "l", col = col.alpha( 'darkblue', alpha = 0.1))
+}
+```
+
+I tried to add different age effects for sex, although there's a mess of parameter, it seems to work, even if the results are a bit weird?
+```{r ordered categorical sex curves}
+#post_ms <- extract.samples(m_ord_mins)
+
+post <- post_ms
+#explore age effects
+#plot (precis(m_ord_mins, 3, pars = "delta_j"))
+
+year_eff_1 <- apply(post$delta_j[,,1], 1, cumsum)
+year_eff_2 <- apply(post$delta_j[,,2], 1, cumsum)
+plot(d$A[ d$A <= 50 ], apply(post$K, 2, mean), xlab = "Age", ylab = "Knowledge", col = dot_col )
+for (i in 1:50) {
+  lines(1:nrow(year_eff_1),  post$mA[i] +post$bA[i,,1] * year_eff_1[,i], type = "l", col = col.alpha( 'darkblue', alpha = 0.1))
+}
+for (i in 1:50) {
+  lines(1:nrow(year_eff_2), post$mA[i] + post$bA[i,,2] * year_eff_2[,i], type = "l", col = col.alpha( 'darkred', alpha = 0.1))
+}
+```
+
+This looks good! Start the same, divides after division of labor!
+```{r ordered categorical sex curves intercept only}
+#post_msi <- extract.samples(m_ord_min_sint)
+
+post <- post_msi
+
+#explore age effects
+#plot (precis(m_ord_min_sint, 3, pars = "delta_j"))
+
+year_eff <- apply(post$delta_j, 1, cumsum)
+plot(d$A[ d$A <= 50 ], apply(post$K, 2, mean), xlab = "Age", ylab = "Knowledge", col = dot_col )
+for (i in 1:50) {
+  lines(1:nrow(year_eff),  post$mA[i] + post$bA[i,,1] * year_eff[,i], type = "l", col = col.alpha( 'darkblue', alpha = 0.1))
+}
+for (i in 1:50) {
+  lines(1:nrow(year_eff),  post$mA[i] + post$bA[i,,2] * year_eff[,i], type = "l", col = col.alpha( 'darkred', alpha = 0.1))
+}
+```
+
+## Activities
+```{r ordered categorical sex curves activities}
+#post_ao <- extract.samples(m_act_o)
+
+post <- post_ao
+
+#explore age effects
+plot (precis(m_ord_min_sint, 3, pars = "delta_j"))
+
+year_eff <- apply(post$delta_j, 1, cumsum)
+plot(d$A[ d$A <= 50 ], apply(post$K, 2, mean), xlab = "Age", ylab = "Knowledge", col = dot_col )
+for (i in 1:50) {
+  lines(1:nrow(year_eff),  post$mA[i] + post$bA[i,,1] * year_eff[,i], type = "l", col = col.alpha( 'darkblue', alpha = 0.1))
+}
+for (i in 1:50) {
+  lines(1:nrow(year_eff),  post$mA[i] + post$bA[i,,2] * year_eff[,i], type = "l", col = col.alpha( 'darkred', alpha = 0.1))
+}
+```
+
+```{r activities effect}
+plot(apply(post$aAM, 2, mean), 1:10, xlim = c(-1.6, 1.5),
+     xlab = "Activity effect", ylab = "Activities", yaxt='n')
+axis(2, colnames(d$am), at = c(1:10), las = 1)
+for (i in 1:10) lines(apply(post$aAM, 2, PI)[,i], rep(i, each = 2))
+abline(v = 0)
+```
+
+##School effect
+I rerun the school model with ordered categorical and it doesn't seem there's an effect, but I need to explore more
+```{r school}
+#post_sc <- extract.samples(m_sch) #extract samples
+post <- post_sc
+sch_eff <- apply(post$delta_j, 1, cumsum)
+#aK[i,j] + aS[S[i],j] + bA[S[i],j]*A[i] + bSY[S[i],j] * sum (delta_js[ 1 : SY[i] ]  ) ; 
+plot(1:nrow(sch_eff), mean(post$bSY[,1,]) * sch_eff[,1], type = "l", 
+    xlab = "Age", ylab = "School effect on knowledge" ,
+    ylim = c(-1, 1), xaxt='n')
+axis(1, c("no_school", "some_el", "lot_el", "some_high", "lot_high"), at = c(1:5))
+for (i in 1:50) {
+  lines(1:nrow(sch_eff),  post$bSY[i,1,] * sch_eff[,i], type = "l", col = col.alpha( 'darkblue', alpha = 0.1))
+}
+for (i in 1:50) {
+  lines(1:nrow(sch_eff),  post$bSY[i,2,] * sch_eff[,i], type = "l", col = col.alpha( 'darkred', alpha = 0.1))
+}
+```
