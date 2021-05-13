@@ -33,7 +33,7 @@ interviews$age[which(interviews$anonyme_id == "88846")] <- 9 #according to censu
 interviews$class[which(interviews$class %in% c("CHEK ECHEA","CHEKE CHEA", "CHER ECHEA", "HEKE CHEA"))] <- "CHEKECHEA"
 interviews$class[which(interviews$class == "FIN FA")] <- "FIN F1"
 interviews$class[which(interviews$class == "FIN")] <- "FIN S6"
-interviews$class[which(interviews$class == "S#"&interviews$anonyme_id == "137323")] <- "CHEKECHEA" #5y old gave higher class - interview with mother was hence checked
+interviews$class[which(interviews$anonyme_id == "137323")] <- "CHEKECHEA" #5y old gave higher class - interview with mother was hence checked
 
 #add integer for value of schooling
 edu_levels <- data.frame(
