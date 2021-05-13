@@ -42,6 +42,41 @@ for (i in 1:nrow(interviews)) {
   interviews$class_new[i] <- edu_levels$n[which(edu_levels$class == interviews$class[i])]
 }
 
+#added reviewed ages after cross control with multiple data
+ages <- data.frame( anonyme_id = c(12168,15888,236324,112462,138451,11879,233890,193223,61212,138891,
+                                   1949,201358,19586,185824,112713,188722,83881,11589,17547,18749,
+                                   252539,262057,154176,195755,195424,9108,135723,195721,18758,61427,
+                                   83476,194104,186802,195821,37559,18232,138251,132689,253748,14109,
+                                   267566,185445,14764,133433,1399,199586,147436,65243,197299,194388,
+                                   192966,192662,184723,13744,122557,192109,18959,152122,137323,132588,
+                                   11115,132853,12165,12185,83275,61153,13212,198846,88846,82613,
+                                   82623,136745,62866,191985,251533,81763,81873,133453,153562,192431,
+                                   263632,63263,12761,252611,12753,252552,193755,199450,29434,132854,
+                                   147833,195799,62988,69990),
+                    summary_age = c(13,6,6,17,22,20,12,9,12,15,
+                                    17,19,56,6,8,9,11,14,7,9,
+                                    7,12,14,17,19,9,5,12,13,16,
+                                    18,7,11,14,16,7,9,13,6,12,
+                                    7,8,11,13,13,16,19,10,15,16,
+                                    24,12,11,9,12,14,14,18,5,7,
+                                    11,13,7,12,12,14,15,11,9,10,
+                                    13,26,15,17,7,13,13,10,11,13,
+                                    11,13,22,8,11,12,15,17,20,21,
+                                    13,14,13,12),
+                    decision = c("coherent","amina","amina","amina","themselves","themselves","coherent","cheti","cheti","cheti",
+                               "cheti","amina+coherent","themselves","cheti","coherent","cheti","both amina and school","both amina and school","school","school",
+                               "cheti","cheti","cheti","amina","coherent","cheti","amina","school","school","coherent",
+                               "school","amina","both amina and school","amina","amina","coherent","coherent","themselves","school","school",
+                               "interview","interview","coherent","school","school","themselves","themselves","school","coherent","themselves",
+                               "themselves","school","school",NA,"school","themselves","coherent","coherent","coherent","themselves",
+                               "coherent","coherent","amina","coherent","amina","themselves",NA,"coherent","coherent","coherent",
+                               "school","themselves","amina","amina","school","amina+school","amina+school","school","themselves","themselves",
+                               "school","school","themselves","themselves","coherent","all amina and cheti","school","coherent","school","coherent",
+                               "coherent","school","coherent","amina"))
+
+
+interviews  <- merge( interviews, ages, by = "anonyme_id")
+
 ######################
 #ACTIVITIES###########
 ######################
@@ -541,7 +576,7 @@ for (i in 1:length(interviews$anonyme_id)) {
 d <- list( N = as.integer(nrow(interviews)),             #n individuals
            H = as.integer(length(unique(interviews$hh_id))),#n households
            HH= as.integer(interviews$hh_id),              #integer for household
-           A = as.integer(interviews$age) ,              #standardized age
+           A = as.integer(interviews$summary_age) ,              #standardized age
            S = interviews$sex,                           #sex of individuals
            SY= as.integer(interviews$class_new),         #standardized n of years of school
            am= activities,                               #activities practiced
@@ -566,6 +601,7 @@ list.save(d, '2_Data_preparation/processed_data.RData')
 
 rm( all_items, 
     activities, 
+    ages,
     correct_answers, 
     chores,  
     edu_levels,
