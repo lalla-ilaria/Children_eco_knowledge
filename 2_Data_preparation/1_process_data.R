@@ -33,6 +33,7 @@ interviews$age[which(interviews$anonyme_id == "88846")] <- 9 #according to censu
 interviews$class[which(interviews$class %in% c("CHEK ECHEA","CHEKE CHEA", "CHER ECHEA", "HEKE CHEA"))] <- "CHEKECHEA"
 interviews$class[which(interviews$class == "FIN FA")] <- "FIN F1"
 interviews$class[which(interviews$class == "FIN")] <- "FIN S6"
+interviews$class[which(interviews$class == "S#"&interviews$anonyme_id == "137323")] <- "CHEKECHEA" #5y old gave higher class - interview with mother was hence checked
 
 #add integer for value of schooling
 edu_levels <- data.frame(
@@ -59,10 +60,10 @@ ages <- data.frame( anonyme_id = c(12168,15888,236324,112462,138451,11879,233890
                                     18,7,11,14,16,7,9,13,6,12,
                                     7,8,11,13,13,16,19,10,15,16,
                                     24,12,11,9,12,14,14,18,5,7,
-                                    11,13,7,12,12,14,15,11,9,10,
+                                    11,14,7,12,12,14,15,11,9,10,
                                     13,26,15,17,7,13,13,10,11,13,
                                     11,13,22,8,11,12,15,17,20,21,
-                                    13,14,13,12),
+                                    15,14,13,12),
                     decision = c("coherent","amina","amina","amina","themselves","themselves","coherent","cheti","cheti","cheti",
                                "cheti","amina+coherent","themselves","cheti","coherent","cheti","both amina and school","both amina and school","school","school",
                                "cheti","cheti","cheti","amina","coherent","cheti","amina","school","school","coherent",
@@ -75,7 +76,7 @@ ages <- data.frame( anonyme_id = c(12168,15888,236324,112462,138451,11879,233890
                                "coherent","school","coherent","amina"))
 
 
-interviews  <- merge( interviews, ages, by = "anonyme_id")
+interviews  <- merge( interviews, ages, by = "anonyme_id", sort = FALSE)
 
 ######################
 #ACTIVITIES###########
