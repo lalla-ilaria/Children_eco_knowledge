@@ -4,7 +4,6 @@ library(rlist)
 
 d <- list.load("2_Data_preparation/processed_data.RData")
 
-
 ######################
 #NUMBER OF DIMENSIONS#
 ######################
@@ -67,15 +66,37 @@ dat <- list( D = 1,
              Q = d$Q ,    #n questionnaire items
              R = d$R ,    #n image recognition items
              A = as.integer(d$A [d$A <= 50]) , # age #[d$A <= 50] 
+             S = as.integer(ifelse(d$S == "m", 1, 2) [-60]),
              Y_l = d$Y_l [rownames(d$Y_l) != "19586",] , #answers freelist #[rownames(d$Y_l) != "19586",] 
              Y_q = d$Y_q [rownames(d$Y_q) != "19586",] , #answers questionnaire
              Y_r = d$Y_r [rownames(d$Y_r) != "19586",] , #answers picture recognition
              O = length (0 : 26 ) ,
              alpha = rep( 2, length (0:26 ) -1 ) 
-             )
+              )
 
 m_ord <- stan( file =  "models/2_model_code_ord_age.stan", data=dat , chains=3, cores=3)
 m_ord_relax <- stan( file =  "models/2_model_code_ord_age_relax.stan", data=dat , chains=3, cores=3)
+m_ord_min <- stan( file =  "models/2_model_code_ord_age_minval.stan", data=dat , chains=3, cores=3)
+m_ord_mins <- stan( file =  "models/2_model_code_ord_agesex_minval.stan", data=dat , chains=3, cores=3)
+m_ord_min_sint_newdat <- stan( file =  "models/2_model_code_ord_agesexintercept_minval.stan", data=dat , chains=3, cores=3)
+m_ord_min_sintr_newdat <- stan( file =  "models/2_model_code_ord_agesexintercept_minval_relax.stan", data=dat , chains=3, cores=3)
+
+
+dat <- list( D = 1,
+             N = d$N , 
+             L = d$L , 
+             Q = d$Q ,    #n questionnaire items
+             R = d$R ,    #n image recognition items
+             A = as.integer(d$A) , # age #[d$A <= 50] 
+             Y_l = d$Y_l  , #answers freelist #[rownames(d$Y_l) != "19586",] 
+             Y_q = d$Y_q  , #answers questionnaire
+             Y_r = d$Y_r  , #answers picture recognition
+             O = length (0 : 56 ) ,
+             alpha = rep( 2, length (0:56 ) -1 ) 
+)
+
+m_ord_mina <- stan( file =  "models/2_model_code_ord_age_minval.stan", data=dat , chains=3, cores=3)
+
 
 #continuous age
 #linear
@@ -184,6 +205,24 @@ dat <- list( D = 1,
 
 m_act <- stan( file =  "models/2_activities.stan", data=dat , chains=3, cores=3)
 
+dat <- list( D = 1,
+             N = as.integer(d$N - 1), 
+             L = d$L , 
+             Q = d$Q ,    #n questionnaire items
+             R = d$R ,    #n image recognition items
+             C = ncol(d$am), 
+             S = as.integer(ifelse(d$S == "m", 1, 2) [-60]),
+             A =  d$A [d$A <= 50]  ,  #round age [d$A <= 50]
+             AM = d$am [rownames(d$Y_l) != "19586",],
+             Y_l = d$Y_l [rownames(d$Y_l) != "19586",], # [rownames(d$Y_l) != "19586",]
+             Y_q = d$Y_q [rownames(d$Y_l) != "19586",], #answers questionnaire
+             Y_r = d$Y_r [rownames(d$Y_l) != "19586",],  #answers picture recognition
+             O = length (0 : 26 ) ,
+             alpha = rep( 2, length (0:26 ) -1 ) 
+)
+
+m_act_o_newdat <- stan( file =  "models/2_activities_ord_age.stan", data=dat , chains=3, cores=3)
+
 #SCHOOLING
 #linear effect of school years
 dat <- list( D = 1,
@@ -200,3 +239,29 @@ dat <- list( D = 1,
 )
 
 m_sch <- stan( file =  "models/2_schooling.stan", data=dat , chains=3, cores=3)
+
+#ordered effect of school years 
+school <- ifelse(d$A >= 18, 18, d$A) - 5 - ifelse(d$SY == 0 , 0, d$SY -1) #to caclulate the amunt of school lost
+school <- ifelse(school >= 6, 6, school)[-60]#to reduce the effect of great loss of school
+# school <- ifelse( d$SY <= 1, 0, #no schooling
+#           ifelse( d$SY <= 5, 1, #some elementary
+#           ifelse( d$SY <= 9, 2, #a lot of elementary
+#           ifelse( d$SY <= 11, 3, #some high
+#           4 ))))[-60] #a lot of high,
+
+dat <- list( D = 1,
+             N = as.integer(d$N - 1), 
+             L = d$L , 
+             Q = d$Q ,    #n questionnaire items
+             R = d$R ,    #n image recognition items
+             S = as.integer(ifelse(d$S == "m", 1, 2) [-60]),
+             A = standardize( d$A [d$A <= 50] ) ,  #round age [d$A <= 50]
+             SY =  school, #a lot of high,
+             Y_l = d$Y_l [rownames(d$Y_l) != "19586",], # [rownames(d$Y_l) != "19586",]
+             Y_q = d$Y_q [rownames(d$Y_l) != "19586",], #answers questionnaire
+             Y_r = d$Y_r [rownames(d$Y_l) != "19586",],  #answers picture recognition
+             Os = length(unique(school)),
+             alpha_s = rep(2, length(unique(school))-1)
+)
+
+m_sch <- stan( file =  "models/2_schooling_ord.stan", data=dat , chains=3, cores=3)

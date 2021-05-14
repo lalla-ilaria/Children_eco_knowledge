@@ -154,14 +154,14 @@ pairs(m_ord, pars = "delta")
 #SEX EFFECT#
 ############
 post <- extract.samples(m_lin)
-A_seq <- c( -2, 2)
-mus1 <- matrix(nrow = 1500, ncol = length(A_seq)) #create empty matrix to store the fit model over the sequence of data
+A_seq <- c( 0, 20)
+mus1 <- matrix(nrow = 3000, ncol = length(A_seq)) #create empty matrix to store the fit model over the sequence of data
 for (i in 1:length(A_seq)) {
 mus1[,i] <- apply(post$aK, 1, mean) + post$bA[,1,] * A_seq[i]                 #calculate regression over the sequence of data A_seq, given the posterior
 } #aK[i,j] + aS[S[i],j] + bA[S[i],j]*A[i]
 mus1.mean <- apply(mus1, 2, mean)
 mus1.PI <- apply(mus1, 2, PI)
-mus2 <- matrix(nrow = 1500, ncol = length(A_seq)) #create empty matrix to store the fit model over the sequence of data
+mus2 <- matrix(nrow = 3000, ncol = length(A_seq)) #create empty matrix to store the fit model over the sequence of data
 for (i in 1:length(A_seq)) {
 mus2[,i] <- apply(post$aK, 1, mean) + post$bA[,2,] * A_seq[i]                 #calculate regression over the sequence of data A_seq, given the posterior
 } #aK[i,j] + aS[S[i],j] + bA[S[i],j]*A[i]
@@ -169,7 +169,7 @@ mus2.mean <- apply(mus2, 2, mean)
 mus2.PI <- apply(mus2, 2, PI)
 
 sim_data$sex_col <- ifelse(sim_data$S == 1, "darkblue", "darkred")
-plot( standardize (sim_data$A), apply(post$K, 2, mean), 
+plot( sim_data$A, apply(post$K, 2, mean), 
       xlab = "st age", ylab = "knowledge", col = sim_data$sex_col )
 lines(A_seq, mus1.mean, col = "darkblue")
 shade(mus1.PI, A_seq, col = col.alpha("darkblue", 0.2))

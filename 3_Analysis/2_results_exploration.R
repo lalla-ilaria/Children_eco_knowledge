@@ -3,6 +3,13 @@
 ###########
 #colors
 d$sex_col <- ifelse(d$S == "m", "darkblue", "darkred")#assign color to each sex
+d$color_l <- ifelse( is.na(d$type_l), "yellow",
+             ifelse( d$type_l  == "N", "darkorange",
+             ifelse( d$type_l  == "S", "darkblue",
+             ifelse( d$type_l  == "W", "darkred",
+             ifelse( d$type_l  == "D", "orchid",
+             ifelse( d$type_l  == "M", "darkgreen", 
+             NA))))))
 
 
 #plot age and sex regressions
@@ -108,14 +115,32 @@ shade(mus2.PI, A_seq_real, col =  col.alpha("darkred", 0.2))
 ############
 #ACTIVITIES#
 ############
+post <- extract.samples(m_act_o_newdat)
 
-plot (precis (m_act, 3, pars = "aAM"))
+plot (precis (m_act_o, 3, pars = "aAM"))
 axis(2, at=10:1, labels=colnames(d$am), par(las=1))
 
 
-post_a <- extract.samples(m_act) #extract samples
+post_ao <- extract.samples(m_act_o) #extract samples
+post <- post_ao
+#explore age effects
+plot (precis(m_ord_min_sint, 3, pars = "delta_j"))
+#or
+plot(apply(post$aAM, 2, mean), 1:10, xlim = c(-1.6, 1.5),
+     xlab = "Activity effect", ylab = "Activities", yaxt='n')
+axis(2, colnames(d$am), at = c(1:10), las = 1)
+for (i in 1:10) lines(apply(post$aAM, 2, PI)[,i], rep(i, each = 2))
+abline(v = 0)
 
-plot_age_sex(post = post_a, d = d, dot_col = d$sex_col)
+#age-sex specific knowledge with activities
+year_eff <- apply(post$delta_j, 1, cumsum)
+plot(d$A[ d$A <= 50 ], apply(post$K, 2, mean), xlab = "Age", ylab = "Knowledge", col = d$sex_col )
+for (i in 1:50) {
+  lines(1:nrow(year_eff),  post$mA[i] + post$bA[i,,1] * year_eff[,i], type = "l", col = col.alpha( 'darkblue', alpha = 0.1))
+}
+for (i in 1:50) {
+  lines(1:nrow(year_eff),  post$mA[i] + post$bA[i,,2] * year_eff[,i], type = "l", col = col.alpha( 'darkred', alpha = 0.1))
+}
 
 ##########
 #FAMILIES#
@@ -198,8 +223,11 @@ shade(mus2.1.PI, A_seq_real, col =  col.alpha("red", 0.2))
 #######################
 #extract samples
 post_ma <- extract.samples(m_ord_mina)
+post_msi <- extract.samples(m_ord_min_sint_newdat)
+post_msir <- extract.samples(m_ord_min_sintr_newdat)
 
-post <- post_ma
+
+post <- post_msi
 #INDIVIDUALS
 ############
 #plot knowledge estimation by age
@@ -211,12 +239,22 @@ plot( Ks, aKs)
 plot(d$A [ d$A <= 50 ], aKs, xlab = "Age", ylab = "Individual effect on knowledge")
 
 #explore age effects
-plot (precis(m_ord_mina, 3, pars = "delta_j"))
+plot (precis(m_ord_min_sint_newdat, 3, pars = "delta_j"))
 
 year_eff <- apply(post$delta_j, 1, cumsum)
 plot(d$A, apply(post$K, 2, mean), xlab = "Age", ylab = "Knowledge", col = dot_col )
 for (i in 1:50) {
   lines(1:nrow(year_eff),  mean(post$mA) + mean(post$bA) * year_eff[,i], type = "l", col = col.alpha( 'darkblue', alpha = 0.1))
+}
+
+year_eff <- apply(post$delta_j, 1, cumsum)
+plot(d$A[ d$A <= 50 ], apply(post$K, 2, mean), 
+     xlab = "Age", ylab = "Knowledge", col = d$sex_col )
+for (i in 1:50) {
+  lines(1:nrow(year_eff),  post$mA[i] + post$bA[i,,1] * year_eff[,i], type = "l", col = col.alpha( 'darkblue', alpha = 0.1))
+}
+for (i in 1:50) {
+  lines(1:nrow(year_eff),  post$mA[i] + post$bA[i,,2] * year_eff[,i], type = "l", col = col.alpha( 'darkred', alpha = 0.1))
 }
 
 year_eff_1 <- apply(post$delta_j[,,1], 1, cumsum)
@@ -244,9 +282,9 @@ curve(inv_logit(a_ls[1] * ( x - b_ls[1])),
       xlab = "knowledge in freelists", ylab = "p correct answer",
       col = col.alpha("lightblue", 0.2))
 for(i in 1: length(a_ls)){
-  curve(inv_logit(a_ls[i] * ( x - b_ls[i])), col = col.alpha("lightblue", 0.2), add = TRUE)
+  curve(inv_logit(a_ls[i] * ( x - b_ls[i])), col = col.alpha(d$color_l[i], 0.2), add = TRUE)
 }
-points(Ks, rep(0.5, length(Ks)),col = col.alpha("cornflowerblue", 0.7))  
+points(apply(post$K, 2, mean), rep(0.5, 93),col = col.alpha("cornflowerblue", 0.7))  
 
 #questions
 a_qs <- apply(post$a_q, 2, mean)
@@ -255,7 +293,7 @@ b_qs <- apply(post$b_q, 2, mean)
 curve(inv_logit(a_qs[1] * ( x - b_qs[1])), 
       xlim = c(-7, 5), ylim = c(0, 1), 
       xlab = "knowledge in questions", ylab = "p correct answer",
-      col = col.alpha("lightblue", 0.2))
+      col = col.alpha("lightblue", 0.6))
 for(i in 1: length(a_qs)){
   curve(inv_logit(a_qs[i] * ( x - b_qs[i])), col = col.alpha("lightblue", 0.2), add = TRUE)
 }
@@ -268,7 +306,7 @@ b_rs <- apply(post$b_r, 2, mean)
 curve(inv_logit(a_rs[1] * ( x - b_rs[1])), 
       xlim = c(-7, 5), ylim = c(0, 1), 
       xlab = "knowledge in image recognition", ylab = "p correct answer",
-      col = col.alpha("lightblue", 0.2))
+      col = col.alpha("lightblue", 0.6))
 for(i in 1: length(a_rs)){
   curve(inv_logit(a_rs[i] * ( x - b_rs[i])), col = col.alpha("lightblue", 0.2), add = TRUE)
 }

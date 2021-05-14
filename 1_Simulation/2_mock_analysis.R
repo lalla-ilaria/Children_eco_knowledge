@@ -93,7 +93,7 @@ dat <- list( D = sim_data$n_dimensions,
              )
 m_lin <- cstan( file =  "models/1_dimensions_age_all_items.stan", data=dat , chains=3, cores=3)
 
-
+#decelerating exponential
 dat <- list( D = sim_data$n_dimensions,
              N = sim_data$N , 
              L = sim_data$M , 

@@ -86,7 +86,7 @@ shade(mus2.PI, A_seq_real, col =  col.alpha("darkred", 0.2))
 ```
 
 Also now the slope parameter bA is strongly positive and the intercept does NOT contain the same info as the knowledge value.
-```{r ordered categorical minval intercepts }
+```{r decelerating exp intercepts }
 # precis(m_exp_min, 3, pars = "bA")
 #         mean   sd 5.5% 94.5% n_eff Rhat4
 # bA[1,1] 0.92 0.15 0.70  1.19  3107     1
@@ -229,7 +229,7 @@ This looks good! Start the same, divides after division of labor!
 post <- post_msi
 
 #explore age effects
-#plot (precis(m_ord_min_sint, 3, pars = "delta_j"))
+plot (precis(m_ord_min_sint, 3, pars = "delta_j"))
 
 year_eff <- apply(post$delta_j, 1, cumsum)
 plot(d$A[ d$A <= 50 ], apply(post$K, 2, mean), xlab = "Age", ylab = "Knowledge", col = dot_col )
@@ -239,6 +239,10 @@ for (i in 1:50) {
 for (i in 1:50) {
   lines(1:nrow(year_eff),  post$mA[i] + post$bA[i,,2] * year_eff[,i], type = "l", col = col.alpha( 'darkred', alpha = 0.1))
 }
+```
+
+```{r ordered categorical minval intercepts }
+plot( apply(post$K, 2, mean), apply(post$aK, 2, mean))
 ```
 
 ## Activities
@@ -258,6 +262,8 @@ for (i in 1:50) {
 for (i in 1:50) {
   lines(1:nrow(year_eff),  post$mA[i] + post$bA[i,,2] * year_eff[,i], type = "l", col = col.alpha( 'darkred', alpha = 0.1))
 }
+plot( apply(post$K, 2, mean), apply(post$aK, 2, mean))
+
 ```
 
 ```{r activities effect}

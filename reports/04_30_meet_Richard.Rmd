@@ -42,6 +42,7 @@ post_l <- extract.samples(m_lin) #extract samples
 plot_age_sex(post = post_l, d = d, dot_col = d$sex_col)
 
 ```
+
 ## ACTIVITIES
 
 ```{r activities model, cache=TRUE, eval = FALSE}

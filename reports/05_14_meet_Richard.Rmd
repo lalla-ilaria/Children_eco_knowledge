@@ -1,0 +1,124 @@
+---
+title: "05_14_meet_Richard"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+#rmarkdown::render("reports/05_14_meet_Richard.Rmd")
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r tight bs}
+post_msi <- extract.samples(m_ord_min_sint)
+post <- post_msi
+a_ls <- apply(post$a_l, 2, mean)
+b_ls <- apply(post$b_l, 2, mean)
+
+curve(inv_logit(a_ls[1] * ( x - b_ls[1])), 
+      xlim = c(-7, 5), ylim = c(0, 1), 
+      xlab = "knowledge in freelists", ylab = "p correct answer",
+      col = col.alpha("lightblue", 0.2))
+for(i in 1: length(a_ls)){
+  curve(inv_logit(a_ls[i] * ( x - b_ls[i])), col = col.alpha("lightblue", 0.2), add = TRUE)
+}
+points(apply(post$K, 2, mean), rep(0.5, 93),col = col.alpha("cornflowerblue", 0.7))  
+
+```
+
+```{r relaxed bs}
+post_msir <- extract.samples(m_ord_min_sintr)
+post <- post_msir
+a_ls <- apply(post$a_l, 2, mean)
+b_ls <- apply(post$b_l, 2, mean)
+
+curve(inv_logit(a_ls[1] * ( x - b_ls[1])), 
+      xlim = c(-7, 5), ylim = c(0, 1), 
+      xlab = "knowledge in freelists", ylab = "p correct answer",
+      col = col.alpha("lightblue", 0.2))
+for(i in 1: length(a_ls)){
+  curve(inv_logit(a_ls[i] * ( x - b_ls[i])), col = col.alpha("lightblue", 0.2), add = TRUE)
+}
+points(apply(post$K, 2, mean), rep(0.5, 93),col = col.alpha("cornflowerblue", 0.7))  
+```
+
+```{r old data}
+#explore age effects
+post_msir <- extract.samples(m_ord_min_sintr)
+post <- post_msir
+
+plot (precis(m_ord_min_sint_newdat, 3, pars = "delta_j"))
+
+year_eff <- apply(post$delta_j, 1, cumsum)
+plot(d$A[ d$A <= 50 ], apply(post$K, 2, mean), 
+     xlab = "Age", ylab = "Knowledge", col = d$sex_col )
+for (i in 1:50) {
+  lines(1:nrow(year_eff),  post$mA[i] + post$bA[i,,1] * year_eff[,i], type = "l", col = col.alpha( 'darkblue', alpha = 0.1))
+}
+for (i in 1:50) {
+  lines(1:nrow(year_eff),  post$mA[i] + post$bA[i,,2] * year_eff[,i], type = "l", col = col.alpha( 'darkred', alpha = 0.1))
+}
+```
+
+```{r new data}
+#explore age effects
+post_msirn <- extract.samples(m_ord_min_sintr_newdat)
+post <- post_msirn
+
+plot (precis(m_ord_min_sint_newdat, 3, pars = "delta_j"))
+
+year_eff <- apply(post$delta_j, 1, cumsum)
+plot(d$A[ d$A <= 50 ], apply(post$K, 2, mean), 
+     xlab = "Age", ylab = "Knowledge", col = d$sex_col )
+for (i in 1:50) {
+  lines(1:nrow(year_eff),  post$mA[i] + post$bA[i,,1] * year_eff[,i], type = "l", col = col.alpha( 'darkblue', alpha = 0.1))
+}
+for (i in 1:50) {
+  lines(1:nrow(year_eff),  post$mA[i] + post$bA[i,,2] * year_eff[,i], type = "l", col = col.alpha( 'darkred', alpha = 0.1))
+}
+```
+
+```{r activities}
+post_ao <- extract.samples(m_act_o_newdat) #extract samples
+post <- post_ao
+
+plot(apply(post$aAM, 2, mean), 1:10, xlim = c(-1.6, 1.5),
+     xlab = "Activity effect", ylab = "Activities", yaxt='n')
+axis(2, colnames(d$am), at = c(1:10), las = 1)
+for (i in 1:10) lines(apply(post$aAM, 2, PI)[,i], rep(i, each = 2))
+abline(v = 0)
+
+#age-sex specific knowledge with activities
+year_eff <- apply(post$delta_j, 1, cumsum)
+plot(d$A[ d$A <= 50 ], apply(post$K, 2, mean), xlab = "Age", ylab = "Knowledge", col = d$sex_col )
+for (i in 1:50) {
+  lines(1:nrow(year_eff),  post$mA[i] + post$bA[i,,1] * year_eff[,i], type = "l", col = col.alpha( 'darkblue', alpha = 0.1))
+}
+for (i in 1:50) {
+  lines(1:nrow(year_eff),  post$mA[i] + post$bA[i,,2] * year_eff[,i], type = "l", col = col.alpha( 'darkred', alpha = 0.1))
+}
+```
+
+```{r parameters interpretation}
+plot(precis(m_ord_min_sintr_newdat, 3, pars = "bA"))
+plot(precis(m_act_o_newdat, 3, pars = "bA"))
+
+```
+
+```{r school}
+precis(m_sch, 3, pars = "bSY")
+
+#ordered schooling
+post_sc <- extract.samples(m_sch) #extract samples
+post <- post_sc
+sch_eff <- apply(post$delta_j, 1, cumsum)
+#aK[i,j] + aS[S[i],j] + bA[S[i],j]*A[i] + bSY[S[i],j] * sum (delta_js[ 1 : SY[i] ]  ) ; 
+plot(1:nrow(sch_eff), mean(post$bSY[,1,]) * sch_eff[,1], type = "l", 
+    xlab = "Age", ylab = "School effect on knowledge" ,
+    ylim = c(-1, 1))
+for (i in 1:50) {
+  lines(1:nrow(sch_eff),  post$bSY[i,1,] * sch_eff[,i], type = "l", col = col.alpha( 'darkblue', alpha = 0.1))
+}
+for (i in 1:50) {
+  lines(1:nrow(sch_eff),  post$bSY[i,2,] * sch_eff[,i], type = "l", col = col.alpha( 'darkred', alpha = 0.1))
+}
+```
