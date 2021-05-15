@@ -6,7 +6,7 @@ data{
 	int R; //n items image recognition
 	int Os; //n og school classes
 	int S[N];  //sex of individuals 
-	int A[N]; //age of individuals
+	real A[N]; //age of individuals
   int SY[N]; //years of school
 	int Y_l[N,L]; //answers freelist
   int Y_q[N,Q]; //answers questionnaire
