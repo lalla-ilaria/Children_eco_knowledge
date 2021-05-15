@@ -4,23 +4,27 @@ data{
 	int L; //n items freelist
 	int Q; //n items questionnaire
 	int R; //n items image recognition
-	int Os; //n og school classes
-	int S[N];  //sex of individuals 
-	real A[N]; //age of individuals
-  int SY[N]; //years of school
+  int H; //n of households
+	int O; //n ages
+	int A[N]; //age of individuals
+	int S[N]; //sex of individuals
+  int HH[N];//household
 	int Y_l[N,L]; //answers freelist
   int Y_q[N,Q]; //answers questionnaire
   int Y_r[N,R]; //answers image recognition
-  vector[Os-1] alpha_s; //prior drichlet
+  vector[O-1] alpha; //prior drichlet
 }//data
 
 parameters{
   //individual parameters
+  real mA; //global intercept
 	matrix[N,D] aK; // individual intercepts on knowledge
-	matrix[2,D] aS; //intercept for sex
+	matrix[H,D] aH; // family intercepts on knowledge
   matrix<lower=0>[2,D] bA; // coefficient relating age to knowledge
-  matrix[2,D] bSY; // coefficient relating age to knowledge
-  simplex[Os-1] delta_s; //age specific effects
+  simplex[O-1] delta; //age specific effects
+	//sigma individual parameters
+	real<lower=0> aH_sigma;
+
 	
 	//item parameters
 	//discrimination
@@ -38,28 +42,34 @@ parameters{
 
 transformed parameters{
   matrix[N,D] K;
-  vector[Os] delta_js;
-  delta_js  = append_row(0, delta_s);
-  for ( j in 1:D ) 
+  vector[O] delta_j;
+  delta_j  = append_row(0, delta);
+  for ( d in 1:D ) 
     for ( i in 1:N ) 
-      K[i,j] = aK[i,j] + aS[S[i],j] + bA[S[i],j]*A[i] + bSY[S[i],j] * sum (delta_js[ 1 : SY[i] ]  ) ; 
+      K[i,d] = mA +                                           //global intercept - minimum value of knowledge
+               aK[i,d] +                                      //individual interecepts -absorbs residual variation   
+               bA[S[i], d] * sum (delta_j[ 1 : A[i] ] ) +     //effect of age - sex specific
+               aH[HH[i],d] * aH_sigma ;                      //pooled effect of household
+
 }//transformed parameters
 
 model{
   //priors for individual parameters
+  mA ~ normal( 0, 5)T[,0]; //global intercept
 	to_vector(aK) ~ normal(0,1);
-	to_vector(aS) ~ normal(0,1);
-  for(i in 1:D) for ( s in 1:2 ) bA[s,i] ~ normal( 0 , 0.5 ) T[0,];
-	to_vector(bSY) ~ normal( 0 , 0.5 );
-  delta_s ~ dirichlet( alpha_s );
+  for(d in 1:D) for(s in 1:2) bA[s,d] ~ normal( 0 , 3 ) T[0,];
+  delta ~ dirichlet( alpha );
   
 	//priors for item parameters
-	for(i in 1:D) for(j in 1:L)  a_l[j,i] ~ normal(0, 0.5) T[0,]; //value constrained above zero
-	for(i in 1:D) for(j in 1:Q)  a_q[j,i] ~ normal(0, 0.5) T[0,]; //value constrained above zero
-	for(i in 1:D) for(j in 1:R)  a_r[j,i] ~ normal(0, 0.5) T[0,]; //value constrained above zero
-	to_vector(b_q) ~ normal(0,1);
-	to_vector(b_l) ~ normal(0,1);
-	to_vector(b_r) ~ normal(0,1);
+	//discrimination
+	for(d in 1:D) for(j in 1:L)  a_l[j,d] ~ normal(0, 0.5) T[0,]; //value constrained above zero
+	for(d in 1:D) for(j in 1:Q)  a_q[j,d] ~ normal(0, 0.5) T[0,]; //value constrained above zero
+	for(d in 1:D) for(j in 1:R)  a_r[j,d] ~ normal(0, 0.5) T[0,]; //value constrained above zero
+	//difficulty
+	to_vector(b_q) ~ normal(0,2);
+	to_vector(b_l) ~ normal(0,2);
+	to_vector(b_r) ~ normal(0,2);
+	//pseudoguessing
   c_q ~ beta(5,10);
 
 
@@ -88,6 +98,7 @@ model{
       target += bernoulli_logit_lpmf( Y_r[i,] | p );
 	}//N
 }//model
+
  generated quantities {
    vector [N * L + N * Q + N * R ] log_lik;
 {
