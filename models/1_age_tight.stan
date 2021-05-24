@@ -4,11 +4,9 @@ data{
 	int L; //n items freelist
 	int Q; //n items questionnaire
 	int R; //n items image recognition
-  int H; //n of households
 	int O; //n ages
 	int A[N]; //age of individuals
 	int S[N]; //sex of individuals
-  int HH[N];//household
 	int Y_l[N,L]; //answers freelist
   int Y_q[N,Q]; //answers questionnaire
   int Y_r[N,R]; //answers image recognition
@@ -19,11 +17,8 @@ parameters{
   //individual parameters
   real mA; //global intercept
 	matrix[N,D] aK; // individual intercepts on knowledge
-	matrix[H,D] aH; // family intercepts on knowledge
   matrix<lower=0>[2,D] bA; // coefficient relating age to knowledge
   simplex[O-1] delta; //age specific effects
-	//sigma individual parameters
-	real<lower=0> aH_sigma;
 
 	
 	//item parameters
@@ -48,16 +43,15 @@ transformed parameters{
     for ( i in 1:N ) 
       K[i,d] = mA +                                           //global intercept - minimum value of knowledge
                aK[i,d] +                                      //individual interecepts -absorbs residual variation   
-               bA[S[i], d] * sum (delta_j[ 1 : A[i] ] ) +     //effect of age - sex specific
-               aH[HH[i],d] * aH_sigma ;                      //pooled effect of household
+               bA[S[i], d] * sum (delta_j[ 1 : A[i] ] ) ;     //effect of age - sex specific
 
 }//transformed parameters
 
 model{
   //priors for individual parameters
-  mA ~ normal( -6, 3)T[,0]; //global intercept
+  mA ~ normal( 0, 3)T[,0]; //global intercept
 	to_vector(aK) ~ normal(0,1);
-  for(d in 1:D) for(s in 1:2) bA[s,d] ~ normal( 0 , 5 ) T[0,];
+  for(d in 1:D) for(s in 1:2) bA[s,d] ~ normal( 0 , 3 ) T[0,];
   delta ~ dirichlet( alpha );
   
 	//priors for item parameters

@@ -20,7 +20,7 @@ parameters{
   //individual parameters
   real mA; //global intercept
 	matrix[N,D] aK; // individual intercepts on knowledge
-  matrix<lower=0>[D,2] bA; // coefficient max effect of age on knowledge -sex specific
+  matrix<lower=0>[2,D] bA; // coefficient max effect of age on knowledge -sex specific
   matrix[2,D] bSY; // coefficient max effect of school on knowledge -sex specific
   simplex[O-1] delta; //age specific effects
   simplex[Os-1] delta_s; //school class specific effects
@@ -55,9 +55,9 @@ transformed parameters{
 
 model{
 	//priors for individual parameters
-	mA ~ normal( 0, 5)T[,0];
+	mA ~ normal( -6, 3)T[,0];
 	to_vector(aK) ~ normal(0,1);
-  for(d in 1:D) for(s in 1:2) bA[s,d] ~ normal( 0 , 3 ) T[0,];
+  for(d in 1:D) for(s in 1:2) bA[s,d] ~ normal( 0 , 5 ) T[0,];
   to_vector(bSY) ~ normal( 0 , 0.5 );
   delta ~ dirichlet( alpha );
   delta_s ~ dirichlet( alpha_s );

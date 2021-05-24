@@ -41,9 +41,9 @@ transformed parameters{
 
 model{
   //priors for individual parameters
-  mA ~ normal( 0, 5)T[,0]; //global intercept
-	to_vector(aK) ~ normal(0,1);
-  for(d in 1:D) for(s in 1:2) bA[s,d] ~ normal( 0 , 3 ) T[0,];
+  mA ~ normal( -6, 3)T[,0]; //global intercept
+	to_vector(aK) ~ normal(0,2);
+  for(d in 1:D) for(s in 1:2) bA[s,d] ~ normal( 0 , 5 ) T[0,];
   delta ~ dirichlet( alpha );
   
 	//priors for item parameters

@@ -20,7 +20,7 @@ dat <- list( D = 1,
              Y_q = d$Y_q [rownames(d$Y_q) != "19586",] , #answers questionnaire
              Y_r = d$Y_r [rownames(d$Y_r) != "19586",] , #answers picture recognition
              O = length (0 : 26 ) ,
-             alpha = rep( 2, length (0:26 ) -1 ) 
+             alpha = rep( 1, length (0:26 ) -1 ) 
               )
 
 m_age <- stan( file =  "models/1_age.stan", data=dat , chains=3, cores=3)
@@ -45,7 +45,7 @@ dat <- list( D = 1,
              Y_q = d$Y_q [rownames(d$Y_l) != "19586",], #answers questionnaire
              Y_r = d$Y_r [rownames(d$Y_l) != "19586",],  #answers picture recognition
              O = length (0 : 26 ) ,
-             alpha = rep( 2, length (0:26 ) -1 ) 
+             alpha = rep( 1, length (0:26 ) -1 ) 
 )
 
 m_act <- stan( file =  "models/2_activities.stan", data=dat , chains=3, cores=3)
@@ -78,7 +78,7 @@ dat <- list( D = 1,
              O = length (0 : 26 ) ,
              alpha = rep( 2, length (0:26 ) -1 ), 
              Os = length(unique(school)),
-             alpha_s = rep(2, length(unique(school))-1)
+             alpha_s = rep(1, length(unique(school))-1)
 )
 
 m_sch <- stan( file =  "models/2_schooling.stan", data=dat , chains=3, cores=3)
@@ -103,7 +103,7 @@ dat <- list( D = 1,
              Y_q = d$Y_q [rownames(d$Y_l) != "19586",], #answers questionnaire
              Y_r = d$Y_r [rownames(d$Y_l) != "19586",],  #answers picture recognition
              O = length (0 : 26 ) ,
-             alpha = rep( 2, length (0:26 ) -1 )
+             alpha = rep( 1, length (0:26 ) -1 )
 )
 
 m_fam <- stan( file =  "models/2_family_intercepts.stan", data=dat , chains=3, cores=3)
@@ -133,7 +133,7 @@ for (i in 1:length(D)) {
               Y_q = d$Y_q [rownames(d$Y_q) != "19586",] , #answers questionnaire
               Y_r = d$Y_r [rownames(d$Y_r) != "19586",] , #answers picture recognition
               O = length (0 : 26 ) ,
-              alpha = rep( 2, length (0:26 ) -1 ) 
+              alpha = rep( 0.5, length (0:26 ) -1 ) 
   )
   
   m_da[[i]] <- stan( file = "models/1_age.stan", data=dat , chains=3, cores=3, init = 0 )
@@ -149,7 +149,7 @@ D <- c(1:3)
 m_d <- list()
 #run the model with 1:3 number of dimensions
 for (i in 1:length(D)) {
-  dat <- list( D = D[i],    #loop through dimensions
+  dat <- list( D = 3,    #loop through dimensions
                N = as.integer(d$N - 1) , 
                L = d$L , 
                Q = d$Q ,    #n questionnaire items
@@ -158,10 +158,10 @@ for (i in 1:length(D)) {
                S = as.integer(ifelse(d$S == "m", 1, 2) [-60]),
                Y_l = d$Y_l [rownames(d$Y_l) != "19586",] , #answers freelist #[rownames(d$Y_l) != "19586",] 
                O = length (0 : 26 ) ,
-               alpha = rep( 2, length (0:26 ) -1 ) 
+               alpha = rep( 1, length (0:26 ) -1 ) 
       )
   
-  m_d[[i]] <- stan( file = "models/3_freelist_only_dim_analysis.stan", data=dat , chains=3, cores=3, init = 0 )
+  m_d3 <- stan( file = "models/3_freelist_only_dim_analysis.stan", data=dat , chains=1, cores=1, init = 0 )
 }
 #model comparison
 compare(m_d[[1]], m_d[[2]], m_d[[3]])
