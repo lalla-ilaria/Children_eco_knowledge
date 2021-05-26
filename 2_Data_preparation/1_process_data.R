@@ -81,11 +81,14 @@ interviews  <- merge( interviews, ages, by = "anonyme_id", sort = FALSE)
 ######################
 #ACTIVITIES###########
 ######################
+#For each individual we have two sources for activities: self declared and from household interviews. 
+#Both will be present in the processed data.
 
-#activities
+#activities self declared
 activities <-  chores[,2:10]
 #adds rowname from individual ids
 rownames(activities) <- chores$anonyme_id  
+
 #convert tick into binary
 activities[activities == "V"] <- 1 #writes 1 where activity is performed
 activities[is.na(activities)] <- 0 #otherwise zero
@@ -105,11 +108,89 @@ na.activities[ which(rownames(na.activities) == 136745),] <- c (0,0,0,1,1,0,1,1,
 na.activities[ which(rownames(na.activities) == 236324),] <- c (1,1,0,0,0,0,0,0,0,0)
 
 
-
-
 activities <- rbind( activities, na.activities )
-#order by ID to match rest of data frames
-activities <- activities[order(rownames(activities)), ]
+activities_self <- activities[order(rownames(activities)), ]
+
+
+#####################################
+#activities household survey
+act <- read.csv("2_Data_preparation/anonymized_data/activities_household.csv")
+activities <-  chores[,2:10]
+#adds rowname from individual ids
+rownames(activities) <- chores$anonyme_id  
+
+#empty to fill with household survey activities
+activities[] <- NA
+
+#fill from household survey
+for ( i in 1:nrow(activities)) {
+  activities$household_help[i] <- ifelse( rownames(activities)[i] %in% act$anonyme_id,
+                                        ifelse( act$hhm_household_help[ which( act$anonyme_id == rownames(activities)[i])] == "/" |
+                                                is.na(act$hhm_household_help[ which( act$anonyme_id == rownames(activities)[i])])  
+                                                , 0, 1), NA)}
+for ( i in 1:nrow(activities)) {
+  activities$bird_hunting[i] <- ifelse( rownames(activities)[i] %in% act$anonyme_id,
+                                        ifelse( act$hhm_bird_hunting[ which( act$anonyme_id == rownames(activities)[i])] == "/" |
+                                                is.na(act$hhm_bird_hunting[ which( act$anonyme_id == rownames(activities)[i])])  
+                                                , 0, 1), NA)}
+for ( i in 1:nrow(activities)) {
+  activities$seashells[i] <- ifelse( rownames(activities)[i] %in% act$anonyme_id,
+                                        ifelse( act$hhm_seashells[ which( act$anonyme_id == rownames(activities)[i])] == "/" |
+                                                act$hhm_seashells[ which( act$anonyme_id == rownames(activities)[i])] == "\\" |
+                                                is.na(act$hhm_seashells[ which( act$anonyme_id == rownames(activities)[i])])  
+                                                , 0, 1), NA)}
+for ( i in 1:nrow(activities)) {
+  activities$hunt_with_dogs[i] <- ifelse( rownames(activities)[i] %in% act$anonyme_id,
+                                        ifelse( act$hhm_hunt_with_dogs[ which( act$anonyme_id == rownames(activities)[i])] == "/" |
+                                                is.na(act$hhm_hunt_with_dogs[ which( act$anonyme_id == rownames(activities)[i])])  
+                                                , 0, 1), NA)}
+for ( i in 1:nrow(activities)) {
+  activities$field_help[i] <- ifelse( rownames(activities)[i] %in% act$anonyme_id,
+                                        ifelse( act$hhm_field_cow[ which( act$anonyme_id == rownames(activities)[i])] == "/" |
+                                                act$hhm_field_cow[ which( act$anonyme_id == rownames(activities)[i])] == "/V" |
+                                                is.na(act$hhm_field_cow[ which( act$anonyme_id == rownames(activities)[i])])  
+                                                , 0, 1), NA)}
+for ( i in 1:nrow(activities)) {
+  activities$cow_help[i] <- ifelse( rownames(activities)[i] %in% act$anonyme_id,
+                                        ifelse( act$hhm_field_cow[ which( act$anonyme_id == rownames(activities)[i])] == "/" |
+                                                act$hhm_field_cow[ which( act$anonyme_id == rownames(activities)[i])] == "V/" |
+                                                is.na(act$hhm_field_cow[ which( act$anonyme_id == rownames(activities)[i])])  
+                                                , 0, 1), NA)}
+for ( i in 1:nrow(activities)) {
+  activities$fishing[i] <- ifelse( rownames(activities)[i] %in% act$anonyme_id,
+                                        ifelse( act$hhm_fishing_diving[ which( act$anonyme_id == rownames(activities)[i])] == "/" |
+                                                act$hhm_fishing_diving[ which( act$anonyme_id == rownames(activities)[i])] == "/V" |
+                                                is.na(act$hhm_fishing_diving[ which( act$anonyme_id == rownames(activities)[i])])  
+                                                , 0, 1), NA)}
+for ( i in 1:nrow(activities)) {
+  activities$diving[i] <- ifelse( rownames(activities)[i] %in% act$anonyme_id,
+                                        ifelse( act$hhm_fishing_diving[ which( act$anonyme_id == rownames(activities)[i])] == "/" |
+                                                act$hhm_fishing_diving[ which( act$anonyme_id == rownames(activities)[i])] == "V/" |
+                                                is.na(act$hhm_fishing_diving[ which( act$anonyme_id == rownames(activities)[i])])  
+                                                , 0, 1), NA)}
+for ( i in 1:nrow(activities)) {
+  activities$money_making[i] <- ifelse( rownames(activities)[i] %in% act$anonyme_id, 
+                                        act$hhm_money_making [ which( act$anonyme_id == rownames(activities)[i])], 
+                                        NA)}
+activities$mwani <- ifelse( grepl( "MW", activities[,2]), 1, 0  ) #adds column for mwani and writes 1 if appears in money making
+activities$karafu <- ifelse( grepl( "KA", activities[,2]), 1, 0  )#adds column for karafu and writes 1 if appears in money making
+activities <- as.matrix(activities[, -2]) #removes column for money making
+
+#from activities self - for those who do not have activities in the household interviews
+activities[which(rownames(activities) == 112462),] <- c ("1","0","1","1","1","1","1","1","1","1")
+activities[which(rownames(activities) == 11879),]  <- c ("1","1","0","0","1","1","0","0","1","1")
+activities[which(rownames(activities) == 138451),] <- c ("1","0","0","0","0","0","0","0","0","0")
+activities[which(rownames(activities) == 14109),]  <- c ("1","1","1","1","1","1","1","1","1","1")
+activities[which(rownames(activities) == 147436),] <- c ("1","0","0","0","0","0","0","0","0","0")
+activities[which(rownames(activities) == 15888),]  <- c ("1","0","0","0","0","0","0","0","0","0")
+activities[which(rownames(activities) == 17547),]  <- c ("1","1","1","1","1","1","1","0","1","1")
+activities[which(rownames(activities) == 18749),]  <- c ("0","1","1","0","0","1","0","0","0","0")
+activities[which(rownames(activities) == 233890),] <- c ("1","1","0","0","0","1","0","1","1","1")
+activities[which(rownames(activities) == 253748),] <- c ("1","1","0","0","0","1","0","0","1","0")
+activities[which(rownames(activities) == 61212),]  <- c ("1","1","0","0","1","0","0","0","1","1")
+
+
+activities_hhs <- activities[order(rownames(activities)), ]
 
 
 
@@ -294,7 +375,6 @@ all_items$type <- ifelse( all_items$response  %in% N, "N",
                   ifelse( all_items$response  %in% W, "W", 
                   ifelse( all_items$response  %in% D, "D", 
                   ifelse( all_items$response  %in% M, "M", NA)))))
-
 
 #PREPARE DATA
 #matrix of answers
@@ -580,11 +660,12 @@ d <- list( N = as.integer(nrow(interviews)),             #n individuals
            A = as.integer(interviews$summary_age) ,              #standardized age
            S = interviews$sex,                           #sex of individuals
            SY= as.integer(interviews$class_new),         #standardized n of years of school
-           am= activities,                               #activities practiced
+           ams= activities_self,                         #activities practiced - self declared
+           amh= activities_hhs,                          #activities practiced - from household survey
            C = ncol(activities),                         #n of activities
            type_l = all_items$type,                      #type of items freelist
            type_q = correct_answers$area,                #type of items questions
-           type_r = type_r,                               #type of items picture recognition
+           type_r = type_r,                              #type of items picture recognition
            L = ncol(Y_l),                                #n of items in freelist
            Q = ncol(Y_q),                                #n of items in questions
            R = ncol(Y_r),                                #n of items in picture recognition
@@ -602,6 +683,8 @@ list.save(d, '2_Data_preparation/processed_data.RData')
 
 rm( all_items, 
     activities, 
+    activities_self, 
+    activities_hhs, 
     ages,
     correct_answers, 
     chores,  
