@@ -189,6 +189,19 @@ activities[which(rownames(activities) == 233890),] <- c ("1","1","0","0","0","1"
 activities[which(rownames(activities) == 253748),] <- c ("1","1","0","0","0","1","0","0","1","0")
 activities[which(rownames(activities) == 61212),]  <- c ("1","1","0","0","1","0","0","0","1","1")
 
+#####ATTENTION
+#some individuals have missing info on activities
+#add values sourced from the household interviews for people who are missing activities in the knowledge interviews
+na.activities <- matrix (NA, nrow = 3 , ncol = length (colnames (activities) ),
+                         dimnames = list( interviews[ which (!interviews$anonyme_id  %in% rownames (activities) ), "anonyme_id"],
+                                          colnames (activities) ) ) #these people. Need to try to add from hh interviews or add NA
+na.activities[ which(rownames(na.activities) == 132588),] <- c (0,0,1,0,0,0,0,0,0,1)
+na.activities[ which(rownames(na.activities) == 136745),] <- c (0,0,0,1,1,0,1,1,1,1)
+na.activities[ which(rownames(na.activities) == 236324),] <- c (1,1,0,0,0,0,0,0,0,0)
+
+
+activities <- rbind( activities, na.activities )
+
 
 activities_hhs <- activities[order(rownames(activities)), ]
 
@@ -676,7 +689,8 @@ d <- list( N = as.integer(nrow(interviews)),             #n individuals
 mode(d$Y_l) <- "integer"
 mode(d$Y_q) <- "integer"
 mode(d$Y_r) <- "integer"
-mode(d$am) <- "integer"
+mode(d$amh) <- "integer" 
+mode(d$ams) <- "integer" 
 
 
 list.save(d, '2_Data_preparation/processed_data.RData')
