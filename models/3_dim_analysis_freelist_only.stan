@@ -13,10 +13,10 @@ data{
 
 parameters{
   //individual parameters
-  real mA; //global intercept
+  vector[D] mA; //global intercept
 	matrix[N,D] aK; // individual intercepts on knowledge
   matrix<lower=0>[2,D] bA; // coefficient relating age to knowledge
-  simplex[O-1] delta; //age specific effects
+  simplex[O-1] delta [D]; //age specific effects
 
 	
 	//item parameters
@@ -29,22 +29,24 @@ parameters{
 
 transformed parameters{
   matrix[N,D] K;
-  vector[O] delta_j;
-  delta_j  = append_row(0, delta);
+  matrix[O,D] delta_j;
   for ( d in 1:D ) 
-    for ( i in 1:N ) 
-      K[i,d] = mA +                                           //global intercept - minimum value of knowledge
+    delta_j[,d]  = append_row(0, delta[d]);
+    
+  for ( d in 1:D ) 
+      for ( i in 1:N ) 
+      K[i,d] = mA[d] +                                           //global intercept - minimum value of knowledge
                aK[i,d] +                                      //individual interecepts -absorbs residual variation   
-               bA[S[i], d] * sum (delta_j[ 1 : A[i] ] ) ;     //effect of age - sex specific
+               bA[S[i], d] * sum (delta_j[ 1 : A[i], d ] ) ;     //effect of age - sex specific
 
 }//transformed parameters
 
 model{
   //priors for individual parameters
-  mA ~ normal( -6, 3)T[,0]; //global intercept
-	to_vector(aK) ~ normal(0,2);
-  for(d in 1:D) for(s in 1:2) bA[s,d] ~ normal( 0 , 5 ) T[0,];
-  delta ~ dirichlet( alpha );
+  for(d in 1:D) mA[d] ~ normal( 0, 3 )T[,0]; //global intercept
+	to_vector(aK) ~ normal(0,1);
+  for(d in 1:D) for(s in 1:2) bA[s,d] ~ normal( 0 , 3 ) T[0,];
+  for(d in 1:D) delta[d] ~ dirichlet( alpha );
   
 	//priors for item parameters
 	//discrimination

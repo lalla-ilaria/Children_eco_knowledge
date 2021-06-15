@@ -4,9 +4,11 @@ data{
 	int L; //n items freelist
 	int Q; //n items questionnaire
 	int R; //n items image recognition
+ 	int C; //n of activities
 	int O; //n ages
 	int A[N]; //age of individuals
 	int S[N]; //sex of individuals
+  row_vector[C]AM[N] ; //activities matrix
 	int Y_l[N,L]; //answers freelist
   int Y_q[N,Q]; //answers questionnaire
   int Y_r[N,R]; //answers image recognition
@@ -19,7 +21,7 @@ parameters{
 	matrix[N,D] aK; // individual intercepts on knowledge
   matrix<lower=0>[2,D] bA; // coefficient relating age to knowledge
   simplex[O-1] delta; //age specific effects
-
+	matrix[C,D] aAM; //a vector of coefficients for activities
 	
 	//item parameters
 	//discrimination
@@ -43,16 +45,17 @@ transformed parameters{
     for ( i in 1:N ) 
       K[i,d] = mA +                                           //global intercept - minimum value of knowledge
                aK[i,d] +                                      //individual interecepts -absorbs residual variation   
-               bA[S[i], d] * sum (delta_j[ 1 : A[i] ] ) ;     //effect of age - sex specific
-
+               bA[S[i], d] * sum (delta_j[ 1 : A[i] ] ) +     //effect of age - sex specific
+               dot_product( aAM[,d], AM[i]);                  //activity effects; 
 }//transformed parameters
 
 model{
   //priors for individual parameters
-  mA ~ normal( 0, 3)T[,0]; //global intercept
-	to_vector(aK) ~ normal(0,1);
-  for(d in 1:D) for(s in 1:2) bA[s,d] ~ normal( 0 , 3 ) T[0,];
+  mA ~ normal( -8, 2)T[,0]; //global intercept
+	to_vector(aK) ~ normal(0,3);
+  for(d in 1:D) for(s in 1:2) bA[s,d] ~ normal( 0 , 5 ) T[0,];
   delta ~ dirichlet( alpha );
+  to_vector(aAM) ~ normal(0,1);
   
 	//priors for item parameters
 	//discrimination

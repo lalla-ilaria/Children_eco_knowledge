@@ -18,8 +18,8 @@ d$color_l <- ifelse( is.na(d$type_l), "slategray1",
 #ORDERED CATEGORICAL A#
 #######################
 #extract samples
-post_age <- extract.samples(m_age)
-post <- post_age
+post_agedt <- extract.samples(m_agedt)
+post <- post_agedt
 
 #INDIVIDUALS
 ############
@@ -35,7 +35,7 @@ for (i in 1:ncol(post$delta_j)) lines(apply(post$delta_j, 2, PI)[,i], rep(i, eac
 
 #mA + aK[i,d] + bA[S[i], d] * sum (delta_j[ 1 : A[i] ] ) ; 
 year_eff <- apply(post$delta_j, 1, cumsum)
-plot(d$A[ d$A <= 50 ], apply(post$K, 2, mean), 
+plot(d$A[ d$A <= 50 ], apply(post$K, 2, mean), xlim = c(0,27),
      xlab = "Age", ylab = "Knowledge",  
      pch = 19, col = alpha( d$sex_col, 0.6 ) )
 for (i in 1:80) {
@@ -44,7 +44,24 @@ for (i in 1:80) {
 for (i in 1:80) {
   lines(1:nrow(year_eff),  post$mA[i] + post$bA[i,2,] * year_eff[,i], type = "l", col = col.alpha( girlcol, alpha = 0.1))
 }
+lines(1:nrow(year_eff_1),  mean(post$mA) + mean(post$bA[,1,]) * apply(year_eff, 1, mean), type = "l", col = col.alpha( boycol, alpha = 0.7))
+lines(1:nrow(year_eff_2),  mean(post$mA) + mean(post$bA[,2,]) * apply(year_eff, 1, mean), type = "l", col = col.alpha( girlcol, alpha = 0.7))
 
+
+#diff deltas
+year_eff_1 <- apply(post$delta_j[,,1], 1, cumsum)
+year_eff_2 <- apply(post$delta_j[,,2], 1, cumsum)
+plot(d$A[ d$A <= 50 ], apply(post$K, 2, mean), 
+     xlab = "Age", ylab = "Knowledge",  
+     pch = 19, col = alpha( d$sex_col, 0.6 ) )
+for (i in 1:80) {
+  lines(1:nrow(year_eff_1),  post$mA[i] + post$bA[i,1,] * year_eff_1[,i], type = "l", col = col.alpha( boycol, alpha = 0.1))
+}
+for (i in 1:80) {
+  lines(1:nrow(year_eff_2),  post$mA[i] + post$bA[i,2,] * year_eff_2[,i], type = "l", col = col.alpha( girlcol, alpha = 0.1))
+}
+lines(1:nrow(year_eff_1),  mean(post$mA) + mean(post$bA[,1,]) * apply(year_eff_1, 1, mean), type = "l", col = col.alpha( boycol, alpha = 0.7))
+lines(1:nrow(year_eff_2),  mean(post$mA) + mean(post$bA[,2,]) * apply(year_eff_2, 1, mean), type = "l", col = col.alpha( girlcol, alpha = 0.7))
 
 
 
@@ -110,13 +127,54 @@ post <- post_act
 #check activity effect
 plot (precis (m_act, 3, pars = "aAM"))
 axis(2, at=10:1, labels=colnames(d$am), par(las=1))
+# #as violin plot
+# act <- as.data.frame(post$aAM[,,1])
+# colnames(act) <- act_names
+# act <- act %>% gather(activity, effect,1:10)
+# ggplot(act, aes ( x = effect,
+#              y = activity))+
+#   geom_vline(xintercept =0, col = "grey")+
+#   geom_violin()+
+#   theme_classic()
+#as ridgeplot
+act <- split(post$aAM[,,1], rep(1:ncol(post$aAM[,,1]), each = nrow(post$aAM[,,1])))
+names(act) <- act_names
+act <- act[order(sapply(act, mean))]
+ridgeplot( act,
+           step = 1.1,
+           col = "cornflowerblue",
+           fill = col.alpha("cornflowerblue", 0.2))
+abline(v = 0, col = col.alpha("grey", 0.2))
+
+
+plot(x = ac$mu, 
+     y = 1:10, 
+     xlim = c(-1.6, 1.5),
+     cex.lab=1.8, 
+     cex.axis=1.8, 
+     pch = 19, 
+     xlab = "Effect of activities", 
+     ylab = "", 
+     yaxt='n',
+     family = "A",
+     col = ac$col_0)
+title( "c - Activity effects", adj = 0, cex.main = 1.8, family = "A")
+axis(2, ac$names, at = c(1:10), las = 1, cex.axis = 1.2, family = "A")
+abline(v = 0, col = "gray")
+for (i in 1:10) lines(c(ac$lim5.5[i],ac$lim94.5[i]) , rep(i, each = 2), col = ac$col_0[i], lwd = 1.5)
 
 #or
 plot(apply(post$aAM, 2, mean), 1:10, xlim = c(-1.6, 1.5),
      xlab = "Activity effect", ylab = "Activities", yaxt='n')
-axis(2, colnames(d$am), at = c(1:10), las = 1)
+axis(2, colnames(d$amh), at = c(1:10), las = 1)
 for (i in 1:10) lines(apply(post$aAM, 2, PI)[,i], rep(i, each = 2))
 abline(v = 0)
+
+#############################################################################
+#explore participation to activities
+apply(d$amh, 2, sum)
+plot(jitter(d$amh[,6]), jitter(d$amh[,8]))
+#neeed to check if people who do certain activities name things that have to do with them
 
 
 #explore age effects
@@ -137,6 +195,22 @@ for (i in 1:80) {
 for (i in 1:80) {
   lines(1:nrow(year_eff),  post$mA[i] + post$bA[i,2,] * year_eff[,i], type = "l", col = col.alpha( girlcol, alpha = 0.1))
 }
+lines(1:nrow(year_eff_1),  mean(post$mA) + mean(post$bA[,1,]) * apply(year_eff, 1, mean), type = "l", col = col.alpha( boycol, alpha = 0.7))
+lines(1:nrow(year_eff_2),  mean(post$mA) + mean(post$bA[,2,]) * apply(year_eff, 1, mean), type = "l", col = col.alpha( girlcol, alpha = 0.7))
+
+
+###############
+#contrasts sex#
+###############
+plot(NULL, xlim = c(-2, 4), ylim = c(0.5,2.5), yaxt='n')
+points(mean(post_age$bA[,1,] - post_age$bA[,2,]), 1)
+points(mean(post_act$bA[,1,] - post_act$bA[,2,]), 2)
+lines(PI(post_age$bA[,1,] - post_age$bA[,2,]), c(1,1))
+lines(PI(post_act$bA[,1,] - post_act$bA[,2,]), c(2,2))
+abline(v = 0)
+axis(2, c("age", "act" ), at = c(1:2), las = 1)
+
+
 ##########
 #FAMILIES#
 ##########
@@ -177,13 +251,28 @@ for (i in 1:50) {
 ############
 #DIMENSIONS#
 ############
+waics <- compare( m_d[[2]], m_d[[3]], m_d[[4]])
+waicsd <- compare( m_dd[[2]], m_dd[[3]], m_dd[[4]])
 post_2 <- extract.samples(m_d[[2]])
 post_3 <- extract.samples(m_d[[3]])
-post_d <- extract.samples(m_d3)
+post_4 <- extract.samples(m_d[[4]])
+
+postd_2 <- extract.samples(m_dd[[2]])
+postd_3 <- extract.samples(m_dd[[3]])
+postd_4 <- extract.samples(m_dd[[4]])
+
+post_d <- post_3
 
 #check the correlation between dimensions
 par( mfrow = c( 1,3))
 #knowledge
+plot(apply( post_d$K[,,1], 2, mean), apply(post_d$aK, 2, mean),
+     xlab = "K 1", ylab = "aK",col = d$sex_col)
+plot(apply( post_d$K[,,2], 2, mean), apply(post_d$aK, 2, mean),
+     xlab = "K 2", ylab = "aK",col = d$sex_col)
+plot(apply( post_d$K[,,3], 2, mean), apply(post_d$aK, 2, mean),
+     xlab = "K 3", ylab = "aK",col = d$sex_col)
+
 plot(apply( post_d$K[,,1], 2, mean), apply( post_d$K[,,2], 2, mean),
      xlab = "K 1", ylab = "K 2",col = d$sex_col)
 plot(apply( post_d$K[,,1], 2, mean), apply( post_d$K[,,3], 2, mean),
@@ -212,30 +301,33 @@ precis(m_d[[3]], pars = "bA")
 
 ############
 #Age effect#
-year_eff <- apply(post_d$delta_j, 1, cumsum)
+#dimension specific deltas
+year_eff <- apply(post_d$delta_j[,,1], 1, cumsum)
 plot(d$A[ d$A <= 50 ], apply(post_d$K[,,1], 2, mean), 
      xlab = "Age", ylab = "Knowledge", col = d$sex_col )
 for (i in 1:50) {
-  lines(1:nrow(year_eff),  post_d$mA[i] + post_d$bA[i,1,1] * year_eff[,i], type = "l", col = col.alpha( boycol, alpha = 0.1))
+  lines(1:nrow(year_eff),  post_d$mA[i,1] + post_d$bA[i,1,1] * year_eff[,i], type = "l", col = col.alpha( boycol, alpha = 0.1))
 }
 for (i in 1:50) {
-  lines(1:nrow(year_eff),  post_d$mA[i] + post_d$bA[i,2,1] * year_eff[,i], type = "l", col = col.alpha( girlcol, alpha = 0.1))
+  lines(1:nrow(year_eff),  post_d$mA[i,1] + post_d$bA[i,2,1] * year_eff[,i], type = "l", col = col.alpha( girlcol, alpha = 0.1))
 }
+year_eff <- apply(post_d$delta_j[,,2], 1, cumsum)
 plot(d$A[ d$A <= 50 ], apply(post_d$K[,,2], 2, mean), 
      xlab = "Age", ylab = "Knowledge", col = d$sex_col )
 for (i in 1:50) {
-  lines(1:nrow(year_eff),  post_d$mA[i] + post_d$bA[i,1,2] * year_eff[,i], type = "l", col = col.alpha( boycol, alpha = 0.1))
+  lines(1:nrow(year_eff),  post_d$mA[i,2] + post_d$bA[i,1,2] * year_eff[,i], type = "l", col = col.alpha( boycol, alpha = 0.1))
 }
 for (i in 1:50) {
-  lines(1:nrow(year_eff),  post_d$mA[i] + post_d$bA[i,2,2] * year_eff[,i], type = "l", col = col.alpha( girlcol, alpha = 0.1))
+  lines(1:nrow(year_eff),  post_d$mA[i,2] + post_d$bA[i,2,2] * year_eff[,i], type = "l", col = col.alpha( girlcol, alpha = 0.1))
 }
+year_eff <- apply(post_d$delta_j[,,3], 1, cumsum)
 plot(d$A[ d$A <= 50 ], apply(post_d$K[,,3], 2, mean), 
      xlab = "Age", ylab = "Knowledge", col = d$sex_col )
 for (i in 1:50) {
-  lines(1:nrow(year_eff),  post_d$mA[i] + post_d$bA[i,1,3] * year_eff[,i], type = "l", col = col.alpha( boycol, alpha = 0.1))
+  lines(1:nrow(year_eff),  post_d$mA[i,3] + post_d$bA[i,1,3] * year_eff[,i], type = "l", col = col.alpha( boycol, alpha = 0.1))
 }
 for (i in 1:50) {
-  lines(1:nrow(year_eff),  post_d$mA[i] + post_d$bA[i,2,3] * year_eff[,i], type = "l", col = col.alpha( girlcol, alpha = 0.1))
+  lines(1:nrow(year_eff),  post_d$mA[i,3] + post_d$bA[i,2,3] * year_eff[,i], type = "l", col = col.alpha( girlcol, alpha = 0.1))
 }
 
 
@@ -374,3 +466,110 @@ plot_age_sex <- function( post , d, dot_col ){
   shade(mus2.PI, A_seq_real, col =  col.alpha(girlcol, 0.2))
   
 }
+
+
+#4d
+par( mfrow = c( 1,4))
+#knowledge
+plot(apply( post_d$K[,,1], 2, mean), apply(post_d$aK, 2, mean),
+     xlab = "K 1", ylab = "aK",col = d$sex_col)
+plot(apply( post_d$K[,,2], 2, mean), apply(post_d$aK, 2, mean),
+     xlab = "K 2", ylab = "aK",col = d$sex_col)
+plot(apply( post_d$K[,,3], 2, mean), apply(post_d$aK, 2, mean),
+     xlab = "K 3", ylab = "aK",col = d$sex_col)
+plot(apply( post_d$K[,,4], 2, mean), apply(post_d$aK, 2, mean),
+     xlab = "K 4", ylab = "aK",col = d$sex_col)
+
+plot(apply( post_d$K[,,1], 2, mean), apply( post_d$K[,,2], 2, mean),
+     xlab = "K 1", ylab = "K 2",col = d$sex_col)
+plot(apply( post_d$K[,,1], 2, mean), apply( post_d$K[,,3], 2, mean),
+     xlab = "K 1", ylab = "K 3",col = d$sex_col)
+plot(apply( post_d$K[,,2], 2, mean), apply( post_d$K[,,3], 2, mean),
+     xlab = "K 2", ylab = "K 3",col = d$sex_col)
+plot(apply( post_d$K[,,1], 2, mean), apply( post_d$K[,,4], 2, mean),
+     xlab = "K 1", ylab = "K 4",col = d$sex_col)
+plot(apply( post_d$K[,,4], 2, mean), apply( post_d$K[,,3], 2, mean),
+     xlab = "K 4", ylab = "K 3",col = d$sex_col)
+plot(apply( post_d$K[,,2], 2, mean), apply( post_d$K[,,4], 2, mean),
+     xlab = "K 2", ylab = "K 4",col = d$sex_col)
+
+
+#dimension specific deltas
+year_eff <- apply(post_d$delta_j[,,1], 1, cumsum)
+plot(d$A[ d$A <= 50 ], apply(post_d$K[,,1], 2, mean), 
+     xlab = "Age", ylab = "Knowledge", col = d$sex_col )
+for (i in 1:50) {
+  lines(1:nrow(year_eff),  post_d$mA[i,1] + post_d$bA[i,1,1] * year_eff[,i], type = "l", col = col.alpha( boycol, alpha = 0.1))
+}
+for (i in 1:50) {
+  lines(1:nrow(year_eff),  post_d$mA[i,1] + post_d$bA[i,2,1] * year_eff[,i], type = "l", col = col.alpha( girlcol, alpha = 0.1))
+}
+year_eff <- apply(post_d$delta_j[,,2], 1, cumsum)
+plot(d$A[ d$A <= 50 ], apply(post_d$K[,,2], 2, mean), 
+     xlab = "Age", ylab = "Knowledge", col = d$sex_col )
+for (i in 1:50) {
+  lines(1:nrow(year_eff),  post_d$mA[i,2] + post_d$bA[i,1,2] * year_eff[,i], type = "l", col = col.alpha( boycol, alpha = 0.1))
+}
+for (i in 1:50) {
+  lines(1:nrow(year_eff),  post_d$mA[i,2] + post_d$bA[i,2,2] * year_eff[,i], type = "l", col = col.alpha( girlcol, alpha = 0.1))
+}
+year_eff <- apply(post_d$delta_j[,,3], 1, cumsum)
+plot(d$A[ d$A <= 50 ], apply(post_d$K[,,3], 2, mean), 
+     xlab = "Age", ylab = "Knowledge", col = d$sex_col )
+for (i in 1:50) {
+  lines(1:nrow(year_eff),  post_d$mA[i,3] + post_d$bA[i,1,3] * year_eff[,i], type = "l", col = col.alpha( boycol, alpha = 0.1))
+}
+for (i in 1:50) {
+  lines(1:nrow(year_eff),  post_d$mA[i,3] + post_d$bA[i,2,3] * year_eff[,i], type = "l", col = col.alpha( girlcol, alpha = 0.1))
+}
+year_eff <- apply(post_d$delta_j[,,4], 1, cumsum)
+plot(d$A[ d$A <= 50 ], apply(post_d$K[,,4], 2, mean), 
+     xlab = "Age", ylab = "Knowledge", col = d$sex_col )
+for (i in 1:50) {
+  lines(1:nrow(year_eff),  post_d$mA[i,4] + post_d$bA[i,1,4] * year_eff[,i], type = "l", col = col.alpha( boycol, alpha = 0.1))
+}
+for (i in 1:50) {
+  lines(1:nrow(year_eff),  post_d$mA[i,4] + post_d$bA[i,2,4] * year_eff[,i], type = "l", col = col.alpha( girlcol, alpha = 0.1))
+}
+
+b_ls <- apply(post_age$b_l, 2, mean)
+b_ls_1 <- apply(post_d$b_l[,,1], 2, mean)
+b_ls_2 <- apply(post_d$b_l[,,2], 2, mean)
+b_ls_3 <- apply(post_d$b_l[,,3], 2, mean)
+print("one dimension model")
+colnames(d$Y_l)[which(b_ls <=max(sort(b_ls)[1:10]))]
+colnames(d$Y_l)[which(b_ls >=min(sort(b_ls, decreasing = T)[1:10]))]
+print("three dimensions model_2")
+colnames(d$Y_l)[which(b_ls_2 <=max(sort(b_ls_2)[1:10]))]
+colnames(d$Y_l)[which(b_ls_2 >=min(sort(b_ls_2, decreasing = T)[1:10]))]
+print("three dimensions model_1")
+colnames(d$Y_l)[which(b_ls_1 <=max(sort(b_ls_1)[1:10]))]
+colnames(d$Y_l)[which(b_ls_1 >=min(sort(b_ls_1, decreasing = T)[1:10]))]
+print("three dimensions model_3")
+colnames(d$Y_l)[which(b_ls_3 <=max(sort(b_ls_3)[1:10]))]
+colnames(d$Y_l)[which(b_ls_3 >=min(sort(b_ls_3, decreasing = T)[1:10]))]
+
+
+bs1 <- b_ls_1 - min(b_ls_1)
+bs2 <- b_ls_2 - min(b_ls_2) 
+bs3 <- b_ls_3 - min(b_ls_3) 
+
+bs1 <- bs1 / max (bs1)
+bs2 <- bs2 / max (bs2)
+bs3 <- bs3 / max (bs3)
+
+bs1 <- abs(bs1 -1)
+bs2 <- abs(bs2 -1)
+bs3 <- abs(bs3 -1)
+
+bs1 <- bs1 *10
+bs2 <- bs2 *10
+bs3 <- bs3 *10
+
+bs1words <- data.frame(words = colnames(d$Y_l), n = round(bs1))
+bs2words <- data.frame(words = colnames(d$Y_l), n = round(bs2))
+bs3words <- data.frame(words = colnames(d$Y_l), n = round(bs3))
+
+bs1allwords <- rep( bs1words$words, times = bs1words$n) 
+bs2allwords <- rep( bs2words$words, times = bs2words$n) 
+bs3allwords <- rep( bs3words$words, times = bs3words$n)

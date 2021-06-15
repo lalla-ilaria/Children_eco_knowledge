@@ -55,8 +55,8 @@ transformed parameters{
 
 model{
 	//priors for individual parameters
-	mA ~ normal( -6, 3)T[,0];
-	to_vector(aK) ~ normal(0,1);
+  mA ~ normal( -8, 2)T[,0]; //global intercept
+	to_vector(aK) ~ normal(0,3);
   for(d in 1:D) for(s in 1:2) bA[s,d] ~ normal( 0 , 5 ) T[0,];
   to_vector(bSY) ~ normal( 0 , 0.5 );
   delta ~ dirichlet( alpha );

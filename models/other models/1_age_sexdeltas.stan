@@ -4,11 +4,9 @@ data{
 	int L; //n items freelist
 	int Q; //n items questionnaire
 	int R; //n items image recognition
- 	int C; //n of activities
 	int O; //n ages
 	int A[N]; //age of individuals
 	int S[N]; //sex of individuals
-  row_vector[C]AM[N] ; //activities matrix
 	int Y_l[N,L]; //answers freelist
   int Y_q[N,Q]; //answers questionnaire
   int Y_r[N,R]; //answers image recognition
@@ -20,8 +18,8 @@ parameters{
   real mA; //global intercept
 	matrix[N,D] aK; // individual intercepts on knowledge
   matrix<lower=0>[2,D] bA; // coefficient relating age to knowledge
-  simplex[O-1] delta; //age specific effects
-	matrix[C,D] aAM; //a vector of coefficients for activities
+  simplex[O-1] delta[2]; //age specific effects
+
 	
 	//item parameters
 	//discrimination
@@ -39,23 +37,22 @@ parameters{
 
 transformed parameters{
   matrix[N,D] K;
-  vector[O] delta_j;
-  delta_j  = append_row(0, delta);
+  matrix[O,2] delta_j;
+  for (s in 1:2) delta_j[,s]  = append_row(0, delta[s]);
   for ( d in 1:D ) 
     for ( i in 1:N ) 
       K[i,d] = mA +                                           //global intercept - minimum value of knowledge
                aK[i,d] +                                      //individual interecepts -absorbs residual variation   
-               bA[S[i], d] * sum (delta_j[ 1 : A[i] ] ) +     //effect of age - sex specific
-               dot_product( aAM[,d], AM[i]);                  //activity effects; 
+               bA[S[i], d] * sum (delta_j[ 1 : A[i] , S[i]] ) ;     //effect of age - sex specific
+
 }//transformed parameters
 
 model{
   //priors for individual parameters
-  mA ~ normal( 0, 3)T[,0];
-	to_vector(aK) ~ normal(0,1);
-  for(d in 1:D) for(s in 1:2) bA[s,d] ~ normal( 0 , 3 ) T[0,];
-  delta ~ dirichlet( alpha );
-  to_vector(aAM) ~ normal(0,1);
+  mA ~ normal( -8, 2)T[,0]; //global intercept
+	to_vector(aK) ~ normal(0,3);
+  for(d in 1:D) for(s in 1:2) bA[s,d] ~ normal( 0 , 5 ) T[0,];
+  for(s in 1:2) delta[s] ~ dirichlet( alpha );
   
 	//priors for item parameters
 	//discrimination
