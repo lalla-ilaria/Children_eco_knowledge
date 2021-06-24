@@ -19,7 +19,7 @@ d$color_l <- ifelse( is.na(d$type_l), "slategray1",
 #######################
 #extract samples
 post_agedt <- extract.samples(m_agedt)
-post <- post_agedt
+post <- post_age
 
 #INDIVIDUALS
 ############
@@ -541,35 +541,65 @@ colnames(d$Y_l)[which(b_ls <=max(sort(b_ls)[1:10]))]
 colnames(d$Y_l)[which(b_ls >=min(sort(b_ls, decreasing = T)[1:10]))]
 print("three dimensions model_2")
 colnames(d$Y_l)[which(b_ls_2 <=max(sort(b_ls_2)[1:10]))]
-colnames(d$Y_l)[which(b_ls_2 >=min(sort(b_ls_2, decreasing = T)[1:10]))]
+colnames(d$Y_l)[which(b_ls_2 >=min(sort(b_ls_2, decreasing = T)[1:30]))]
 print("three dimensions model_1")
 colnames(d$Y_l)[which(b_ls_1 <=max(sort(b_ls_1)[1:10]))]
-colnames(d$Y_l)[which(b_ls_1 >=min(sort(b_ls_1, decreasing = T)[1:10]))]
+colnames(d$Y_l)[which(b_ls_1 >=min(sort(b_ls_1, decreasing = T)[1:30]))]
 print("three dimensions model_3")
 colnames(d$Y_l)[which(b_ls_3 <=max(sort(b_ls_3)[1:10]))]
-colnames(d$Y_l)[which(b_ls_3 >=min(sort(b_ls_3, decreasing = T)[1:10]))]
+colnames(d$Y_l)[which(b_ls_3 >=min(sort(b_ls_3, decreasing = T)[1:30]))]
+
+Ks <- apply(post_age$K, 2, mean)
+Ks_1 <- apply(post_d$K[,,1], 2, mean)
+Ks_2 <- apply(post_d$K[,,2], 2, mean)
+Ks_3 <- apply(post_d$K[,,3], 2, mean)
+best_all <- rownames(d$Y_l)[which(Ks >=min(sort(Ks, decreasing = T)[1:10]))]
+best_1 <- rownames(d$Y_l)[which(Ks_2 >=min(sort(Ks_2, decreasing = T)[1:10]))]
+best_2 <- rownames(d$Y_l)[which(Ks_1 >=min(sort(Ks_1, decreasing = T)[1:10]))]
+best_3 <- rownames(d$Y_l)[which(Ks_3 >=min(sort(Ks_3, decreasing = T)[1:10]))]
+
+rare_w <- which(apply(d$Y_l, 2, sum) <=1)
+rare_w_all <- NA
+for (i in 1:10){
+  rare_w_all <- append( rare_w_all, names(  rare_w[ which (names(rare_w) %in% names(which(d$Y_l[which( rownames(d$Y_l) == best_all[i]),]>=1)))]))}
+rw_all <- data.frame(rare_w_all, type = rep(NA, length(rare_w_all)), dim = rep("d_all", length(rare_w_all)))
+rw_all <- rw_all[-is.na(rw_all$rare_w_all),]
+for ( i in 1: nrow(rw_all)) {
+  rw_all$type[i] <- d$type_l[which( colnames(d$Y_l) == rw_all$rare_w_all[i])]}
+
+rare_w_1 <- NA
+for (i in 1:10){
+  rare_w_1 <- append( rare_w_1, names(  rare_w[ which (names(rare_w) %in% names(which(d$Y_l[which( rownames(d$Y_l) == best_1[i]),]>=1)))]))}
+rw_1 <- data.frame(rare_w_1, type = rep(NA, length(rare_w_1)), dim = rep("d1", length(rare_w_1)))
+rw_1 <- rw_1[-is.na(rw_1$rare_w_1),]
+for ( i in 1: nrow(rw_1)) {
+  rw_1$type[i] <- d$type_l[which( colnames(d$Y_l) == rw_1$rare_w_1[i])]}
+
+rare_w_2 <- NA
+for (i in 1:10){
+  rare_w_2 <- append( rare_w_2, names(rare_w[ which (names(rare_w) %in% names(which(d$Y_l[which( rownames(d$Y_l) == best_2[i]),]>=1)))]))}
+rw_2 <- data.frame(rare_w_2, type = rep(NA, length(rare_w_2)), dim = rep("d2", length(rare_w_2)))
+rw_2 <- rw_2[-is.na(rw_2$rare_w_2),]
+for ( i in 1: nrow(rw_2)) {
+  rw_2$type[i] <- d$type_l[which( colnames(d$Y_l) == rw_2$rare_w_2[i])]}
+
+rare_w_3 <- NA
+for (i in 1:10){
+  rare_w_3 <- append( rare_w_3, names(rare_w[ which (names(rare_w) %in% names(which(d$Y_l[which( rownames(d$Y_l) == best_3[i]),]>=1)))]))}
+rw_3 <- data.frame(rare_w_3, type = rep(NA, length(rare_w_3)), dim = rep("d3", length(rare_w_3)))
+rw_3 <- rw_3[-is.na(rw_3$rare_w_3),]
+for ( i in 1: nrow(rw_3)) {
+  rw_3$type[i] <- d$type_l[which( colnames(d$Y_l) == rw_3$rare_w_3[i])]}
 
 
-bs1 <- b_ls_1 - min(b_ls_1)
-bs2 <- b_ls_2 - min(b_ls_2) 
-bs3 <- b_ls_3 - min(b_ls_3) 
+rw <- as.data.frame(mapply(c,rw_all, rw_1, rw_2, rw_3))
+write.csv(rw, "rare_words.csv", row.names = FALSE)
 
-bs1 <- bs1 / max (bs1)
-bs2 <- bs2 / max (bs2)
-bs3 <- bs3 / max (bs3)
+rw_counts <- as.data.frame(rw %>% group_by(type, dim) %>% count())
+ggplot(rw_counts, aes(fill=type, y=n, x=dim)) + 
+  geom_bar(position="stack", stat="identity")
+rm(rare_w, rare_w_1, rare_w_2, rare_w_3, rare_w_all, 
+   rw_1, rw_2, rw_3, rw_all, 
+   best_1, best_2, best_3, best_all,
+   Ks, Ks_1, Ks_2, Ks_3)
 
-bs1 <- abs(bs1 -1)
-bs2 <- abs(bs2 -1)
-bs3 <- abs(bs3 -1)
-
-bs1 <- bs1 *10
-bs2 <- bs2 *10
-bs3 <- bs3 *10
-
-bs1words <- data.frame(words = colnames(d$Y_l), n = round(bs1))
-bs2words <- data.frame(words = colnames(d$Y_l), n = round(bs2))
-bs3words <- data.frame(words = colnames(d$Y_l), n = round(bs3))
-
-bs1allwords <- rep( bs1words$words, times = bs1words$n) 
-bs2allwords <- rep( bs2words$words, times = bs2words$n) 
-bs3allwords <- rep( bs3words$words, times = bs3words$n)

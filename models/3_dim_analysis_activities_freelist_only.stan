@@ -2,9 +2,11 @@ data{
 	int D; //n dimensions
 	int N; //n individuals
 	int L; //n items freelist
+ 	int C; //n of activities
 	int O; //n ages
 	int A[N]; //age of individuals
 	int S[N]; //sex of individuals
+  row_vector[C]AM[N] ; //activities matrix
 	int Y_l[N,L]; //answers freelist
   vector[O-1] alpha; //prior drichlet
 }//data
@@ -15,6 +17,9 @@ parameters{
 	matrix[N,D] aK; // individual intercepts on knowledge
   matrix<lower=0>[2,D] bA; // coefficient relating age to knowledge
   simplex[O-1] delta [D]; //age specific effects
+	matrix[C,D] aAM; //a vector of coefficients for activities
+	//sigma individual parameters
+	vector<lower=0>[D] aK_sigma;
 
 	
 	//item parameters
@@ -34,8 +39,9 @@ transformed parameters{
   for ( d in 1:D ) 
       for ( i in 1:N ) 
       K[i,d] = mA[d] +                                           //global intercept - minimum value of knowledge
-               aK[i,d] +                                      //individual interecepts -absorbs residual variation   
-               bA[S[i], d] * sum (delta_j[ 1 : A[i], d ] ) ;     //effect of age - sex specific
+               aK[i,d] * aK_sigma[d] +                              //individual interecepts -absorbs residual variation   
+               bA[S[i], d] * sum (delta_j[ 1 : A[i], d ] ) +     //effect of age - sex specific
+               dot_product( aAM[,d], AM[i]);                  //activity effects; 
 
 }//transformed parameters
 
@@ -45,7 +51,10 @@ model{
 	to_vector(aK) ~ normal(0,1);
   for(d in 1:D) for(s in 1:2) bA[s,d] ~ normal( 0 , 3 ) T[0,];
   for(d in 1:D) delta[d] ~ dirichlet( alpha );
-  
+  to_vector(aAM) ~ normal(0,1);
+  //hyperpriors
+	for(d in 1:D) aK_sigma[d] ~ exponential(1);
+
 	//priors for item parameters
 	//discrimination
 	for(d in 1:D) for(j in 1:L)  a_l[j,d] ~ normal(0, 0.5) T[0,]; //value constrained above zero

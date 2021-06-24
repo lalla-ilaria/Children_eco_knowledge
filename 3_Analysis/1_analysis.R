@@ -21,7 +21,7 @@ dat <- list( D = 1,
              Y_r = d$Y_r [rownames(d$Y_r) != "19586",] , #answers picture recognition
              O = length (0 : 26 ) ,
              alpha = rep( 0.5, length (0:26 ) -1 ) 
-              )
+)
 
 m_age <- stan( file =  "models/1_age.stan", data=dat , chains=3, cores=3)
 post_age <- extract.samples(m_age)
@@ -123,36 +123,123 @@ m_fam <- stan( file =  "models/2_family_intercepts.stan", data=dat , chains=3, c
 #freelist only
 #####
 #if looking only at the freelists items, more than one dimension is favoured
-m_d <- list()
+m_f <- list()
+post_f <- list()
+model_dimensions <- stan(file = "models/3_dim_analysis_freelist_only_multiind.stan")
 #run the model with 1:3 number of dimensions
-for (i in 2:5) {
+for (i in 1:5) {
   dat <- list( D = i,    #loop through dimensions
                N = as.integer(d$N - 1) , 
                L = d$L , 
-               Q = d$Q ,    #n questionnaire items
-               R = d$R ,    #n image recognition items
                A = d$A [d$A <= 50] , # age #[d$A <= 50] 
                S = as.integer(ifelse(d$S == "m", 1, 2) [-60]),
                Y_l = d$Y_l [rownames(d$Y_l) != "19586",] , #answers freelist #[rownames(d$Y_l) != "19586",] 
                O = length (0 : 26 ) ,
                alpha = rep( 0.5, length (0:26 ) -1 ) 
-      )
-  m_d[[i]] <- stan( file = "models/3_dim_analysis_freelist_only.stan", data=dat , chains=1, cores=1, init = 0 )
+  )
+  m_f[[i]] <- stan( fit  = model_dimensions, data=dat , chains=1, cores=1, init = 0 )
+  post_f[[i]] <- extract.samples(m_f[[i]])
+  save(post_f[[i]] , file = paste("4_Outputs/posteriors/post_f", i, ".Rda", sep = ""))
   
 }
-#model comparison
-waics <- compare(m_d[[2]], m_d[[3]], m_d[[4]], m_d[[5]])
-post_2 <- extract.samples(m_d[[2]])
-post_3 <- extract.samples(m_d[[3]])
-post_4 <- extract.samples(m_d[[4]])
-post_5 <- extract.samples(m_d[[5]])
+waics_f <- compare(m_f[[1]], m_f[[2]], m_f[[3]], m_f[[4]], m_f[[5]])
+save( waics_f, file = "4_Outputs/posteriors/waics.Rda")
 
-save( waics, file = "4_Outputs/posteriors/waics.Rda")
-save(post_2, file = "4_Outputs/posteriors/post_2.Rda")
-save(post_3, file = "4_Outputs/posteriors/post_3.Rda")
-save(post_4, file = "4_Outputs/posteriors/post_4.Rda")
-save(post_5, file = "4_Outputs/posteriors/post_5.Rda")
 
-save(m_act, file = "4_Outputs/posteriors/m_act.Rda")
-save(m_age, file = "4_Outputs/posteriors/m_age.Rda")
-save(m_d, file = "4_Outputs/posteriors/m_d.Rda")
+m_fa <- list()
+post_fa <- list()
+model_activitiesdim <- stan(file = "models/3_dim_analysis_activities_freelist_only.stan")
+
+#run the model with 1:3 number of dimensions
+for (i in 1:5) {
+  dat <- list( D = i,    #loop through dimensions
+               N = as.integer(d$N - 1) , 
+               L = d$L , 
+               C = ncol(d$amh), 
+               A = d$A [d$A <= 50] , # age #[d$A <= 50] 
+               S = as.integer(ifelse(d$S == "m", 1, 2) [-60]),
+               AM = d$amh [rownames(d$amh) != "19586",],
+               Y_l = d$Y_l [rownames(d$Y_l) != "19586",] , #answers freelist #[rownames(d$Y_l) != "19586",] 
+               O = length (0 : 26 ) ,
+               alpha = rep( 0.5, length (0:26 ) -1 ) 
+  )
+  m_fa[[i]] <- stan( fit  = model_activitiesdim, data=dat , chains=1, cores=1, init = 0 )
+  post_fa[[i]] <- extract.samples(m_fa[[i]])
+  save(post_fa[[i]] , file = paste("4_Outputs/posteriors/post_fa", i, ".Rda", sep = ""))
+  
+}
+waics_fa <- compare(m_fa[[1]], m_fa[[2]], m_fa[[3]], m_fa[[4]], m_fa[[5]])
+save( waics_fa, file = "4_Outputs/posteriors/waics_fa.Rda")
+
+# #model comparison
+# waics <- compare(m_d[[1]], m_d[[2]], m_d[[3]], m_d[[4]], m_d[[5]])
+# post_1 <- extract.samples(m_d[[1]])
+# post_2 <- extract.samples(m_d[[2]])
+# post_3 <- extract.samples(m_d[[3]])
+# post_4 <- extract.samples(m_d[[4]])
+# post_5 <- extract.samples(m_d[[5]])
+# post_a1 <- extract.samples(m_da[[1]])
+# post_a2 <- extract.samples(m_da[[2]])
+# post_a3 <- extract.samples(m_da[[3]])
+# post_a4 <- extract.samples(m_da[[4]])
+# post_a5 <- extract.samples(m_da[[5]])
+# 
+# save( waics, file = "4_Outputs/posteriors/waics.Rda")
+# save(post_1, file = "4_Outputs/posteriors/post_2.Rda")
+# save(post_2, file = "4_Outputs/posteriors/post_2.Rda")
+# save(post_3, file = "4_Outputs/posteriors/post_3.Rda")
+# save(post_4, file = "4_Outputs/posteriors/post_4.Rda")
+# save(post_5, file = "4_Outputs/posteriors/post_5.Rda")
+# 
+# save(m_act, file = "4_Outputs/posteriors/m_act.Rda")
+# save(m_age, file = "4_Outputs/posteriors/m_age.Rda")
+# save(m_d, file = "4_Outputs/posteriors/m_d.Rda")
+
+#########################
+#DIMENSIONS IN OTHER QNS#
+#########################
+m_r <- list()
+post_r <- list()
+#run the model with 1:3 number of dimensions
+for (i in 1:5) {
+  dat <- list( D = i,    #loop through dimensions
+               N = as.integer(d$N - 1) , 
+               L = d$R , 
+               A = d$A [d$A <= 50] , # age #[d$A <= 50] 
+               S = as.integer(ifelse(d$S == "m", 1, 2) [-60]),
+               Y_l = d$Y_r [rownames(d$Y_l) != "19586",] , #answers freelist #[rownames(d$Y_l) != "19586",] 
+               O = length (0 : 26 ) ,
+               alpha = rep( 0.5, length (0:26 ) -1 ) 
+  )
+  m_r[[i]] <- stan( fit  = model_dimensions, data=dat , chains=1, cores=1, init = 0 )
+  post_r[[i]] <- extract.samples(m_r[[i]])
+  save(post_r[[i]] , file = paste("4_Outputs/posteriors/post_r", i, ".Rda", sep = ""))
+  
+}
+waics_r <- compare(m_r[[1]], m_f[[2]], m_r[[3]], m_r[[4]], m_r[[5]])
+save( waics_f, file = "4_Outputs/posteriors/waics.Rda")
+
+
+m_fa <- list()
+post_fa <- list()
+#run the model with 1:3 number of dimensions
+for (i in 1:5) {
+  dat <- list( D = i,    #loop through dimensions
+               N = as.integer(d$N - 1) , 
+               L = d$L , 
+               C = ncol(d$amh), 
+               A = d$A [d$A <= 50] , # age #[d$A <= 50] 
+               S = as.integer(ifelse(d$S == "m", 1, 2) [-60]),
+               AM = d$amh [rownames(d$amh) != "19586",],
+               Y_l = d$Y_l [rownames(d$Y_l) != "19586",] , #answers freelist #[rownames(d$Y_l) != "19586",] 
+               O = length (0 : 26 ) ,
+               alpha = rep( 0.5, length (0:26 ) -1 ) 
+  )
+  m_fa[[i]] <- stan( fit  = model_activitiesdim, data=dat , chains=1, cores=1, init = 0 )
+  post_fa[[i]] <- extract.samples(m_fa[[i]])
+  save(post_fa[[i]] , file = paste("4_Outputs/posteriors/post_fa", i, ".Rda", sep = ""))
+  
+}
+waics_fa <- compare(m_fa[[1]], m_fa[[2]], m_fa[[3]], m_fa[[4]], m_fa[[5]])
+save( waics_fa, file = "4_Outputs/posteriors/waics_fa.Rda")
+
