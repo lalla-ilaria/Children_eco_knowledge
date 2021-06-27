@@ -1,14 +1,20 @@
 library(scales)
+library(rethinking)
+library(rlist)
+library(ggfree)
+
 ###########
 #LOAD DATA#
 ###########
 d <- list.load("2_Data_preparation/processed_data.RData")
-post_age <- load("4_Outputs/posteriors/post_age.Rda")
+post_age <- load("C:/Users/user/Nextcloud/Project/Children_eco_knowledge/Children_eco_knowledge/4_Outputs/posteriors/post_age.Rda")
 post_act <- load("4_Outputs/posteriors/post_act.Rda")
 post_1 <- load("4_Outputs/posteriors/post_1.Rda")
 post_2 <- load("4_Outputs/posteriors/post_2.Rda")
 post_3 <- load("4_Outputs/posteriors/post_3.Rda")
 post_4 <- load("4_Outputs/posteriors/post_4.Rda")
+post_f1 <- 
+
 
 #############################
 #GENERAL PLOT SPECIFICATIONS#
@@ -34,57 +40,76 @@ d$A_j <- jitter(d$A)
 act_names <- c("household", "seashells", "birds", "game", "agriculture", 
                "livestock", "fishing", "diving", "algae", "cloves")
 
+########################
+#FUNCTION CALLING PLOTS#
+########################
+plotagesandknow <- function(d = d, post_d , dimn) {
+    year_eff <- apply(post_d$delta_j[,,dimn], 1, cumsum)
+    plot(x = d$A_j[ d$A_j <= 50 ], 
+         y = apply(post_d$K[,,dimn], 2, mean), 
+         xlab = "Age", 
+         ylab = "Knowledge",  
+         cex.lab=1.8, 
+         cex.axis=1.8,
+         pch = 19, 
+         cex = 1.5, 
+         #family = "A",
+         col = alpha( d$sex_col, 0.6 ) )
+    for (i in 1:150) {
+      lines(x = 1:nrow(year_eff),  
+            y = post_d$mA[i,dimn] + post_d$bA[i,1,dimn] * year_eff[,i], 
+            type = "l", 
+            col = col.alpha( boycol, alpha = 0.1))}
+    for (i in 1:150) {
+      lines(x = 1:nrow(year_eff),  
+            y = post_d$mA[i,dimn] + post_d$bA[i,2,dimn] * year_eff[,i], 
+            type = "l", 
+            col = col.alpha( girlcol, alpha = 0.1))}
+    lines( x = 1:nrow(year_eff),  
+           y = mean(post_d$mA[,dimn]) + mean(post_d$bA[,1,dimn]) * apply(year_eff, 1, mean), 
+           type = "l", 
+           col = col.alpha( boycol, alpha = 0.7))
+    lines( x = 1:nrow(year_eff),  
+           y = mean(post_d$mA[,dimn]) + mean(post_d$bA[,2,dimn]) * apply(year_eff, 1, mean), 
+           type = "l", 
+           col = col.alpha( girlcol, alpha = 0.7))
+    title( "d - Age and sex effect dimension 1", adj = 0, cex.main = 1.8)
+    legend("bottomright", 
+           legend = c("Boys", "Girls"), 
+           col = c(boycol, girlcol), 
+           pch = 19, 
+           bty = "n", 
+           cex = 1.5, 
+           text.col = "black", 
+           horiz = F , 
+           inset = c(0.01, 0.01))
+}
+
+plotact <- function( act_names = act_names, post_d, dimn ) {
+  act <- split(post_d$aAM[,,dimn], rep(1:ncol(post_d$aAM[,,dimn]), each = nrow(post_d$aAM[,,dimn])))
+  names(act) <- act_names
+  act <- act[order(sapply(act, mean))]
+  ridgeplot( act,
+             step = 1.1,
+             xlab = "Effect of activities1", 
+             cex.lab=1.8, 
+             cex.axis=1.8, 
+             col = "cornflowerblue",
+             #family = "A",
+             fill = col.alpha("cornflowerblue", 0.2))
+  abline(v = 0, col = col.alpha("grey", 0.2))
+}
 
 #######################
 #ORDERED CATEGORICAL A#
 #######################
 #select posterior
-post <- post_age
+post <- post_f1
 
 #age-sex specific increase in knowledge
 png(file = "4_Outputs/plots/age_sex_knowledge.png", width = 700, height = 500)
   par(mar = c(5,5,2,2) + 0.1)
-  year_eff <- apply(post$delta_j, 1, cumsum)
-  plot(x =  d$A_j[ d$A_j <= 50 ], 
-       y = apply(post$K, 2, mean), 
-       xlab = "Age", 
-       ylab = "Knowledge", 
-       cex.lab=1.5, 
-       cex.axis=1.5,
-       pch = 19, 
-       cex = 1.5, 
-       col = alpha( d$sex_col, 0.6 ) ,
-       family = "A")
-  for (i in 1:150) {
-    lines(x = 1:nrow(year_eff),  
-          y = post$mA[i] + post$bA[i,1,] * year_eff[,i], 
-          type = "l", 
-          col = col.alpha( boycol, alpha = 0.1))
-  }
-  for (i in 1:150) {
-    lines(x = 1:nrow(year_eff),  
-          y = post$mA[i] + post$bA[i,2,] * year_eff[,i], 
-          type = "l", 
-          col = col.alpha( girlcol, alpha = 0.1))
-  }
-  lines( x = 1:nrow(year_eff),  
-         y = mean(post$mA) + mean(post$bA[,1,]) * apply(year_eff, 1, mean), 
-         type = "l", 
-         col = col.alpha( boycol, alpha = 0.7))
-  lines( x = 1:nrow(year_eff),  
-         y = mean(post$mA) + mean(post$bA[,2,]) * apply(year_eff, 1, mean), 
-         type = "l", 
-         col = col.alpha( girlcol, alpha = 0.7))
-  legend("bottomright", 
-         legend = c("Boys", "Girls"), 
-         col = c(boycol, girlcol), 
-         pch = 19, 
-         bty = "n", 
-         cex = 1.5, 
-         text.col = "black", 
-         horiz = F , 
-         inset = c(0.1, 0.1))
-  
+  plotagesandknow(d = d , post_d = post_f1, dimn = 1)
 dev.off()
 
 
@@ -92,13 +117,13 @@ dev.off()
 ############
 #ACTIVITIES#
 ############
-post <- post_act
+post <- post_fa1
 
 #activities effect
 png(file = "4_Outputs/plots/activities_only.png", width = 700, height = 500)
 #age-sex specific knowledge with activities
-year_eff <- apply(post$delta_j, 1, cumsum)
 par(mar = c(5,5,2,2) + 0.1)
+year_eff <- apply(post$delta_j, 1, cumsum)
 plot(d$A_j[ d$A_j <= 50 ], apply(post$K, 2, mean), 
      xlab = "Age", 
      ylab = "Knowledge", 
@@ -160,6 +185,9 @@ axis(2, ac$names, at = c(1:10), las = 1, family = "A")
 abline(v = 0, col = "gray")
 for (i in 1:10) lines(c(ac$lim5.5[i],ac$lim94.5[i]) , rep(i, each = 2), col = ac$col_0[i], lwd = 1.5)
 dev.off()
+
+post_age <- post_f1
+post_act <- post_fa1
 
 #contrasts between sexes    
 par(mar = c(5,5,2,2) + 0.1)
@@ -307,7 +335,7 @@ post <- post_age
            inset = c(0.01, 0.01))
     
 #dimensions    
-    post_d <- post_3
+    post_d <- post_f3
     year_eff <- apply(post_d$delta_j[,,1], 1, cumsum)
     plot(x = d$A[ d$A <= 50 ], 
          y = apply(post_d$K[,,1], 2, mean), 
@@ -434,11 +462,11 @@ post <- post_age
 #DIMENSION ANALYSIS#
 ####################
 #Dimension specific age-sex effects
-png(file = "4_Outputs/plots/dimensions.png", width = 500, height = 1000)
+png(file = "4_Outputs/plots/dimensions.png", width = 1000, height = 400)
 post_d <- post_3
-par( mfrow = c( 3, 1))
+par( mfrow = c( 1, 3))
 year_eff <- apply(post_d$delta_j[,,1], 1, cumsum)
-    plot(x = d$A[ d$A <= 50 ], 
+    plot(x = d$A_j[ d$A_j <= 50 ], 
          y = apply(post_d$K[,,1], 2, mean), 
          xlab = "Age", 
          ylab = "Knowledge", 
@@ -468,9 +496,18 @@ year_eff <- apply(post_d$delta_j[,,1], 1, cumsum)
            y = mean(post_d$mA[,1]) + mean(post_d$bA[,2,1]) * apply(year_eff, 1, mean), 
            type = "l", 
            col = col.alpha( girlcol, alpha = 0.7))
-    
+    legend("topleft", 
+           legend = c("Boys", "Girls"), 
+           col = c(boycol, girlcol), 
+           pch = 19, 
+           bty = "n", 
+           cex = 1.5, 
+           text.col = "black", 
+           horiz = F , 
+           inset = c(0.01, 0.01))
+
 year_eff <- apply(post_d$delta_j[,,2], 1, cumsum)
-    plot(x = d$A[ d$A <= 50 ], 
+    plot(x = d$A_j[ d$A_j <= 50 ], 
          y = apply(post_d$K[,,2], 2, mean), 
          xlab = "Age", 
          ylab = "Knowledge", 
@@ -508,9 +545,9 @@ year_eff <- apply(post_d$delta_j[,,2], 1, cumsum)
            cex = 1.5, 
            text.col = "black", 
            horiz = F , 
-           inset = c(0.1, 0.1))
+           inset = c(0.01, 0.01))
 year_eff <- apply(post_d$delta_j[,,3], 1, cumsum)
-    plot(x = d$A[ d$A <= 50 ], 
+    plot(x = d$A_j[ d$A_j <= 50 ], 
          y = apply(post_d$K[,,3], 2, mean), 
          xlab = "Age", 
          ylab = "Knowledge", 

@@ -22,7 +22,9 @@ parameters{
   matrix<lower=0>[2,D] bA; // coefficient relating age to knowledge
   simplex[O-1] delta; //age specific effects
 	matrix[C,D] aAM; //a vector of coefficients for activities
-	
+	//sigma individual parameters
+	vector<lower=0>[D] aK_sigma;
+
 	//item parameters
 	//discrimination
 	matrix<lower=0>[L,D] a_l;
@@ -44,7 +46,7 @@ transformed parameters{
   for ( d in 1:D ) 
     for ( i in 1:N ) 
       K[i,d] = mA +                                           //global intercept - minimum value of knowledge
-               aK[i,d] +                                      //individual interecepts -absorbs residual variation   
+               aK[i,d] * aK_sigma[d] +                                      //individual interecepts -absorbs residual variation   
                bA[S[i], d] * sum (delta_j[ 1 : A[i] ] ) +     //effect of age - sex specific
                dot_product( aAM[,d], AM[i]);                  //activity effects; 
 }//transformed parameters
@@ -56,6 +58,9 @@ model{
   for(d in 1:D) for(s in 1:2) bA[s,d] ~ normal( 0 , 3 ) T[0,];
   delta ~ dirichlet( alpha );
   to_vector(aAM) ~ normal(0,1);
+  //hyperpriors
+	for(d in 1:D) aK_sigma[d] ~ exponential(1);
+
   
 	//priors for item parameters
 	//discrimination

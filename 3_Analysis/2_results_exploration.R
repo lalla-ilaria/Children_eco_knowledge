@@ -1,4 +1,6 @@
 library(scales)
+library(ggfree)
+library(rethinking)
 ########
 #COLORS#
 ########
@@ -603,3 +605,65 @@ rm(rare_w, rare_w_1, rare_w_2, rare_w_3, rare_w_all,
    best_1, best_2, best_3, best_all,
    Ks, Ks_1, Ks_2, Ks_3)
 
+####
+#ACTIVITIES IN DIMENSIONS
+par( mfrow = c( 1, 3))
+
+post_d <- post_fa3
+plotact(act_names = act_names, post_d = post_fa3, dimn = 1)
+act <- split(post_d$aAM[,,1], rep(1:ncol(post_d$aAM[,,1]), each = nrow(post_d$aAM[,,1])))
+names(act) <- act_names
+act <- act[order(sapply(act, mean))]
+ridgeplot( act,
+           step = 1.1,
+           xlab = "Effect of activities1", 
+           cex.lab=1.8, 
+           cex.axis=1.8, 
+           col = "cornflowerblue",
+           fill = col.alpha("cornflowerblue", 0.2),
+           family = "A")
+abline(v = 0, col = col.alpha("grey", 0.2))
+act <- split(post_d$aAM[,,2], rep(1:ncol(post_d$aAM[,,2]), each = nrow(post_d$aAM[,,2])))
+names(act) <- act_names
+act <- act[order(sapply(act, mean))]
+ridgeplot( act,
+           step = 1.1,
+           xlab = "Effect of activities_dim2", 
+           cex.lab=1.8, 
+           cex.axis=1.8, 
+           col = "cornflowerblue",
+           fill = col.alpha("cornflowerblue", 0.2),
+           family = "A")
+abline(v = 0, col = col.alpha("grey", 0.2))
+act <- split(post_d$aAM[,,3], rep(1:ncol(post_d$aAM[,,3]), each = nrow(post_d$aAM[,,3])))
+names(act) <- act_names
+act <- act[order(sapply(act, mean))]
+ridgeplot( act,
+           step = 1.1,
+           xlab = "Effect of activities_dim3", 
+           cex.lab=1.8, 
+           cex.axis=1.8, 
+           col = "cornflowerblue",
+           fill = col.alpha("cornflowerblue", 0.2),
+           family = "A")
+abline(v = 0, col = col.alpha("grey", 0.2))
+
+png(file = "4_Outputs/plots/dim_and_act.png", width = 600, height = 1000)
+par( mfcol = c( 3, 2))
+plotagesandknow(d = d, dimn = 1, post_d = post_f3)
+plotagesandknow(d = d, dimn = 2, post_d = post_f3)
+plotagesandknow(d = d, dimn = 3, post_d = post_f3)
+plotagesandknow(d = d, dimn = 2, post_d = post_fa3)
+plotagesandknow(d = d, dimn = 3, post_d = post_fa3)
+plotagesandknow(d = d, dimn = 1, post_d = post_fa3)
+dev.off()
+
+png(file = "4_Outputs/plots/act_by_dim.png", width = 600, height = 1000)
+par( mfcol = c( 3, 2))
+plotagesandknow(d = d, dimn = 2, post_d = post_fa3)
+plotagesandknow(d = d, dimn = 3, post_d = post_fa3)
+plotagesandknow(d = d, dimn = 1, post_d = post_fa3)
+plotact(act_names = act_names, post_d = post_fa3, dimn = 2)
+plotact(act_names = act_names, post_d = post_fa3, dimn = 3)
+plotact(act_names = act_names, post_d = post_fa3, dimn = 1)
+dev.off()

@@ -19,6 +19,8 @@ parameters{
 	matrix[N,D] aK; // individual intercepts on knowledge
   matrix<lower=0>[2,D] bA; // coefficient relating age to knowledge
   simplex[O-1] delta; //age specific effects
+	//sigma individual parameters
+	vector<lower=0>[D] aK_sigma;
 
 	
 	//item parameters
@@ -42,7 +44,7 @@ transformed parameters{
   for ( d in 1:D ) 
     for ( i in 1:N ) 
       K[i,d] = mA +                                           //global intercept - minimum value of knowledge
-               aK[i,d] +                                      //individual interecepts -absorbs residual variation   
+               aK[i,d] * aK_sigma[d] +                                      //individual interecepts -absorbs residual variation   
                bA[S[i], d] * sum (delta_j[ 1 : A[i] ] ) ;     //effect of age - sex specific
 
 }//transformed parameters
@@ -53,6 +55,9 @@ model{
 	to_vector(aK) ~ normal(0,1);
   for(d in 1:D) for(s in 1:2) bA[s,d] ~ normal( 0 , 3 ) T[0,];
   delta ~ dirichlet( alpha );
+  //hyperpriors
+	for(d in 1:D) aK_sigma[d] ~ exponential(1);
+
   
 	//priors for item parameters
 	//discrimination
@@ -70,15 +75,15 @@ model{
   //model
 	//freelist
 	for ( i in 1:N ) {
-	  vector[L] p = rep_vector(0, L);
+	    vector[L] p = rep_vector(0, L);
 			for ( d in 1:D ) p = p + a_l[,d] .* (K[i,d] - b_l[,d]);
       target += bernoulli_logit_lpmf( Y_l[i,] | p );
 		}//N
 		
 	//questions
 	for ( i in 1:N ) {
-	  vector[Q] p = rep_vector(0, Q);
-    vector[Q] logit_p;
+	    vector[Q] p = rep_vector(0, Q);
+      vector[Q] logit_p;
 			for ( d in 1:D ) p = p + a_q[,d] .* (K[i,d] - b_q[,d]);
       // log odds 3PL is log[(Exp[p]+c)/(1-c)]
       logit_p = log( exp(p) + c_q ) - log1m( c_q );
@@ -87,7 +92,7 @@ model{
 	
 	//image recognition
 	for ( i in 1:N ) {
-	  vector[R] p = rep_vector(0, R);
+  	  vector[R] p = rep_vector(0, R);
 			for ( d in 1:D ) p = p + a_r[,d] .* (K[i,d] - b_r[,d]);
       target += bernoulli_logit_lpmf( Y_r[i,] | p );
 	}//N
