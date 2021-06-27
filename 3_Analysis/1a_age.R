@@ -23,17 +23,17 @@ for (i in 1:5) {
                O = length (0 : 26 ) ,
                alpha = rep( 0.5, length (0:26 ) -1 ) 
   )
-  m_age[[i]] <- stan( file = "models/1_age.stan", data=dat , chains=1, cores=1 )
+  m_age[[i]] <- cstan( file = "models/1_age.stan", data=dat , chains=1, cores=1 )
 }
 
 waics_age <- compare(m_age[[1]], m_age[[2]], m_age[[3]], m_age[[4]], m_age[[5]])
 
 #save
-saveRDS(m_age[[1]], "4_Outputs/posteriors/age_1.rds").
-saveRDS(m_age[[2]], "4_Outputs/posteriors/age_2.rds").
-saveRDS(m_age[[3]], "4_Outputs/posteriors/age_3.rds").
-saveRDS(m_age[[4]], "4_Outputs/posteriors/age_4.rds").
-saveRDS(m_age[[5]], "4_Outputs/posteriors/age_5.rds").
+saveRDS(m_age[[1]], "4_Outputs/posteriors/age_1.rds")
+saveRDS(m_age[[2]], "4_Outputs/posteriors/age_2.rds")
+saveRDS(m_age[[3]], "4_Outputs/posteriors/age_3.rds")
+saveRDS(m_age[[4]], "4_Outputs/posteriors/age_4.rds")
+saveRDS(m_age[[5]], "4_Outputs/posteriors/age_5.rds")
 post_1 <- extract.samples(m_age[[1]])
 post_2 <- extract.samples(m_age[[2]])
 post_3 <- extract.samples(m_age[[3]])
