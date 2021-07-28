@@ -3,13 +3,13 @@ functions{
             int[] yy,
             int start , int end , 
             // data
-            int[,] Y_l , int[,]Y_q , int[,] Y_r , 
-            int[] A , row_vector[] AM , int[] S , int D , 
+            int[,] Y_l , int[,] Y_q , int[,] Y_r , 
+            int[] A , int[] S , int[] SP , int D , 
             int L , int Q ,int R ,
             // parameters to pass
             vector mA , matrix aK , 
-            vector aK_sigma , matrix bA , 
-            matrix delta_j , matrix aAM ,
+            vector aK_sigma , matrix bA , matrix bSP ,
+            matrix delta_j , 
             matrix a_l , matrix b_l,
             matrix a_q , matrix b_q,
             matrix a_r , matrix b_r,
@@ -24,8 +24,8 @@ functions{
 			for ( d in 1:D ) {
         real K = mA[d] +                        
                aK[i,d] * aK_sigma[d] +                     
-               bA[S[i], d] * sum (delta_j[ 1 : A[i], d ] ) + 
-               dot_product( aAM[,d], AM[i]); 
+               bA[S[i], d] * sum (delta_j[ 1 : A[i], d ] ) +
+               bSP[S[i], d] * SP[i]; 
         p_l = p_l + a_l[,d] .* (K - b_l[,d]);
         p_q = p_q + a_q[,d] .* (K - b_q[,d]);
         // log odds 3PL is log[(Exp[p]+c)/(1-c)]
@@ -45,11 +45,10 @@ data{
 	int L; //n items freelist
 	int Q; //n items questionnaire
 	int R; //n items image recognition
- 	int C; //n of activities
 	int O; //n ages
 	int A[N]; //age of individuals
 	int S[N]; //sex of individuals
-  row_vector[C]AM[N] ; //activities matrix
+	int SP[N];//same sex parent present
 	int Y_l[N,L]; //answers freelist
   int Y_q[N,Q]; //answers questionnaire
   int Y_r[N,R]; //answers image recognition
@@ -61,7 +60,7 @@ parameters{
   vector[D] mA; //global intercept
 	matrix[N,D] aK; // individual intercepts on knowledge
   matrix<lower=0>[2,D] bA; // coefficient relating age to knowledge
-	matrix[C,D] aAM; //a vector of coefficients for activities
+  matrix[2,D] bSP; // coefficient relating age to knowledge
   simplex[O-1] delta [D]; //age specific effects
 	//sigma individual parameters
 	vector<lower=0>[D] aK_sigma;
@@ -85,7 +84,6 @@ transformed parameters{
   matrix[O,D] delta_j;
   for ( d in 1:D ) 
     delta_j[,d]  = append_row(0, delta[d]);
-
 }//transformed parameters
 
 model{
@@ -93,11 +91,10 @@ model{
   for(d in 1:D) mA[d] ~ normal( -5, 3)T[,0]; //global intercept
 	to_vector(aK) ~ normal(0,1);
   for(d in 1:D) for(s in 1:2) bA[s,d] ~ normal( 3 , 2 ) T[0,];
+  for(d in 1:D) for(s in 1:2) bSP[s,d]~ normal( 0 , 1 ) ;
   for(d in 1:D) delta[d] ~ dirichlet( alpha );
-  to_vector(aAM) ~ normal(0,1);
   //hyperpriors
 	for(d in 1:D) aK_sigma[d] ~ exponential(1);
-
   
 	//priors for item parameters
 	//discrimination
@@ -115,9 +112,9 @@ model{
   //model
 	target += reduce_sum( reducer , A , 1 , 
       // data to pass
-			Y_l , Y_q , Y_r , A , AM , S , D , L , Q , R ,
+			Y_l , Y_q , Y_r , A , S , SP , D , L , Q , R ,
       // parameters to pass
-      mA , aK , aK_sigma , bA , delta_j , aAM , a_l , b_l , a_q , b_q , a_r , b_r , c_q );
+      mA , aK , aK_sigma , bA , bSP , delta_j , a_l , b_l , a_q , b_q , a_r , b_r, c_q );
 }//model
 
  generated quantities {
@@ -125,15 +122,15 @@ model{
    for ( d in 1:D ) 
       for ( i in 1:N ) 
       K[i,d] = mA[d] +                                           //global intercept - minimum value of knowledge
-               aK[i,d] * aK_sigma[d] +                              //individual interecepts -absorbs residual variation   
-               bA[S[i], d] * sum (delta_j[ 1 : A[i], d ] ) +     //effect of age - sex specific
-               dot_product( aAM[,d], AM[i]);                  //activity effects; 
+               aK[i,d] * aK_sigma[d] +                           //individual interecepts -absorbs residual variation   
+               bA[S[i], d] * sum (delta_j[ 1 : A[i], d ] )+      //effect of age - sex specific
+               bSP[S[i], d] * SP[i];                             //effect of same sex parent present - sex specific
 
    vector [N * L + N * Q + N * R ] log_lik;
    vector [N * L ] log_lik_l;
    vector [N * Q ] log_lik_q;
    vector [N * R ] log_lik_r;
-   {
+  {
     int k = 1;
     int l = 1;
     int q = 1;
