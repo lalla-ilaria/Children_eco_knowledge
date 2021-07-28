@@ -25,7 +25,7 @@ functions{
         real K = mA[d] +                        
                aK[i,d] * aK_sigma[d] +                       //individual intercepts                    
                bA[S[i], d] * sum (delta_j[ 1 : A[i], d ] ) + //effect of age - sex specific
-               bSY[S[i],d] * sum (delta_js[0 : SY[i],d ] ) ;  //effect of school - sex specific
+               bSY[S[i],d] * sum (delta_js[1 : SY[i],d ] ) ;  //effect of school - sex specific
  
         p_l = p_l + a_l[,d] .* (K - b_l[,d]);
         p_q = p_q + a_q[,d] .* (K - b_q[,d]);
@@ -131,7 +131,7 @@ model{
       K[i,d] = mA[d] +                                           //global intercept - minimum value of knowledge
                aK[i,d] * aK_sigma[d] +                           //individual interecepts -absorbs residual variation   
                bA[S[i], d] * sum (delta_j[ 1 : A[i], d ] )+      //effect of age - sex specific
-               bSY[S[i],d] * sum (delta_js[0 : SY[i],d ] ) ;      //effect of school - sex specific
+               bSY[S[i],d] * sum (delta_js[1 : SY[i],d ] ) ;      //effect of school - sex specific
 
    vector [N * L + N * Q + N * R ] log_lik;
    vector [N * L ] log_lik_l;

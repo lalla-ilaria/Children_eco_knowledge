@@ -92,6 +92,7 @@ for (i in 1:3) {
 ##########################
 
 #With intercepts for households
+d$HH_ord <- as.integer(factor(d$HH, levels = unique(d$HH)))   
 hhi <- list()
 #run the model with 1:3 number of dimensions
 for (i in 1:3) {
@@ -101,7 +102,7 @@ for (i in 1:3) {
                Q = d$Q ,    #n questionnaire items
                R = d$R ,    #n image recognition items
                H = d$H ,    #n households
-               HH = d$HH[d$A <= 50], #household id
+               HH = d$HH_ord[d$A <= 50], #household id
                A = d$A  [d$A <= 50], # age #[d$A <= 50] 
                S = as.integer(ifelse(d$S == "m", 1, 2) [-60]), #sex
                Y_l = d$Y_l [rownames(d$Y_l) != "19586",] , #answers freelist #[rownames(d$Y_l) != "19586",] 
@@ -171,7 +172,7 @@ for (i in 1:3) {
                R = d$R ,    #n image recognition items
                A = d$A [d$A <= 50] , # age #[d$A <= 50] 
                S = as.integer(ifelse(d$S == "m", 1, 2) [-60]),
-               PP = as.integer(d$MP + d$FP) [d$A <= 50],
+               PP = as.integer(1 + d$MP + d$FP) [d$A <= 50],
                Y_l = d$Y_l [rownames(d$Y_l) != "19586",] , #answers freelist #[rownames(d$Y_l) != "19586",] 
                Y_q = d$Y_q [rownames(d$Y_q) != "19586",] , #answers questionnaire
                Y_r = d$Y_r [rownames(d$Y_r) != "19586",] , #answers picture recognition
