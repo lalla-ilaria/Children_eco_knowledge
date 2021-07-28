@@ -17,6 +17,8 @@ ql <- read.csv("2_Data_preparation/anonymized_data/3a_ql.csv")
 qs <- read.csv("2_Data_preparation/anonymized_data/3b_qs.csv")
 #picture recognition
 recognition <- read.csv("2_Data_preparation/anonymized_data/4_recognition.csv")
+#family information
+family_info <- read.csv("2_Data_preparation/anonymized_data/family_info.csv")
 
 ######################
 #INDIVIDUALS##########
@@ -77,6 +79,7 @@ ages <- data.frame( anonyme_id = c(12168,15888,236324,112462,138451,11879,233890
 
 
 interviews  <- merge( interviews, ages, by = "anonyme_id", sort = FALSE)
+
 
 ######################
 #ACTIVITIES###########
@@ -233,7 +236,7 @@ for(i in 2 : nrow(freelist_corrections)){
 not_a_creature <- c("ALI", "ANDAZI", "ASALI", 
                     "BAHARI", "BAISIKELI", "BAKORA", "BAKULI", "BALBU", "BANDARI", "BANGILI", "BAO", "BARABARA", "BARAZA", "BATI", "BEGI", "BESENI", "BETTRY", "BISCUTI", "BO", "BODABODA", "BOKSI", "BOTI", "BUKTA", "BUSATI",
                     "CAMERA", "CHAI", "CHAJATI", "CHAKULA", "CHANDARUA", "CHAURO", "CHEMSOO", "CHUJIO", "CHUMVI", "CHUPA", 
-                    "DAKIKA", "DARAJA BOVU", "DARASA LA KWANZA", "DAU", "DAWA", "DEKI", "DEKSI", "DIRISHA", "DISHI","DISHI LA UMEME", "DULA LA SHINDANO", "DUMU",
+                    "DAKIKA", "DARAJA BOVU", "DARASA LA KWANZA", "DAU", "DAWA", "DEKI", "DEKSI", "DIRISHA", "DISHI","DISHI LA UMEME", "DRAGONI", "DULA LA SHINDANO", "DUMU",
                     "FAGIO", "FAIBA", "FENI", "FINISH", "FIRIMBI MDOMO", "FLASHI", "FONDESHENI", "FONI", "FORONYA", "FREMU", "FULANA", "FUMBUKA", 
                     "GAMBA", "GARI", "GATI", "GLASI", "GODORO", "GOME", "GOME LA MTI", "GONGO", "GUNDI",
                     "HAMIRA", "HARUSI", "HELICOPTER", "HELMETI", "HERINI", 
@@ -677,9 +680,13 @@ for (i in 1:length(interviews$anonyme_id)) {
 #create data list
 d <- list( N = as.integer(nrow(interviews)),             #n individuals
            H = as.integer(length(unique(interviews$hh_id))),#n households
-           HH= as.integer(interviews$hh_id),              #integer for household
-           A = as.integer(interviews$summary_age) ,              #standardized age
+           HH= as.integer(interviews$hh_id),             #integer for household
+           HH_dist = family_info$hh_dist,                #distance from research sation in meters
+           A = as.integer(interviews$summary_age) ,      #standardized age
+           BO = as.integer(family_info$birth_order),     #birth order
            S = interviews$sex,                           #sex of individuals
+           MP = as.integer(family_info$mother_present),  #1/0 variable for presence of mother
+           FP = as.integer(family_info$father_present),  #1/0 variable for presence of father
            SY= as.integer(interviews$class_new),         #standardized n of years of school
            ams= activities_self,                         #activities practiced - self declared
            amh= activities_hhs,                          #activities practiced - from household survey
