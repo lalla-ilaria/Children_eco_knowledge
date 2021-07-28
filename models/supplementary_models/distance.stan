@@ -4,11 +4,11 @@ functions{
             int start , int end , 
             // data
             int[,] Y_l , int[,] Y_q , int[,] Y_r , 
-            int[] A , int[] S , int[] HD , int D , 
+            int[] A , int[] S , real[] HD , int D , 
             int L , int Q ,int R ,
             // parameters to pass
             vector mA , matrix aK , 
-            vector aK_sigma , matrix bA , bHD ,
+            vector aK_sigma , matrix bA , vector bHD ,
             matrix delta_j , 
             matrix a_l , matrix b_l,
             matrix a_q , matrix b_q,
@@ -91,7 +91,7 @@ model{
   for(d in 1:D) mA[d] ~ normal( -5, 3)T[,0]; //global intercept
 	to_vector(aK) ~ normal(0,1);
   for(d in 1:D) for(s in 1:2) bA[s,d] ~ normal( 3 , 2 ) T[0,];
-  bHD ~ normal( 0 , 1 )
+  bHD ~ normal( 0 , 1 );
   for(d in 1:D) delta[d] ~ dirichlet( alpha );
   //hyperpriors
 	for(d in 1:D) aK_sigma[d] ~ exponential(1);
