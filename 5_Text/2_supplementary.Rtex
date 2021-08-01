@@ -1,0 +1,193 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%<<echo=FALSE, cache=TRUE>>=
+%d <- list.load("./2_Data_preparation/processed_data.RData")
+%add here all things to load
+%note that maybe to have r working in here, this file has to be loaded as .tex instead than .Rtex in the main document.
+%@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Supplementary}
+\subsection{A word on Knowledge}
+Knowledge is interpreted here as a latent trait of individuals which underlay the probability of answering correctly to the questions in the sample. Henceforth, statements such 'knowledge is influenced by' can be read as 'the probability of answering correctly to the questions in the sample is influenced by'. Despite this practical approach, we did our best to improve the construct validity of our study, by both developing the questionnaire and managing the resulting data in collaboration with informants sharing language and culture with the interviewees. We then expect knowledge, as measured by our model, to reflect the general ecological knowledge possessed by individuals, but do not deal with general epistemological considerations on the connection between the two.
+
+\subsection{DAG: Factors influencing Knowledge}\label{SI:DAG}
+
+\begin{figure}[h]
+    \begin{tikzpicture}
+        \node (AGE) [rec] {Age};
+        \node (SEX) [rec, left=0.8 of AGE] {Sex};
+        \node (FAM) [rec, right=0.8 of AGE] {Family};
+        \node (ACT) [rec, below=1 of SEX] {Activities};
+        \node (SCH) [rec, below=1 of FAM] {Schooling};
+        \node (K) [rec, below=3 of AGE] {Knowledge};
+        \draw[->,line width=0.7] (AGE) -- (K);
+        \draw[->,line width=0.7] (AGE) -- (ACT);
+        \draw[->,line width=0.7] (AGE) -- (SCH);
+        \draw[->,line width=0.7] (SEX) -- (ACT);
+        \draw[->,line width=0.7] (SEX) -- (SCH);
+        \draw[->,line width=0.7] (FAM) -- (ACT);
+        \draw[->,line width=0.7] (FAM) -- (K);
+        \draw[->,line width=0.7] (FAM) -- (SCH);
+        \draw[->,line width=0.7] (ACT) -- (K);
+        \draw[->,line width=0.7] (SCH) -- (ACT);
+        \draw[->,line width=0.7] (SCH) -- (K);
+    \end{tikzpicture}
+    \caption{DAG describing relation between analyzed variables.}
+    \label{fig:DAG}
+\end{figure}
+
+Explicitly defined causal relationships described below are at the basis of both the simulated data and the choices guiding the analysis. Here follows a description of the factors we expect are exerting an influence on knowledge:
+
+\textbf{Age}
+Knowledge changes as individual get older. We expect to observe an increase with age, with individual differences that can emerge as a result of several factors. Age has a direct effect on knowledge, in virtue of the increasing cognitive abilities of human brains that allow to store and manage information (Age $\rightarrow$ Know). But also, and maybe more importantly, the total effect of Age include paths passing through the other factors: as individuals get older, other traits change, which have an effect on knowledge. As individuals age, the time they spend performing specific activities varies (Age $\rightarrow$ Act), they start or stop going to school (Age $\rightarrow$ Sch), or their family situation changes (e.g. new siblings are born, Age $\rightarrow$ Fam).
+
+\textbf{Sex}
+We do not expect a direct effect of sex of individuals on knowledge. Rather, we imagine gender differences to influence both the probability at which activities are performed, some tasks being typically done by girls and other by boys, as well as, potentially, school attendance  (Sex $\rightarrow$ Act and Sex $\rightarrow$ Sch).
+
+\textbf{Activites}
+In our expectations, the activites children perform more frequently have a strong influence on knowledge (Act $\rightarrow$ Know), both because of the exposure to the relevant information while performing the activity and of the increased returns derived from learning these information. When not in school, children in Bandarikuu spend their time doing domestic or farming chores, hunting, collecting seashells, fishing or playing, at different probabilities as they get older. Some of these activites, such as hunting, are expected to have a larger effect on the knowledge of the natural environment.
+
+\textbf{School}
+The time and effort children invest in forma education can have different effects on knowledge of the natural environment. On the one hand, it can increase the the amount of information individual can manage. Ont the other hand, it can imply an opportunity cost by reducing the contact with natural environment (Sch $\rightarrow$ Know). 
+
+\textbf{Family}
+Family context, such as the presence of parents or older siblings, influences what and how much children know (Fam $\rightarrow$ Know). Engaging in activities with parents, can have an impact on the acquisition of knowledge related to those activities. Also, the simple presence of adults in the households can have a similar effect of knowledge just by exposing children to conversations about subjects. Domestic situations can have large effect on the activities children perform (Fam $\rightarrow$ Act). Older same sex siblings can have positive effect on knowledge by representing a model and introducing individuals to specific activities (imagine an older brother teaching to shoot with a slingsho) or have negative effect if they fulfill a specific role in the household (only one person is suffucient to take care of the cattle of a single family). Younger siblings could change the expected time allocation into activities (for example reducing the time one can spend roaming the forest in exchange for time spend taking care of them). Family context and attitudes can also influences the effort children are allowed, or pushed, to put in formal education (Fam $\rightarrow$ Sch).
+
+\begin{figure}[h]
+    \begin{tikzpicture}
+        \node (HID) [rec] {Household};
+        \node (SSP) [rec, right=1 of HID] {Same sex parent};
+        \node (SEX) [rec, right=1 of SSP] {Sex};
+        \node (PPP) [rec, below=1 of SSP] {Presence of parents};
+        \node (ACT) [rec, below=1 of SEX] {Activities};
+        \node (FBO) [rec, below=1 of HID] {Firstborn};
+        \node (BOR) [rec, below=1 of FBO] {Birth order};
+        \node (K) [rec, below=1 of PPP] {Knowledge};
+        \draw[->,line width=0.7] (HID) -- (K);
+        \draw[->,line width=0.7] (HID) -- (PPP);
+        \draw[->,line width=0.7] (HID) -- (SSP);
+        \draw[->,line width=0.7] (PPP) -- (K);
+        \draw[->,line width=0.7] (SSP) -- (PPP);
+        \draw[->,line width=0.7] (SEX) -- (SSP);
+        \draw[->,line width=0.7] (SEX) -- (ACT);
+        \draw[->,line width=0.7] (BOR) -- (K);
+        \draw[->,line width=0.7] (FBO) -- (BOR);
+        \draw[->,line width=0.7] (ACT) -- (K);
+    \end{tikzpicture}
+    \caption{DAG describing relation between analyzed variables.}
+    \label{fig:DAG}
+\end{figure}
+Summarizing, we expect knowledge to increase with age, to vary in accordance to which activities are performed, as certain activities favor the learning of ecological knowledge; by family, as access to knowledge depends on the access to older individuals able to transmit it, for example; and probably by access to schools, that provide certain types of knowledge but not others. 
+
+%insert DAG image
+\subsection{Simulation}\label{SI:Simulation}
+
+\subsection{Model details}
+%Describe the models more in detail
+
+\subsection{Sampling bias}\label{SI:Sampling bias}
+%Sensitivity analysis and distance and ngezi only analysis
+
+\subsection{Posterior parameter values}
+%Present some posterior parameters?
+
+\subsection{Other factors influencing knowledge}
+%present results of other things influencing knowledge
+
+\subsection{Dimension analysis}
+%present results of the WAIC and discuss the selection of n of dimensions
+%explain more how the dimensions are interpreted or arise
+%present correlation of knowledge in the dimensions, and of the question's parameters.
+%discuss how dimensions emerge in image recognition and interpret the results there. And there are no dimensions in questions
+
+%MORE ON CONTENT???
+
+\subsection{Freelist, questionnaire and image recognition. A note on methods}
+%Compare results from different methods and dimension analysis on them
+%Discuss how the freelist gives much more material to work on and the questions are kind of a waste of time
+\subsubsection{Freelist, details}
+Interviewees were asked to freely list all living creatures they knew with the question "Could you tell me all the living creatures you know which live in the fields and village/forest/sea. All the animals, birds, fish, critters, trees and plants you can think of" (Swahili: \textit{"Unaweza kuniambia viumbe vyote vinaoishi shambani na kijijini / msituni / pwani na baharini. Wanyama wote, na ndege, samaki, wadudu, miti na mimea wewe unaweza kukumbuka"}). The question was repeated at least three times -once referring to fields and village, once  to forest and once to the sea- to ensure that interviewees would mentally explore all environment types. The same question was also repeated if the interviewee seemed confused or paused for a very long period of time. Listing all types of creatures (animals, birds etc) also aimed at encouraging the interviewee to search among all living creatures. The words listed are culturally relevant for categorizing animals and plants: \texit{wanyama} refers to land mammals and other ground animals, \texit{ndege} are all birds and bats, \texit{samaki} includes fishes and other marine animals such as whales and dolphins, \texit{wadudu} is a word for pests, and includes most insects, but also often other animals percieved as pests such as rats and snakes, \texit{miti} and \texit{mimea} are respectively trees and shrubs. 
+The freelilst section of the interviews was interrupted when the interviewee stated he couldn't remember any more creatures or if the interviewee did not add any new item even after being primed again by repeating the question. 
+
+The possible presence of a ceiling effect -i.e. if interviewees would reach a maximum number of items listed because of other reasons than knowledge - was a concern when designing and carrying on the interviews. A ceiling effect would be problematic especially if it correlates with age, e.g. younger individuals could get bored earlier and stop listing creatures even if they actually knew more of them. We do not believe this to be the case, just by looking at the total number of items listed by individuals in different age groups: the maximum number 
+
+% Please add the following required packages to your document preamble:
+% \usepackage{booktabs}
+\begin{table}[]
+\begin{tabular}{@{}lllll@{}}
+\toprule
+                             & \textbf{All ages}                             & \textbf{Aged \textless 10}                                                     & \textbf{Aged 10-20}                                                                                                   & \textbf{Aged \textgreater 20}                                                     \\ \midrule
+\textbf{n}                   & \textbackslash{}Sexpr\{sum(d\$A)\}            & \textbackslash{}Sexpr\{sum(d\$A \textless{}= 10)\}                             & \textbackslash{}Sexpr\{sum(d$A >= 10 & d$A \textless{}= 20)\}                                                         & \textbackslash{}Sexpr\{sum(d\$A \textgreater{}= 20)\}                             \\ \midrule
+\textbf{Max n items listed}  & \textbackslash{}Sexpr\{max(tot\_listed\$n)\}  & \textbackslash{}Sexpr\{max(tot\_listed$n [tot_listed$age \textless{}= 10{]})\} & \textbackslash{}Sexpr\{max(tot\_listed$n [tot_listed$age \textgreater{}= 10 \& tot\_listed\$age \textless{}= 20{]})\} & \textbackslash{}Sexpr\{max(tot\_listed$n [tot_listed$age \textgreater{}= 20{]})\} \\ \midrule
+\textbf{Min n items listed}  & \textbackslash{}Sexpr\{min(tot\_listed\$n)\}  & \textbackslash{}Sexpr\{min(tot\_listed$n [tot_listed$age \textless{}= 10{]})\} & \textbackslash{}Sexpr\{min(tot\_listed$n [tot_listed$age \textgreater{}= 10 \& tot\_listed\$age \textless{}= 20{]})\} & \textbackslash{}Sexpr\{min(tot\_listed$n [tot_listed$age \textgreater{}= 20{]})\} \\ \midrule
+\textbf{Mean n items listed} & \textbackslash{}Sexpr\{mean(tot\_listed\$n)\} & \textbackslash{}Sexpr\{mean(tot\_listed$n[tot_listed$age \textless{}= 10{]})\} & \textbackslash{}Sexpr\{mean(tot\_listed$n[tot_listed$age \textgreater{}= 10 \& tot\_listed\$age \textless{}= 20{]})\} & \textbackslash{}Sexpr\{mean(tot\_listed$n[tot_listed$age \textgreater{}= 20{]})\} \\ \midrule
+\textbf{SD n items listed}   & \textbackslash{}Sexpr\{sd(tot\_listed\$n)\}   & \textbackslash{}Sexpr\{sd(tot\_listed$n [tot_listed$age \textless{}= 10{]})\}  & \textbackslash{}Sexpr\{sd(tot\_listed$n [tot_listed$age \textgreater{}= 10 \& tot\_listed\$age \textless{}= 20{]})\}  & \textbackslash{}Sexpr\{sd(tot\_listed$n [tot_listed$age \textgreater{}= 20{]})\}  \\ \bottomrule
+\end{tabular}
+\caption{Number of items listed in freelist for the whole sample and by age group.}
+\label{Tab: freelist_items}
+\end{table}
+
+\subsubsection{Questionnaire, details}
+
+\subsubsection{Image recognition, details}
+
+\begin{landscape}
+\begin{longtable}{@{}clcc@{}}
+\toprule
+\textbf{QN number} & \textbf{English   translation}                                                                & \textbf{Right   answer} & \textbf{Question   type} \\* \midrule
+\endhead
+%
+1                  & Do bats   make eggs(A) or give birth(B)?                                                      & B                       & forest                   \\* \midrule
+2                  & Do   hyraxes stay on the floor only(A) or climb trees as well(B)?                             & B                       & forest                   \\* \midrule
+3                  & Helmet shells(A) or mud   whelks(B) live in between the mangroves?                            & B                       & shell                    \\* \midrule
+4                  & Can   catfishes swim in the sea(A) or only in the river(B)?                                   & B                       & forest                   \\* \midrule
+5                  & Do vultures   eat meat(A) or fruits(B)?                                                       & A                       & forest                   \\* \midrule
+6                  & Mbaazi(A) or   beans(B) is a vine?                                                            & B                       & farming                  \\* \midrule
+7                  & Do kingfishers   eat insects(A) or fish(B)?                                                   & A                       & forest                   \\* \midrule
+8                  & When scared,   the squid releases ink. True(A) or false(B).                                   & A                       & fishing                  \\* \midrule
+9                  & Per single   event, do sharks give birth to about five(A) or fifty(B) offspring?              & A                       & forest                   \\* \midrule
+10                 & Green   spotted snakes are dangerous. True (A) or false(B).                                   & B                       & forest                   \\* \midrule
+11                 & Which   season is good for cultivating seaweed, long dry season(A) or long rainy   season(B)? & A                       & farming                  \\* \midrule
+12                 & Do sea turtles   return to their beach every six months(A) or one-two years(B)?               & B                       & fishing                  \\* \midrule
+13                 & Who eats   snails, the civet(A) or the mongoose(B)?                                           & B                       & fishing                  \\* \midrule
+14                 & Civets eat the   meat of oil nuts. True(A) or false(B).                                       & A                       & forest                   \\* \midrule
+15                 & Bushbabies   sleep at night(A) or during the day(B)?                                          & B                       & forest                   \\* \midrule
+16                 & Mkuu wa usiko   is used as a medicine for the head(A) or the stomach(B)?                      & B                       & medicine                 \\* \midrule
+17                 & The   territorial vervet monkey male lives with his grandchildren(A) or by   himself(B)?      & B                       & forest                   \\* \midrule
+18                 & Cone shells   have venom. True(A) or false(B).                                                & A                       & shell                    \\* \midrule
+19                 & Bushbabies,   when eating bananas, eat one at a time(A) or they ruin the whole batch(B)?      & A                       & farming                  \\* \midrule
+20                 & Which bat uses   its ears to fly, flying fox(A) or banana bat(B)?                             & B                       & forest                   \\* \midrule
+21                 & Bats produce   excrements out of their mouth. True(A) or false(B)?                            & B                       & forest                   \\* \midrule
+22                 & Groupers have   many(A) or no(B) teeth?                                                       & A                       & fishing                  \\* \midrule
+23                 & Which banana   is good for cooking, mkono wa tembo(A) or kukusa(B)?                           & A                       & farming                  \\* \midrule
+24                 & Rays sleep   between the corals(A) or in the muddy patches(B)?                                & B                       & fishing                  \\* \midrule
+25                 & Whales travel   to Pemba to give birth(A) or to rest(B)?                                      & A                       & fishing                  \\* \midrule
+26                 & The mgulele   tree makes fruits that resemble java plums(A) or custard apples(B)?             & A                       & farming                  \\* \midrule
+27                 & Chaza(A) or   tondoo(B) is hard to kubanja?                                                   & B                       & shell                    \\* \midrule
+28                 & Hyraxes have   no fingers(A) or have three fingers(B)?                                        & B                       & forest                   \\* \midrule
+29                 & The mti ya   ulaya tree grows in the forest border(A) or in its center(B)?                    & A                       & forest                   \\* \midrule
+30                 & Which plant is   a good medicine to kill fly larvae, msindu(A) or forest tonga(B)?            & B                       & medicine                 \\* \midrule
+31                 & Shrimps can   swim in the sea. True(A) or false(B).                                           & A                       & shell                    \\* \midrule
+32                 & Which wood is   good to build boats, mgulele(A) or mkarati(B)?                                & B                       & building                 \\* \midrule
+33                 & Geckos can be   which color, white(A) or green(B)?                                            & B                       & forest                   \\* \midrule
+34                 & Tunas reach   the size of a cow(A) or of a child(B)?                                          & A                       & fishing                  \\* \midrule
+35                 & After planting   sweet potatoes, two(A) or four months(B) are needed before harvesting?       & B                       & farming                  \\* \midrule
+36                 & The octopus is   fished with fishing spears(A) or with nets(B)?                               & A                       & fishing                  \\* \midrule
+37                 & Kichachuli is   the offspring of the vervet monkey(A) or of the civet(B)?                     & A                       & forest                   \\* \midrule
+38                 & Sea turtles   travel in the cold(A) or hot season(B)?                                         & A                       & fishing                  \\* \midrule
+39                 & Which shark is   dangerous, nyambrani(A) or charawanzi(B)?                                    & B                       & fishing                  \\* \midrule
+40                 & When the tide   is low, can you find cowrie shells or razor shelld on the beach?              & B                       & shell                    \\* \midrule
+41                 & Swifts travel   to Europe. True(A) or false(B)?                                               & A                       & forest                   \\* \midrule
+42                 & Ducks lay eggs   in the short(A) or long(B) rainy season?                                     & B                       & forest                   \\* \midrule
+43                 & Which fruit is   produced once a year, mkorosho(A) or java plums(B)?                          & A                       & farming                  \\* \midrule
+44                 & The offspring   of dolphins drink milk. True(A) or false(B).                                  & A                       & fishing                  \\* \midrule
+45                 & Which coconut   lives a longer life, the cultivation one(A) or the normal one(B)?             & B                       & farming                  \\* \midrule
+46                 & The   caterpillar is the offsping of the butterfly. True(A) or not true(B).                   & A                       & forest                   \\* \midrule
+47                 & Lion fishes   are dangerous. True(A) or false(B).                                             & A                       & fishing                  \\* \midrule
+48                 & Frogfishes   swim(A) or walk on the bottom of the sea(B)?                                     & B                       & fishing                  \\* \midrule
+49                 & Of the plant   mjafari, the roots(A) or the leaves(B) are used as medicine?                   & A                       & medicine                 \\* \midrule
+50                 & Which period   is good for panga: beginning(A) or mid(B) moon?                                & A                       & shell                    \\* \bottomrule
+\caption{The English translation of the 50 questions asked in the questionnaire section of the interviews, together with correct answer and type of question}
+\label{Tab: Questionnaire}
+\end{longtable}
+\end{landscape}

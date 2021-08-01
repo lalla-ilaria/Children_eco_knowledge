@@ -1,0 +1,303 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+\usepackage{graphicx}
+\graphicspath{ {./} }
+\usepackage{lineno}                         %line number
+\usepackage{subfiles}                       % File import
+\usepackage{mathtools}% http://ctan.org/pkg/mathtools
+\usepackage{natbib}
+ \bibliographystyle{unsrtnat}
+%table stuff
+ \usepackage{booktabs}
+ \usepackage{lscape}
+ \usepackage{longtable}
+
+ 
+\usepackage{tikz}
+\usetikzlibrary{shapes.geometric, arrows.meta, positioning}
+\tikzstyle{rec} = [rectangle, rounded corners, text width=1.7cm, minimum width=1.8cm, minimum height=1cm,text centered, draw=black]
+\tikzstyle{arrow} = [thick,->,>=stealth]
+
+%%%%%%%%%%%%%%%%%%%%%%%%
+%load all data to inform the text from "text/data/"
+<<echo=FALSE, cache=TRUE>>=
+d <- read.csv("./data/d_all_data.csv")
+metadata <- read.csv("./data/papers_metadata.csv")
+@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+\title{How does ecological knowledge increase during childhood?}
+\author{Ilaria Pretelli}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+\linenumbers
+
+\begin{abstract}
+    Humans live in diverse, complex niches where survival and reproduction are conditional on the acquisition of knowledge. And yet, individuals are born naive, remaining dependent on adult provisioning for more than a decade as they learn. The need to learn locally relevant knowledge has been connected to the evolution of childhood and other stages of early life history. The rate at which learning happens during childhood can shed some light on the role of phase in our evolution. 
+    We collected data to measure environmental knowledge at different ages in the Island of Pemba, Zanzibar (TZ), interviewing 93 children and teenagers between 4 and 26 years old. The population on the island relies heavily on the natural environment, and children routinely forage in the forest and seashore.
+    We then developed a series of Bayesian latent-knowledge models to estimate individual knowledge acquisition, and to infer the influence of age, as well as of activities and social environment on such knowledge.
+    Compared to previous studies, thanks to the use of latent models, we can describe with more details the variation of knowledge with age as well as other factors, and infer the presence of different dimensions of knowledge, which appear to have age and sex-specific relevance. 
+    The results suggest that in our sample children keep learning during the whole pre-reproductive period, but at varying rate, the increase with age being fastest in young children and lower in teenager and young adults. Sex differences in total knowledge start to appear during middle childhood, right when labor division emerge. According to the dimension analysis, this difference is due to steep increases in an area of male-specific knowledge, while shared knowledge is acquired at the same rate across sexes. Activities practiced contribute to knowledge acquisition and mediate the emergence of differences between the sexes.
+    These data and the inferred developmental pattern contribute to a growing comparative literature on children's foraging and the life history of cultural knowledge.
+\end{abstract}
+
+\section{Introduction}
+
+% cultural adaptation
+Much has been said on the peculiarities of our species. Humans live in a variety of ecological niches, exploiting hard-to-get resources, which are irregularly distributed in time and space. To compensate the lack of physical adaptations, we developed complex technologies to acquire these resources, as well as social behaviors such as sharing norms that help buffer against the uncertainty of foraging returns. All of these aspects of our foraging strategies require vast amount of knowledge, and we need time to acquire this knowledge.
+
+% childhood huh what is it good for?
+It has been suggested that the reliance on knowledge and the need to learn it contributed to shaping human life history. For example, individuals who postponed reproduction to improve their understanding of the environment and their ability to extract its resources would have been selected thanks to the benefits reaped in adulthood. 
+Our reliance on complex foraging niches which require knowledge could have hence co-evolved with our long pre-reproductive period (\cite{Kaplan2000ALongevity}). In particular, the specific rates of somatic and brain growth, that characterize early human life history and represent a derived trait in humans, could have emerged in relation to the need of long time for learning.
+Alternatively, the human pre-reproductive period could have extended as a byproduct of a general elongation of the maximum lifespan, driven by no specific selective pressure. 
+
+% life history background info
+Human early life history can be divided in four different phases preceding adulthood: infancy (from birth to about 3 years old), childhood (3-7), juvenile period (7-12) and adolescence (12-18). Infancy is the period between birth and weaning and usually finishes around 3 years of age. It is a time of complete dependency from adults and somatic and brain growth are fast. Childhood spans from 3 to 7 years, a time in which individuals are still mostly dependent from adults, but start to try out different activities. This period is characterized by a partial slow down of somatic growth and by the end of it the brain reaches adult size. Middle childhood, or juvenile period, starts just after, ending at around 10-12 years and in humans it is marked by a peculiar reduction in the speed of somatic growth. This apomorphic character in our lineage has been connected to several life history traits, including prolonged dependency of multiple children, cooperative breeding and the need to learn to exploit a complex niche. In this phase multiple interesting things happen from the behavioral point of view. For example, individual acquire various cognitive abilities, the division of labor between sexes emerges and, in subsistence societies, children start to consistently provide at least partially for themselves through foraging or other tasks. During the last phase of human development, adolescence, individuals mature sexually and socially, experience a growth spur in height and weight, and become regular food producers, approaching adult level of production in various activities. 
+
+% what is missing? the knowledge at different stages of life!
+Despite our extensive knowledge on the main characteristics of each of the above mentioned phases, we still lack a clear understanding of how knowledge acquisition maps on this pattern of development. 
+Most hypotheses describing the importance of knowledge for life history evolution imply that early childhood emerges in the \textit{Homo} lineage as a time to complete full growth of the brain, and that following this time, the brain has to be filled with information. The slow growth observed during the juvenile stage would allow children to have extra time thanks to lower maintenance needs, while they acquire the fist bulk of ecological knowledge. Adult provisioning and protection are needed up to at least the beginning of adolescence, but the first attempts at performing most activities happen well before 12 years, and allow children to have a buffer zone in their life history in which to try out various tasks with the back up offered by parents and other caretakers. 
+
+% lit review on what has been done
+Increases in ecological knowledge have been measured in a variety of mixed subsistence societies. For example, \cite{Koster2016WisdomElders} models knowledge among indigenous Nicaraguans as a function of age, and finds consistent increases during middle childhood and adolescence, but knowledge seems to plateau in adults (a finding which disproves the local belief that older people are more knowledgeable). The sample analyzed, though, does not include individuals younger than 10 years, which does not allow to make inferences in the earlier phases of human life history. 
+A more detailed approach to how changes in knowledge map onto other developmental changes in the body or behavior is needed to make inferences on the relation between knowledge and life history.
+
+% lit review sex differences
+Another pattern that often emerged in studies estimating knowledge in boys and girls, is a difference between the sexes. The differences were not always obvious, especially when total measure of knowledge was estimated, or if data were limited to a specific area (e.g. palm species names). But when content was included in the analysis, it appeared that boys and girls often focused on different aspects of ecological knowledge. 
+%CHECK THIS PARAGRAPH FOR CORRECT CONTENT
+These differences are not expected to be innate, but rather are linked to the differential engagement in sex specific activities related to different subsets of our ecological niche. 
+Detailed analyses of gender specific areas of knowledge is missing. Most studies either focus on one aspect of ecological knowledge, often gender specific ones such as fishing (\cite{Koster2016WisdomElders}), or do not explore the variation between sexes in terms of content. 
+
+%what sex diff tell us
+Exploring gender differences can inform the discussion on the importance of knowledge for life history in multiple ways. First, the timing of emergence of gender differences in knowledge could be correlated to that of other differences between gender, such as labor division or sexual maturation.
+Second, the fact that certain activities are associated to one of the sexes generates enough variation to quantify the effect of activities practiced, which would be important to make inferences on the importance of practice for the acquisition of knowledge.
+Third, exploring how the two genders differ in the aspects of ecological knowledge on which they can clarify what is the importance of learning about the environment in relation to its economical function. 
+%review this sentence
+
+% what this study contribute - how is it an improvement
+Hence, our study aims at exploring more in detail the relation of knowledge with age, focusing on children and teenagers, and at understanding the importance of sex and activities on knowledge variation among individuals. We describe different areas of knowledge, as they emerge from the data, linked to gender specialization in information about the environment. Finally, we report the effect of other variables that have been argued to impact children ecological knowledge, such as formal schooling or co-residence with family members. We hope to correlate certain aspects of life history to knowledge variation, and to explain part of this variation with additional aspects of children and teenager behaviors.
+
+%Finally, our analysis attempts at disentangling the effect on total knowledge of different components.
+
+%Humans are weird. We need knowledge
+%It is not hot news that our species exhibit several traits, that, taken together, arrange themselves in a peculiar constellation.For a start, we live in every kind of environments on almost every continent. We exploit diverse ecological niches, relying on a wide variety of food sources, which are irregularly distributed in time and space. A large proportion of our diet is composed of hard-to-get resources with high nutrition value, that we we are not physically adapted to obtain. We instead use vasts arrays of technologies to access these resources, technologies that could never be invented in a single lifetime. We coordinate with many other individuals in our attempts to guarantee our livelihoods and follow complex social norms when interacting. All of these aspects of our foraging strategies require vast amount of knowledge. And, be it through individual or social learning, we need time to acquire this knowledge. 
+
+%Lack of terminology consensus within and across disciplines complicates the discussion that follows(\cite{meehan2016childhood}), but I will treat here infancy the period of exclusive dependency of young humans, that ends roughly with weaning around 3-4 years of age, childhood as the period between infancy and adolescence, when somatic growth decelerates, the brain reaches full size and individuals start to be at least partially producers, and adolescence, when a growth spurt brings the body to adult height and sexual traits reach maturation. 
+%Childhood is a human-specific phase of early life history that inserts itself between infancy and the juvenile period, rougly between 3 and 12 years of age. It is characterized by a reduction in the speed of somatic growth, whereas it is in tis period that the brain reaches its adult size. 
+
+%the emergence of childhood, a period of human lives when xxxx happens, The pattern of growth typical of our juveniles, with the slow down of physical growth between xxx and xxx years of age,could be an adaptation to allow our brains, reaching by now adult size, to be filled with large amounts of the required information. 
+
+%but we don't understand behavioral changes
+%Our understanding of behavioral changes during childhood and adolescence is more limited than that of somatic changes. 
+%Developmental psychology tackles the issue with different goals.
+%Observational studies of behavioral changes tell us something about emergence of labor division and learning strategies.
+%Acquisition of knowledge in time
+%labor division, activities
+%knowledge
+%Some studies tried to measure the increase of knowledge with age in a variety of mixed subsistence societies. 
+%Knowledge increases with age, there are gender differences in amount of knowledge. 
+
+%what are we going to do
+%We focus on ecological knowledge for a variety of reasons, but especially because an understanding of the environment is expected to have actual consequence on the livelihood of individuals who rely at least partially on foraged foods or small scale agriculture. Also, local ecological knowledge, or LEK, is an easily sub-settable portion of knowledge to explore and is considered important in the preservation of traditional cultures as well as wildlife.  
+
+%A better understanding of the other factors influencing knowledge would also be helpful. Especially, most studies find a difference in knowledge between sexes, in total knowledge or in knowledge by area. Boys are more experienced when talking about animals and girls about plants %FIIIIIIND?!?!?
+%This division would be associated to sex division of labor, hunting being a typical male activity, whereas gathering of plants is more commonly a female one. Understanding the emergence of differences in knowledge of the natural environment would be cool.
+
+%in the supplementary we also show the effect of other things
+%Finally, mixed evidences on the effect of formal schooling, presence of specific members of the family or sibship order have been investigated as factors influencing individual knowledge, so we look at these here as well.
+
+%In order to contribute to the discussion on the importance of knowledge, we collected data in a population of partial time foragers and analyzed them with a set of Bayesian latent models. 
+
+%HINT AT MULTIPLE DIMENSIONS OF KNOWLEDGE
+
+
+\section{Materials and Methods}
+
+\subsection{Research location}
+Data collection was carried out in the village of Bandarikuu, located between the sea and the forest, north-east in the Island of Pemba, Tanzania (see Figure \ref{fig:inset}). 
+
+\begin{figure}
+\includegraphics[width=12cm]{other_figures/inset.png}
+\caption{Pemba lays offshore Tanzania.}
+\label{fig:inset}
+\end{figure}
+%add contour inset, add scale, add forest
+
+Pemba is the second biggest island in the archipelago of Zanzibar, which lies in the Indian Ocean, off the coast of Africa. 
+
+%history/islam
+Part of the vast Swahili commercial network connecting the major centers in East Africa, Pemba welcomed several subsequent cultural influences coming from the mainland, where the original Bantu substratum is originated, and later from Portuguese and English colonization. Especially important has been the influence of the Arab world, with the first mosque found on the island dating back at least to the eleventh century. The sense of belonging to the Muslim world was then reinforced during the rule of the Omani Sultanate, which lasted until the mid twentieth century, and is maintained up to today, when Pembans cherish the Arabic portion of their ancestry and follow extensively the precepts of Islam. 
+
+%location
+The island, located just below the equator (5°S), enjoys a tropical climate and mild seasonality, with an alternation between drier and rainier seasons following the monsoon cycle. Its densely distributed population ($428/km^2$, about twice as much as Switzerland) is mostly living in rural areas (around 80\%, according to \cite{NationalBureauofStatisticsMinistryofFinance2014BasicReport}) and lives largely of agriculture, fishing and other land dependent activities (\cite{Jeff}). 
+
+%reliance on natural resources 
+Nested between the largest remaining rain forest on the island and the coast rimmed with mangroves, Bandarikuu is especially dependent from the environments surrounding it.  Its inhabitants depend from the land and sea for more than 80\% of their livelihoods (\cite{jeff}), as most of the income of the village comes either from fishing, agriculture or the forest itself. Cloves, the main cash crop in Pemba, are also produced around the village, and many families own clove trees elsewhere. 
+%expand
+%The income generated by the clove market brings a relief in the mostly cashless economy of the village, although is not reliable and in any case it is limited to the clove harvesting season. Alternative sources of money are the cultivation of algae for the Asian market, which is labor intensive and pays really badly, and production of charcoal. 
+
+%children role 
+Children comprise a big part of the growing population of Pemba, and Bandarikuu is no exception, with rxxx of the rxxx inhabitants below 20 years of age. Young individuals divide their time between domestic and farming chores, education at both the state and Koranic schools and play. Foraging is carried on at variable levels by children and teenagers, according to individual inclination and contingent family or environmental conditions. Foraging activities include mainly gathering of seashells in the shores lining the mangrove forest, and hunting birds in the forested areas around the village. Hunting and gathering are considered somewhere in between work and play, as children are normally not required to engage in such activities, but are praised if they bring home extra proteins. The bulk of the food consumed by families is composed of cassava roots, rice and other products high in carbohydrates, so that the shells and meat brought back by the children are often a very welcome addition. 
+Children themselves report that they forage in order to provide food for the family and for themselves, saying that hunger is one of the main drives for engaging in such activities. Hence, we expect children be motivated to learn about the natural environment in order to exploit its resources through foraging. 
+
+
+\subsection{Data collection}
+Interviews with children and their families were conducted between June and August 2019. After receiving approval by Governmental and local authorities, all households in the village were visited to collect the full census and other household level characteristics, as well as to discuss the nature of the project and approval of future interviews with the children. Then, the knowledge interviews testing understanding of the natural environment were conducted with an opportunistic sampling procedure, so that children and young adults volunteered for being interviewed. We estimated the importance and presence of sampling bias, that could arise this procedure, with additional analyses presented in SI \ref{SI:Sampling bias}.
+
+93 individuals participated to the knowledge questionnaire, between 5 and 26 years of age. The interviews themselves consist of three blocks of questions, namely: (i) Three freelisting questions in which children were asked to name all the living creatures found in the village/cultivated fields, in the forest or in the sea. The reported items were then checked for misspelling, and then again with local and international collaborators to ensure appropriate management of the answers. (ii) A list of 50 multiple choice quiz questions with two options, developed with the help of both the local Department of Forestry and Non Renewable Natural Resources and focus groups with adults in the village. (iii) A task of image recognition using pictures collected around the village or elsewhere on Pemba, in which children were asked to name all the living beings appearing in a sequence of 27 pictures. Each answer given to each picture was rated as acceptable or non-acceptable during a focus group following data collection.
+
+\subsection{Causal framework}
+Data collection and analysis has been informed by preliminary work aimed at describing the causal and non-causal effects of factors influencing knowledge. Specifically, we described in a Direct Acyclic Graph (DAG) all the aspects of individuals that are expected to correlate with knowledge (see Figure \ref{fig:DAG} and SI \ref{SI:DAG}). According to a Causal Design approach, by formally declaring the relation between factors, a DAG allows derive a causal estimate of the effect of an independent variable on a dependent one by selecting the correct variables to include in data analyses.
+In our DAG, for example, Sex does not have a direct effect on knowledge (no direct arrow Sex $\rightarrow$ Knowledge), but rather its effect is mediated by Activities. If we want to estimate the total effect of Sex on knowledge, we cannot include Activities in the analysis. The causal effect of Sex on Knowledge, on the contrary, is estimated once all other factors mediating its effect (Activities, Schooling) are included in the analysis. 
+
+The connection of Age to Knowledge is an exception to the causal interpretation of the DAG's arrows. Age does not cause knowledge, but rather it is a proxy for other characteristics that change in time, such as brain and cognitive development. Causally speaking, we could remove any effect of Age by including in the analysis all factors that Age is a proxy for. 
+
+\begin{figure}[h]
+    \begin{tikzpicture}
+        \node (AGE) [rec] {Age};
+        \node (SEX) [rec, left=0.8 of AGE] {Sex};
+        \node (FAM) [rec, right=0.8 of AGE] {Family};
+        \node (ACT) [rec, below=1 of SEX] {Activities};
+        \node (SCH) [rec, below=1 of FAM] {Schooling};
+        \node (K) [rec, below=3 of AGE] {Knowledge};
+        \draw[->,line width=0.7] (AGE) -- (K);
+        \draw[->,line width=0.7] (AGE) -- (ACT);
+        \draw[->,line width=0.7] (AGE) -- (SCH);
+        \draw[->,line width=0.7] (SEX) -- (ACT);
+        \draw[->,line width=0.7] (SEX) -- (SCH);
+        \draw[->,line width=0.7] (FAM) -- (ACT);
+        \draw[->,line width=0.7] (FAM) -- (K);
+        \draw[->,line width=0.7] (FAM) -- (SCH);
+        \draw[->,line width=0.7] (ACT) -- (K);
+        \draw[->,line width=0.7] (SCH) -- (ACT);
+        \draw[->,line width=0.7] (SCH) -- (K);
+    \end{tikzpicture}
+    \caption{DAG describing relation between analyzed variables.}
+    \label{fig:DAG}
+\end{figure}
+
+We relied on the DAG described above to plan data collection so that all the relevant variables would be recorded, as well as to define the analyses described below. Despite the causal implications of this approach, we mostly adopted a descriptive attitude in the analysis. This is because we are interested in observing how Knowledge changes with Age and interpreting the qualitative trajectory of the change in the light of life history evolution. Estimating the causal effects of factors such as Activities is, in this study, functional to the general question of the role of childhood -and the activities practiced during this time- in the acquisition of relevant ecological knowledge.
+
+\subsection{Analysis}
+%DAG!
+%describe factors and insist on what are the causal non-causal effects 
+
+We developed multiple Bayesian models targeting our different inference goals. These models, coded in Stan language (\cite{stanversion}), are composed of two different parts. The core of the model is an Item Response Theory (IRT) model. IRT models, initially developed as a mean to grade tests in pedagogy, aim at estimating one or multiple latent traits, such as knowledge, from answers to questions while simultaneously allowing each question $j$ to vary in difficulty ($b_j$) and discrimination ($a_j$). Specifically we estimate individual level knowledge ($K_i$) from the probability of answering each item $j$ in our interviews correctly (i.e. naming a specific item in the freelist, recognizing an item in the image recognition task, answering correctly an item in the quiz -notice that this last type of questions required a 3PL IRT model which includes a pseudo-guessing parameter $c_j$, see supplementary for more information). 
+
+\begin{align*}
+Y_{i,j} &\sim \text{Bernoulli}(p_{i,j}) \\
+\text{logit}(p_{i,j}) &= a_j (K_i - b_j) \\
+\end{align*}
+
+The knowledge estimated here is then used as a dependent variable in the second part of the model, which estimates the effect of various factors on individual knowledge. Age was included in all models as an ordered categorical variable, so that there is a sex specific maximum effect for age $\beta_{S}$ and each year adds one proportion of that effect $\delta_y$. This means that the curve of the relation between knowledge and age emerges from the data themselves, rather than being imposed to be a specific function in the model design. Apart from an individual intercepts $\alpha_i$, Model 1 includes these estimates only, and can hence tell us the total effect of age and sex combined. Model 2 includes an effect for activities performed by each individual $\betaAC_{act}$ as well.
+Further models to test the effect of other factors such as schooling and social traits are described in the supplementary information.
+
+\begin{align*}
+Model 1 : & K_i = \alpha_i +\beta_S * \sum_{y=0}^{Age_i}  \delta_y \\
+Model 2 : & K_i = \alpha_i +\beta_S * \sum_{y=0}^{Age_i}  \delta_y + \sum_{a=1}^{10} \Gamma_{a}  \text{Activities}_{i,a}\\
+%\alpha_h + \sum_{Activity=1}^{Activity=10} \beta_a * A_i + \beta_y * SY_i + \beta_s * SIB_i + \sum \alpha_a \\
+\end{align*}
+
+All the models allow to distinguish dimensions of knowledge, so that we can distinguish when individuals in our sample are experts in certain aspects of the environment, but have lower knowledge in others (just like students in a western school can be knowledgeable in history but not in physics). The probability individual $i$ has of answering a single question $j$ correctly is the sum of multiple probabilities for each dimension $d$, and individuals are assigned a measure of knowledge in each dimension $K_{i,d}$. This approach allows to partition the variation among knowledge of individuals in any number of dimensions.
+%Finally, we modified Model 1 to test for the presence of multiple dimensions of knowledge. To do so, we forced the model to estimate  Questions and individuals get dimension specific parameters. The model has been run with 2 up to 5 total number of dimensions $D$ and the results compared with WAIC to individuate the number of dimensions best describing the data. 
+
+\begin{align*}
+& Y_{i,j} \sim Bernoulli(logit (p_{i,j})) \\
+& p_{i,j} = \sum_{d=1}^{d=D} p_{i,j,d} \\
+& p_{i,j,d},_d = a_{j,d} * (K_{i,d} - b_{j,d}) \\
+\end{align*}
+
+%priors, sampled from posterior, check fitting, repo
+
+All models have been tested with simulated data, as described in SI \ref{SI:Simulation}
+
+%Notice that all models include a global intercept $mA$ with no biological meaning, but which allows to regularize the other parameters(?). This is required to improve the fitting of the model, as the knowledge parameters $K_i$ are estimated in an a-dimensional scale which is relative only to the difficulty parameters $b_j$ and can vary in the position on this scale.
+
+%model
+%Data were analyzed using a Bayesian IRT model developed in Stan. IRT models, initially developed as a mean to grade tests in pedagogy, aim at estimating one or multiple latent traits, such as knowledge, from answers to questions. They estimate individual level traits while simultaneously allowing questions to vary in difficulty ($\beta$) and discrimination($\alpha$). The model treats the three different types of questions independently, estimating simultaneously the two main parameters for the freelist and image recognition tests (2PL) and also probability of guessing for the questionnaire (3PL), which include probability of guessing ($\gamma$), while estimating also a knowledge parameter for each interviewee ($K$). Knowledge is intended as a latent trait influencing the probability of naming a certain object in the freelist, of answering correctly to the questionnaire or of listing each of the creatures appearing in the images.
+
+%$K$ in turn is estimated with a generalized linear model that estimates the effect of individual level traits on knowledge. These include: Age ($A$) (as reported by the children themselves), sex ($S$), activities performed ($AC$), time spent in school ($SY$) and several family related factors. An individual intercept absorb remaining variation. 
+%Multiple models have been constructed to infer the relevance of the factors just described 
+%if other things are included in the definition of age, add here
+%time spent in school ($SY$), estimated using as a proxy the grade in which students are currently enrolled or that they have completed last, assuming that older children enrolled in earlier classes have spent less time in school or school related tasks;
+%RICHARD: similar to cultural consistence analysis - check
+%bayesian, so no point estimates but distributions
+%CHECK THE PHRASING FOR SEX/AGE EFFECT AND SEE IF CAN BE WRITTEN LESS CAUSALLY
+
+
+\subsection{Results}
+Knowledge in our model is predicted to increase at different rates during the whole period sampled.
+Figure \ref{fig:quadriptych}, graph a, shows the estimated increase in knowledge per each age. We can see that knowledge increases quite steeply in the first few years we sampled, it keeps growing during most of the teenage years and then it appears to start leveling off after 20 years of age, although we do not have many data points for the older individuals. 
+These older kids, however, show a very good knowledge of the environment. These individuals routinely listed more than 100 plants and animals, with the more knowledgeable going over 200. 
+%curve slowing down with age because it follows the fact that there is less to learn. If individuals keep learning the same proportion of what is left to learn each year, they learn a lot when they're young and less when they're older. So knowledge doubles from when you're 10 to 20, but it doesn't keep going that way later on. Still learning but less.
+%compare with chimps - by 10 they're fully developed and autonomous
+
+Now let’s look at the difference between genders. Boys appear to know a little bit more about the natural environment than girls do. We can see how this difference starts to appear during the juvenile period, between 7 and 12 years. 
+
+We then proceeded to analyze the same model, but including the effect of practicing a certain activity. Looking at the parameters $bAC$, describing the effect of each activity on knowledge, we can see that there's a certain amount of variation (Figure \ref{fig:quadriptych}, graph b). Some activities have almost no effect, some others, such as hunting birds, have a positive effect on knowledge, and finally activities such as household chores, have a negative effect (see supplementary for distribution parameters of the posterior). 
+
+When including activities as a covariate, the difference in knowledge between the sexes decreases significantly. We can see this from how much the lines for male specific and female specific knowledge overlap, in Figure \ref{fig:quadriptych}, graph c. But when controlling for activities, the difference between the sexes reduces, and the posterior distributions for the sex specific age effects $bA_s$ overlap. This means that activities explain at least part of the variation in knowledge between the sexes. 
+
+\begin{figure}
+\includegraphics[width=12cm]{4_Outputs/plots/exaptychpics.png}
+\caption{\textbf{Graph a} shows knowledge of individuals $K_i$ estimated from Model 1 for individuals over their age, color coded for sex. The curves represent estimated knowledge at each age per sex, each line a set of values from the posterior sample. $K_i$ values are mean of the posterior distribution for the relative values. \textbf{Graph b} shows mean and 89\% confidence intervals CI for the activity parameters $bAC_actvity$. \textbf{Graph c} shows increases of knowledge for age and sex in a counterfactual condition in which individuals practice no activity. \textbf{Graphs d-f} show individual knowledge $K_i,d$ estimated in each of three different dimensions, color coded for sex. The cartoons represent one of the most salient species in each dimension.}
+\label{fig:quadriptych}
+\end{figure}
+
+
+The analysis of dimensions further helps us explain sex differences and age related effects. From the WAIC results, it appears that including a higher number of dimensions helps predicting out of sample accuracy (see supplementary). After 3 dimensions, though, the increases in accuracy are minimal, suggesting that 3 dimensions are enough to describe the data appropriately. Figure \ref{fig:quadriptych}, graphs d to f, shows estimated knowledge for individuals in each of the three dimensions, plus dimension -and sex- specific increases with age. Each dimension picks up a specific trend from the data. In one of the dimensions, boys and girls learn at the same rate and achieve a similar total knowledge. Of the remaining two dimensions, one shows significant increase in knowledge for boys, and the other for girls, whereas the opposite sex seems not to learn at all. The trends of increases with age differ in the three dimensions. Dimension 1 sees the boys pick up knowledge at high speed, and does not show strong signs of leveling off in later ages. Girls learn much more slowly in this dimension, if at all. The most salient items in this dimension, those that are named more times and that the model considers easier, include birds that are commonly hunted, such as ibises, and fish. In the second dimension, boys and girls do not differ in the amount of knowledge per age, and have similar age trends. Specifically, knowledge increases significantly until when individuals are about 12 years old. After that, knowledge plateaus. This dimension picks up general knowledge, and the most salient items include common species such as chicken and mango. Dimension 3 is the least descriptive of the data, and the trends are less certain. It appears, though, that girls' knowledge in this dimension increases during adolescence, while boys do not learn at all. The most salient items in this dimension are some common animals, such as bats, but most interestingly there are many edible vegetables, such as aubergines and onions. 
+
+
+%\begin{figure}
+%\includegraphics[width=12cm]{4_Outputs/plots/dimensions.png}
+%\caption{The three plots show individual knowledge $K_i,d$ estimated in each of three different dimensions, color coded for sex. The curves represent estimated knowledge at each age per sex, each line a set of values from the posterior sample. $K_i,d$ values are mean of the posterior distribution for the relative values.}
+%\label{fig:dimensions}
+%\end{figure}
+
+
+
+
+\section{Discussion}
+If knowledge had a maximum value, and individuals learned a constant proportion of the knowledge they haven't acquired yet, the shape of their knowledge over age wouldn't be too different from what we observe, some sort of decelerating function. But this is simply a mechanistic view, and the rates of knowledge acquisition over age reveals other interesting patterns. 
+
+The fact that the largest increase in knowledge happen between 7 and 12 years (Figure \ref{fig:quadriptych}-a) calls our attention to the juvenile period, when children start to engage more with the world around them. Just as the brain reaches adult size, it gets filled with information, while children become more independent and perform productive activities with some regularity, if with different level of success. The knowledge they acquire during this phase seems to be very generic, as if children were tapping into the easier, most common part of all the available knowledge (Figure \ref{fig:quadriptych}-e). They learn about their environment, and start to use it in real world activities, but this is not enough to render them autonomous. By this time, children often have one or more younger siblings and are not the main concern of their parents anymore. They usually produce a consistent proportion of their caloric needs, which are kept low by a prolonged period of slow somatic growth,  but are still dependent from adults for protection and provisioning. In particular, they are usually not skilled enough to perform many adult activities, but rather focus on a subset of children-specific tasks. 
+During this time, the difference in total amount of knowledge between the sexes is barely perceptible, and most of the information acquired is shared between sexes.
+
+Following this period, adolescence is a time in which knowledge acquisition continues at a slower rate (Figure \ref{fig:quadriptych}-a). Sex specific knowledge accounts for most of the increases in this phase of life, with boys learning male-specific information at a constant rate (Figure \ref{fig:quadriptych}-d), and girls doing some gendered learning (Figure \ref{fig:quadriptych}-f). The dimension of knowledge in which males keep improving all through adolescence and later on seems to be focusing on bird and fish species. Males in this population do all the hunting and fishing, and keep acquiring knowledge linked to these activities all through their lives -at least in the sampled period. They start learning very early, having a higher knowledge in this dimension already during early childhood, but the distance increases with time, and accounts for most of the difference in total knowledge between sexes. Girls seem to have a sex specific dimension of knowledge, linked to edible vegetables and seashells and maybe medicinal plants, but the limited data from older girls and young women makes it hard to make strong claims in this direction. General knowledge does keep increasing during adolescence, but at a much slower rate, almost imperceptibly so. 
+The fact that gender plays such a big role in knowledge acquisition during adolescence is probably linked to the fact that by this time individuals fit in distinguished gender roles, with clear division of labor and sex specific activities. 
+
+The importance of activities themselves is reinforced by fact that gender differences in total knowledge almost disappear when they are taken into account (Figure \ref{fig:quadriptych}-c). The difference in knowledge between boys and girls seem to be mostly driven by certain sex specific activities, such as bird hunting and fishing (Figure \ref{fig:quadriptych}-b), which are mainly practiced by males and promote the acquisition of male specific knowledge in Figure \ref{fig:quadriptych}-d. Interestingly, activities such as seashell collection, which is the only female oriented activity that involves interacting with the natural environment, also has a positive effect on knowledge acquisition. On the contrary, household chores have a negative effect (Figure \ref{fig:quadriptych}-b). This reinforces the idea that certain activities are important for the acquisition of knowledge, and the time invested in practicing these activities results in knowledge that is specific to that activity. 
+
+The total amount of knowledge seems to plateau after 20 years of age, suggesting that most of the knowledge acquisition has taken place by this point. Our data does not include a sufficient number of young adults to support strong inferences on the later stages of life, but it appears that, after adolescence, any increase in knowledge would be in sex specific domains. It is possible that certain individuals will keep learning about the natural environment as they might become local expert in medicinal plants or fishing, but most individuals have reached a good amount of knowledge by this time. Older individuals in \cite{Koster2016WisdomElders} are considered very knowledgeable, but, once measured, their knowledge does not actually differ much from that of younger adults. This pattern could be due to some sort of ceiling effect, for example if individuals reach a maximum number of species listed in a freelist for memory limitations, but it also could simply be due to the fact that old people are considered experts in many subjects just due to their age. 
+%By the time kids are 10, their brain have reached more or less their full size, but they’re not done filling up with information. They will learn about as much as they have already learnt by the time they’re 20, and will most likely keep learning, although much less. 
+
+%Boys appear to know a little bit more about the natural environment than girls do. This was not a surprise to us, as gender differences have been observed before.
+%, just when labor division starts to emerge. As we do not believe there’s some innate difference between sexes in knowledge, but on the contrary we think this emerges from sex specific engagement with activities, this was a first interesting result. 
+
+%Describe activities by types (requiring knowledge- not requiring knowledge) and notice details: Seashell collection, which is also mostly practiced by girls, has a positive effect, and it’s an activity which probably promotes the knowledge of some specific areas. Spearfishing and hunting with dogs might not increase knowledge after childhood, and just strength is required. 
+
+%sex differences in knowledge are not innate, they emerge as individuals go on and practice different activities
+
+%activities are obv not the only thing that contributes to increases in knowledge with age, although once controlled for activities the total effect of age is reduced. Knowledge, though, increases with age even controlling for activities, suggesting that even hanging around people provides means to increase ecological knowledge.
+
+%dimensions - first time ecological knowledge is analyzed with dimensions, can better look at where are differences between the sexes
+%simple items talk about not really knowledge, but areas of interest
+%Discuss content of dimensions and age specific patterns per dimension - with general knowledge for early ages and specialization in adolescence.
+
+%also discuss methods - questions low discrimination, not very helpful
+\section{Conclusion}
+
+\bibliography{references}
+
+
+\import{./5_Text}{2_supplementary.Rtex}
+
+
+\end{document}
+
+
+%A caveat concerning this interpretation is that it is possible that among the older teenagers and young adults only the more knowledgeable ones offered themselves for being interviewed, whereas younger individual participated irrespective of knowledge. We do not believe this to be the case, as interviewees mostly decided to participate because interested in the procedures or because of familiarity with the interviewer, at any age. We argue that, given the length of the average interview, sampling opportunistically produced ensured commitment, and that t
