@@ -35,13 +35,13 @@ dat <- list( D = 1,    #loop through dimensions
                R = d$R ,    #n image recognition items
                A = d$A [!is.na(d$HH_dist) & d$A <= 50] , # age #[d$A <= 50] 
                S = as.integer(ifelse(d$S == "m", 1, 2) [!is.na(d$HH_dist) & d$A <= 50]),
-               HD = d$HH_dist [ !is.na(d$HH_dist) & d$A <= 50],
+               HD = standardize(d$HH_dist [ !is.na(d$HH_dist) & d$A <= 50]),
                Y_l = d$Y_l [rownames(d$Y_l) != "19586" & !is.na(d$HH_dist),] , #answers freelist #[rownames(d$Y_l) != "19586",] 
                Y_q = d$Y_q [rownames(d$Y_q) != "19586" & !is.na(d$HH_dist),] , #answers questionnaire
                Y_r = d$Y_r [rownames(d$Y_r) != "19586" & !is.na(d$HH_dist),] , #answers picture recognition
                O = length (0 : 26 ) ,
                alpha = rep( 0.5, length (0:26 ) -1 ) 
   )
-dis <- cstan( file = "models/1_age.stan", data=dat , chains=1, cores=4 , threads=3  )
+dis <- cstan( file = "models/supplementary_models/distance.stan", data=dat , chains=1, cores=4 , threads=3  )
 saveRDS(dis, paste("4_Outputs/posteriors/dis.rds", sep = ""))
   
