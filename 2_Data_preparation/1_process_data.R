@@ -230,6 +230,9 @@ for(i in 2 : nrow(freelist_corrections)){
   freelists$response [which(freelists$response == freelist_corrections$old[i])] <- freelist_corrections$new[i]
 }
 
+#prepare table with all answers
+all_items <- freelists %>% group_by(response) %>% count()
+all_items <- all_items[-1,]
 
 #ADD not_a_creature column
 ######
@@ -247,19 +250,26 @@ not_a_creature <- c("ALI", "ANDAZI", "ASALI",
                     "NDEGE", "NDOANA", "NDOO", "NEMBO", "NGARAWA", "NGUMU", "NGUO", "NJANO", "NJUKUTI", "NOHA", "NSEME", "NYAMA", "NYAVU", "NYAYO", "NYOTA", "NYUMBA", "NYUNDO", "NYUSI", "NYWELE",
                     "PAIPU", "PAJA", "PAURO", "PEMPAS", "PENI", "PENSELI", "PENSI", "PESA", "PETE", "PEZI", "PICHA", "PIKIPIKI", "PIPI", "POLO", "POVU", "PUA", "PUKUSA", "PWANI", 
                     "RANGI", "RANGI MBILI", "RAYANI", "REDIO", "REZA", "RINGA", 
-                    "SAMAKI", "SAA", "SABUFA", "SABUNI", "SABUNI ZA TUMBILI", "SAHANI", "SAMLI", "SARUJI", "SEKUNDE", "SERUNI", "SHANGA", "SHANUO", "SHATI", "SHEITANI", "SHIMO", "SHIMO LA JONGOO", "SHINA LA MBIRIMBI", "SHINDANO", "SHINGO", "SHUKA", "SHUNGI", "SIAGI", "SIMU", "SINGBODI", "SINGILENDI", "SIPIKA", "SKETI", "SOLAR", "SUFURIA", "SUKARI", "SUMAKU", "SUNGUSUNGU", "SURUALI", "SUSA",
+                    "SAMAKI", "SAA", "SABUFA", "SABUNI", "SABUNI ZA TUMBILI", "SAHANI", "SAMLI", "SARUJI", "SEKUNDE", "SERUNI", "SHANGA", "SHANUO", "SHATI", "SHEITANI", "SHIMO", "SHIMO LA JONGOO", "SHINA LA MBIRIMBI", "SHINDANO", "SHINGO", "SHUKA", "SHUNGI", "SIMU", "SINGBODI", "SINGILENDI", "SIPIKA", "SKETI", "SOLAR", "SUFURIA", "SUKARI", "SUMAKU", "SUNGUSUNGU", "SURUALI", "SUSA",
                     "TANGI", "TANGO", "TIME", "TITI", "TORCHI", "TUFALI", "TUI", "TV", "UBONGO", "UCHAFU", "UFUNGUO", "UKUTA", "UMEME", "UNGUJA", "URIMBO", "UZI", 
                     "VESPA", "VIATU", "VIBATALI", "VICHANGA", "VIDEO", "VIDOLE", "VIFIRIMBI", "VIKAO", "VINU", "VIPEZI", "VOMBO", "VOUCHER", "VYOMBO",
                     "WAGE", "WALETI", "WALI", "WANJA", "WATOTO PACHA", "WATOTO WANAUME PACHA", "WETE", "WIRE", 
                     "YAI", 
                     "ZIPU",
                     "KARAY", "KITANZI [REVIEWER_COMMENT: COULD ALSO BE KITAWZI]", "UJENZI [REVIEWER_COMMENT: COULD ALSO BE UJEWZI OR UJLENZI]", "VIOTU", "SAMAKI MAJINI", "PARAPE BULU", "TUA", "MGUVU KIUNONI", 
-                    "CHANGARAWE", "CHOTARA", "KIBWENGO", "KISIKI", "KITAWINI", "MATUNDA", "MATUNDA DAMU", "MATUNDA TUMBILI", "MAUA", "MKOBA", "MTU", "MVULANA", "POPO BAWA", "UA", "YETI" )
+                    "CHANGARAWE", "CHOTARA", "KIBWENGO", "KISIKI", "KITAWINI", "MATUNDA", "MATUNDA DAMU", "MATUNDA TUMBILI", "MAUA", "MKOBA", "MTU", "MVULANA", "POPO BAWA", "UA", "YETI",
+                    "ALADI", "ARAYA", "ARIVI", "ASANA", "CHAKUGONGA", "CHANGA", "CHIMBA KWA KIJINI", "CHIMU", "CHUNGUVUNDU", 
+                    "DIKTI", "FABOFA", "FULAWA", "IDEDE", "KABANYULE", "KAMINYA", "KIBENGA", "KIGURUMISHI", "KUTANGOMBE",
+                    "MASHETA", "MBUKA", "MBUMBUKA", "MDUDU BAHARI", "MEIMOR",  "MRES", "MRIDHIA", "MSUNGU", "MWANGASA", "MWEPWE",
+                    "MZIZI LIA","NGULAMAA","PANI", "RE", "RIKETI" , "AISI", "CHOKOPWE", "UJENZI [reviewer_comment: could also be UJEWZI or UJLENZI]",
+                    "RAMBA NIKURAMBE", "SHOKAA", "SHOTI", "TACHI", "TATI", "UCHEZI", "VAJU", "VISHASA", "VYAKUBONYEZEA", "WIBUA MACHU", "ZEDI", "ZUMBWERU",
+                    "BINTAMO","BOHORA", "KIKOMBE", "KITANZI [reviewer_comment: could also be KITAWZI]", "MAKOMANZI", "MSERIKALI")
 
 #####  
 
 #add not_a_creature column
 freelists$not_a_creature <- ifelse( freelists$response  %in% not_a_creature, 1, 0)
+all_items$not_a_creature <- ifelse( all_items$response  %in% not_a_creature, 1, 0)
 
 #subset freelist to include only creatures
 freelists <- freelists[which (freelists$not_a_creature == 0),] 
@@ -283,11 +293,12 @@ N <- c("BABA WATOTO", "BATA", "BATA KANARI", "BATA MZINGA","BUNDI",  "CHAKIAMWEZ
        "VUNJA JUNGU", "YOMBEYOMBE", "ZIWARDE",
        "CHANJE", "CHANJE MOTO", "CHANJE SUELE", "CHANJE UZIWA", "DAKTARI WA NGOMBE", 
        "CHONJWE", "MKRIMU", "MRAMBA BARA", "TATARA",
-       "KWENZI", "CHEKERIRO", "BUKINI" )
+       "KWENZI", "CHEKERIRO", "BUKINI",
+       "BEDUI", "CHEREWANDA", "KIKOBERO", "PEDUI", "SENANGO"   )
 S <- c("BAKARI KICHWA", "BOCHO", "BOMBO", "BOMBO MTOJU", "BOMBO SHIMO",  
        "BULIBULI", "BUMBULA", "BUNJU", "BUNJU MIBA", "BUNJU MPIA", 
        "BUNJU TOTOVU", "CHAA", "CHANGU", "CHANGU KIDOA", "CHANGU NOOMO", "CHELEMA", 
-       "CHEWA", "CHONGOE", "CHORE", "CHUI", "DAGAA", "DAGAA KIWEMBE", 
+       "CHEWA", "CHONGOE", "CHORE", "CHOWE", "CHUI", "DAGAA", "DAGAA KIWEMBE", 
        "DAGAA MDUNJI", "DAGAA MSUMARI", "DAGAA SARADINI", "DUNGAZI", "DUVI", "JODARI", 
        "KAMAMBA", "KAMBA DOKO", "KAMBA UZI", "KAMBARE", "GOLDI", "GONGEO", "HAMSINI",
        "HUMSA", "KAMBISI", "KANDAZA", "KANDE", "KANGAJA", "KANGU", "KARARE", "KENENGWA",
@@ -308,7 +319,9 @@ S <- c("BAKARI KICHWA", "BOCHO", "BOMBO", "BOMBO MTOJU", "BOMBO SHIMO",
        "TOTOVU", "TUMBO", "TUMBO KOTI", "TUNA", "UNA", "UNA MACHO", "UNGA KUKU", 
        "USUNGU", "VIROHO", "VUMBUKA", "WAYO",
        "ALI JUMA", "BOMBO RESI", "BUNJU CHUI", "KAMBA", "SADA KIREMBO",
-       "CHALE", "MATUMBAWE", "NYOKA BAHARI" ) #"BOMBWE","BOMBWE RESI","DAGAA KIBAMBA","KIBOMBO", "KIBOMBWE", "KISANGE","MABULIBULI","MKUNGA WA PWANI", 
+       "CHALE", "MATUMBAWE", "NYOKA BAHARI",
+       "CHEMBE", "CHOE", "CHUKA", "CHUMBWAGA", "MAVUMBUKA", "MBASI", "MGEMA", "GEGE", "HOBWI", #GEGE is also a bird?
+       "KUNGU MAWE", "PEPERO", "MSHESHE", "KIVIJENGE", "KUGUGU", "NGOMBE BAHARI", "PANJE", "TAISO", "UONO" ) #"BOMBWE","BOMBWE RESI","DAGAA KIBAMBA","KIBOMBO", "KIBOMBWE", "KISANGE","MABULIBULI","MKUNGA WA PWANI", 
 W <- c("BUKU", "CHATU", "CHECHE", "CHESI", "CHIMBACHI (MDUDU)", "CHUI", "DRAGONI", 
        "FARASI", "FISI", "KANGAROO", "KIBOKO", "KIFARU", "KIMA", "KIMA PUNJU", "KOMBA",
        "KONDOO", "KOROBWE", "MAJIBWA", "MAMBA", "MBWA", "MBUZI", "MBWA MWITU" , "NGAWA",
@@ -316,7 +329,8 @@ W <- c("BUKU", "CHATU", "CHECHE", "CHESI", "CHIMBACHI (MDUDU)", "CHUI", "DRAGONI
        "NYUMBU", "PAKA", "PANYA", "PELELE", "PAA", "POPO", "PUNDA", "PUNDAMILIA",
        "SIMBA", "SOKWE", "SUNGURA", "SWALA", "TEMBO", "TUMBILI", "TWIGA", "ZEBRA",
        "BEBERU", "GORILLA", 
-       "PALAHALA", "NGWICHIRO", "PAA NUNGA", "TAYGA")
+       "PALAHALA", "NGWICHIRO", "PAA NUNGA", "TAYGA",
+       "SOKWE", "TATAGA MAJI", "SWILE" )
 D <- c("BUIBUI", "BUUNZI", "CHAMVI", "CHUMA MBUZI", "CHUNGUCHUNGU", "CHURA", "DOKAA", 
        "DUDU MBUYU", "FUNGAPINGU", "FUNZA", "GANGAWIA", "JONGOO", "JONGOO CHECHE", 
        "JONGOO LA PWANI", "JONGOO MWITU", "JONGOO TAMBI", "JUSIJUSI", "JUSKAFIRI", 
@@ -334,7 +348,9 @@ D <- c("BUIBUI", "BUUNZI", "CHAMVI", "CHUMA MBUZI", "CHUNGUCHUNGU", "CHURA", "DO
        "UKEWE WA PWANI", "UVI NYUNDO", "UVI", "UTITIRI", "USUBI", "ZINGADONDA",
        "CHAZA", "FUKULILE", "FUKULILE MTAMBWE",
        "CHEPU", "KOMBE", "TONDO", "UKUKWI",
-       "NGONGWE", "VUNJA JUNGU") #"KICHAMVICHAMVI", "KOMBE LA PWANI", "MWATA LA PWANI",
+       "NGONGWE", "VUNJA JUNGU",
+       "DUDU FUSO", "NDOROBO", "TU",
+       "DUDU VUNDO") #"KICHAMVICHAMVI", "KOMBE LA PWANI", "MWATA LA PWANI",
 M <- c("BEGU", "BUKOBA", "BUSTANI", "KABICHI", "KAJAKAJA", "HAUNGONGWA", "KIFA UONGO",
        "KIJIMBI", "KIRUKIA", "KITANGO", "KITUNGUU", "KITUNGUU SAUMU", "KIVUMBASI", 
        "KUNDE", "KUNDE NYKA", "MAHARAGUE", "MAHARI YA PAKA", "MATANGO", "MBILINGANI", 
@@ -375,7 +391,10 @@ M <- c("BEGU", "BUKOBA", "BUSTANI", "KABICHI", "KAJAKAJA", "HAUNGONGWA", "KIFA U
        "KARANGA", "KAROTI", "KIAZI KIKUU", "KIAZI KITAMU", "MBELUNGI", 'MBAAZI', 
        "TUNGULE",
        "SOYA", "MTI KILEMBA", "MTERERE", "MTANDU", "MPAPURA", "MNOKOZI", "MKANGA UCHAWI", "MGONOGONO", "MGANGA", "MFURU FUKU", "MBARKA", "MBANGICHAA", "MAWARDI",
-       "BIZARI", "MAYUGWA", "MBAMIA", "MBIE", "MBIGILI", "NDIZI", "NJUGU" )#""MBOGA", "MIANZI","MSAKUA", "MTUNGUU", "MUHARITA",
+       "APPLE","BIZARI", "MAYUGWA", "MBAMIA", "MBIE", "MBIGILI", "NDIZI", "NJUGU" , 
+       "MBALE", "MBILIA", "MBUGU", "MFUALI", "MGUNDI", "MITORA", "MZALIA CHINI", "MKULABI", "MKWAYA", "MLUNGO MAJIBA", "KITANGO PEPETA", "MAAWA", "MZINGIFURI" , "MZUIA PAKWE", 
+       "NKAMATIA NKANYE", "MNUKIA", "MPAZIA", "MPESI", "MSAFISHA MAJI", "MPINDAKULIA", "MRANGA MAKELELE", "MUUDIUDI", "MWANGAO", "MWARUVELA",
+       "MSUMUSU", "MVEROVERO", "PONZI", "TUNDA NYOKA")#""MBOGA", "MIANZI","MSAKUA", "MTUNGUU", "MUHARITA",
 #add others from list - which are NA but you know
 # #DOUBLE <- C("CHORE", "CHUI", "MBONO", "MBUNI", "MWEWE", "NGAWA", "PAANZI", "POPO", 
 #             "TEMBO")#POPO 3X
@@ -392,13 +411,13 @@ freelists$type <- ifelse( freelists$response  %in% N, "N",
                   ifelse( freelists$response  %in% M, "M", NA)))))
 
 #check results
-all_items <- freelists %>% group_by(response) %>% count()
-all_items <- all_items[-1,]
 all_items$type <- ifelse( all_items$response  %in% N, "N", 
                   ifelse( all_items$response  %in% S, "S", 
                   ifelse( all_items$response  %in% W, "W", 
                   ifelse( all_items$response  %in% D, "D", 
                   ifelse( all_items$response  %in% M, "M", NA)))))
+write.csv(all_items, "2_Data_preparation/additional_info/freelist_items.csv")
+
 
 #PREPARE DATA
 #matrix of answers
@@ -710,7 +729,8 @@ mode(d$ams) <- "integer"
 
 list.save(d, '2_Data_preparation/processed_data.RData')
 
-rm( all_items, 
+rm( act, 
+    all_items, 
     activities, 
     activities_self, 
     activities_hhs, 
@@ -720,6 +740,7 @@ rm( all_items,
     edu_levels,
     extra_answers, 
     extra_qns, 
+    family_info,
     freelists, 
     freelist_corrections,
     image_answers,
