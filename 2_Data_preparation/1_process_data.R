@@ -416,7 +416,9 @@ all_items$type <- ifelse( all_items$response  %in% N, "N",
                   ifelse( all_items$response  %in% W, "W", 
                   ifelse( all_items$response  %in% D, "D", 
                   ifelse( all_items$response  %in% M, "M", NA)))))
-write.csv(all_items, "2_Data_preparation/additional_info/freelist_items.csv")
+write.csv(all_items, "2_Data_preparation/supp_materials/freelist_items.csv")
+
+all_items <- all_items[which (all_items$not_a_creature == 0),] 
 
 
 #PREPARE DATA
