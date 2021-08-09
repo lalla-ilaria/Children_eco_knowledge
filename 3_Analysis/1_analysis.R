@@ -5,14 +5,20 @@ library(rlist)
 #setwd to "Children_eco_knowledge/"
 
 d <- list.load("2_Data_preparation/processed_data.RData")
+d$HH_ord <- as.integer(factor(d$HH, levels = unique(d$HH)))   
 
+
+
+####
+#NOTES
+#Remove act (without controlling for HHid)
 
 ##########################
 #CHANGE WITH AGE, PER SEX#
 ##########################
 age <- list()
 #run the model with 1:6 number of dimensions
-for (i in 1:6) {
+for (i in 1:5) {
   dat <- list( D = i,    #loop through dimensions
                N = as.integer(d$N - 1) , 
                L = d$L , 
@@ -56,6 +62,31 @@ for (i in 1:3) {
   saveRDS(act[[i]], paste("4_Outputs/posteriors/act_", i, ".rds", sep = ""))
 }
 
+#controlling for HHid
+act_hh <- list()
+#run the model with 1:3 number of dimensions
+for (i in 1:3) {
+  dat <- list( D = i,    #loop through dimensions
+               N = as.integer(d$N - 1) , 
+               L = d$L ,    #n freelist items
+               Q = d$Q ,    #n questionnaire items
+               R = d$R ,    #n image recognition items
+               C = ncol(d$amh), 
+               H = d$H ,    #n households
+               HH = d$HH_ord[d$A <= 50], #household id
+               A = d$A  [d$A <= 50], # age #[d$A <= 50] 
+               S = as.integer(ifelse(d$S == "m", 1, 2) [-60]), #sex
+               AM = d$amh [rownames(d$amh) != "19586",],
+               Y_l = d$Y_l [rownames(d$Y_l) != "19586",] , #answers freelist #[rownames(d$Y_l) != "19586",] 
+               Y_q = d$Y_q [rownames(d$Y_q) != "19586",] , #answers questionnaire
+               Y_r = d$Y_r [rownames(d$Y_r) != "19586",] , #answers picture recognition
+               O = length (0 : 26 ) ,
+               alpha = rep( 0.5, length (0:26 ) -1 ) 
+  )
+  act_hh[[i]] <- cstan( file = "models/2a_activities_HHid.stan", data=dat , chains=1, cores=4 , threads=3, control = list(adapt_delta = 0.99) )
+  saveRDS(act_hh[[i]], paste("4_Outputs/posteriors/act_hh_", i, ".rds", sep = ""))
+}
+
 ##########################
 #SCHOOLING################
 ##########################
@@ -73,6 +104,8 @@ for (i in 1:3) {
                Q = d$Q ,    #n questionnaire items
                R = d$R ,    #n image recognition items
                A = d$A [d$A <= 50] , # age #[d$A <= 50] 
+               H = d$H ,    #n households
+               HH = d$HH_ord[d$A <= 50], #household id
                S = as.integer(ifelse(d$S == "m", 1, 2) [-60]),
                SY = 1+school[-60],
                Y_l = d$Y_l [rownames(d$Y_l) != "19586",] , #answers freelist #[rownames(d$Y_l) != "19586",] 
@@ -80,10 +113,10 @@ for (i in 1:3) {
                Y_r = d$Y_r [rownames(d$Y_r) != "19586",] , #answers picture recognition
                O = length (0 : 26 ) ,
                alpha = rep( 0.5, length (0:26 ) -1 ) , 
-             Os = length(unique(school)),
-             alpha_s = rep(0.5, length(unique(school))-1)
+               Os = length(unique(school)),
+               alpha_s = rep(0.5, length(unique(school))-1)
   )
-  sch[[i]] <- cstan( file = "models/3_schooling.stan", data=dat , chains=1, cores=4 , threads=3, control = list(adapt_delta = 0.99))#, control = list(adapt_delta = 0.99)
+  sch[[i]] <- cstan( file = "models/3_schooling_HHid.stan", data=dat , chains=1, cores=4 , threads=3, control = list(adapt_delta = 0.99))#, control = list(adapt_delta = 0.99)
   saveRDS(sch[[i]], paste("4_Outputs/posteriors/sch_", i, ".rds", sep = ""))
 }
 
@@ -92,7 +125,6 @@ for (i in 1:3) {
 ##########################
 
 #With intercepts for households
-d$HH_ord <- as.integer(factor(d$HH, levels = unique(d$HH)))   
 hhi <- list()
 #run the model with 1:3 number of dimensions
 for (i in 1:3) {
@@ -114,6 +146,32 @@ for (i in 1:3) {
   hhi[[i]] <- cstan( file = "models/4a_family_intercepts.stan", data=dat , chains=1, cores=4 , threads=3, control = list(adapt_delta = 0.99))#, control = list(adapt_delta = 0.99)
   saveRDS(hhi[[i]], paste("4_Outputs/posteriors/hhi_", i, ".rds", sep = ""))
 }
+
+epp <- list()
+#run the model with 1:3 number of dimensions
+for (i in 1:3) {
+  dat <- list( D = i,    #loop through dimensions
+               N = as.integer(d$N - 1) , 
+               L = d$L ,    #n freelist items
+               Q = d$Q ,    #n questionnaire items
+               R = d$R ,    #n image recognition items
+               H = d$H ,    #n households
+               A = d$A [d$A <= 50], # age #[d$A <= 50] 
+               S = as.integer ( ifelse ( d$S == "m", 1, 2) [-60]), #sex
+               MP = d$MP [d$A <= 50],  #whether mother is present in same household
+               FP = d$FP [d$A <= 50],  #whether father is present in same household              
+               HH = d$HH_ord [d$A <= 50], #household id
+               Y_l = d$Y_l [rownames(d$Y_l) != "19586",] , #answers freelist #[rownames(d$Y_l) != "19586",] 
+               Y_q = d$Y_q [rownames(d$Y_q) != "19586",] , #answers questionnaire
+               Y_r = d$Y_r [rownames(d$Y_r) != "19586",] , #answers picture recognition
+               O = length (0 : 26 ) ,
+               alpha = rep( 0.5, length (0:26 ) -1 ) 
+  )
+  epp[[i]] <- cstan( file = "models/4a_each_parent_presence.stan", data=dat , chains=1, cores=4 , threads=3, control = list(adapt_delta = 0.99))#, control = list(adapt_delta = 0.99)
+  saveRDS(epp[[i]], paste("4_Outputs/posteriors/epp_", i, ".rds", sep = ""))
+}
+
+
 #Effect of being firstborn
 #use subset of data for which data on birth order is present
 fst <- list()
@@ -208,4 +266,3 @@ for (i in 1:3) {
   ssp[[i]] <- cstan( file = "models/4e_samesex_parent.stan", data=dat , chains=1, cores=4 , threads=3, control = list(adapt_delta = 0.99))#, control = list(adapt_delta = 0.99)
   saveRDS(ssp[[i]], paste("4_Outputs/posteriors/ssp_", i, ".rds", sep = ""))
 }
-
