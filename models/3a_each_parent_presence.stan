@@ -5,11 +5,13 @@ functions{
             // data
             int[,] Y_l , int[,] Y_q , int[,] Y_r , 
             int[] A , int[] S , int[] HH,
+            int[] MP , int[] FP ,
             int D , int H,
             int L , int Q ,int R ,
             // parameters to pass
             vector mA , matrix aK , matrix aH, 
             vector aK_sigma , vector aH_sigma, matrix bA , 
+            matrix bMP , matrix bFP ,
             matrix delta_j , 
             matrix a_l , matrix b_l,
             matrix a_q , matrix b_q,
@@ -26,7 +28,8 @@ functions{
         real K = mA[d] + 
                aK[i,d] * aK_sigma[d] +
                aH[HH[i],d] * aH_sigma[d] +                     
-               bA[S[i], d] * sum (delta_j[ 1 : A[i], d ] ) ; 
+               bA[S[i], d] * sum (delta_j[ 1 : A[i], d ] ) +
+               bMP[S[i], d] * MP[i] + bFP[S[i], d] * FP[i] ;
         p_l = p_l + a_l[,d] .* (K - b_l[,d]);
         p_q = p_q + a_q[,d] .* (K - b_q[,d]);
         // log odds 3PL is log[(Exp[p]+c)/(1-c)]
@@ -51,6 +54,8 @@ data{
 	int A[N]; //age of individuals
 	int S[N]; //sex of individuals
 	int HH[N];
+	int MP[N];
+	int FP[N];
 	int Y_l[N,L]; //answers freelist
   int Y_q[N,Q]; //answers questionnaire
   int Y_r[N,R]; //answers image recognition
@@ -63,6 +68,8 @@ parameters{
 	matrix[N,D] aK; // individual intercepts on knowledge
   matrix[H,D] aH; // household intercepts on knowledge
   matrix<lower=0>[2,D] bA; // coefficient relating age to knowledge
+  matrix[2,D] bMP; // coefficient for presence of mother - sex specific
+  matrix[2,D] bFP; // coefficient for presence of father - sex specific
   simplex[O-1] delta [D]; //age specific effects
 	//sigma individual parameters
 	vector<lower=0>[D] aK_sigma;
@@ -95,6 +102,8 @@ model{
 	to_vector(aK) ~ normal(0,1);
   to_vector(aH) ~ normal(0,1);
   for(d in 1:D) for(s in 1:2) bA[s,d] ~ normal( 3 , 2 ) T[0,];
+  for(d in 1:D) for(s in 1:2) bMP[s,d] ~ normal( 0 , 1 ) ;
+  for(d in 1:D) for(s in 1:2) bFP[s,d] ~ normal( 0 , 1 ) ;
   for(d in 1:D) delta[d] ~ dirichlet( alpha );
   //hyperpriors
 	for(d in 1:D) aK_sigma[d] ~ exponential(1);
@@ -116,9 +125,9 @@ model{
   //model
 	target += reduce_sum( reducer , A , 1 , 
       // data to pass
-			Y_l , Y_q , Y_r , A , S , HH, D , H , L , Q , R ,
+			Y_l , Y_q , Y_r , A , S , HH, MP , FP , D , H , L , Q , R ,
       // parameters to pass
-      mA , aK , aH , aK_sigma , aH_sigma , bA , delta_j , a_l , b_l , a_q , b_q , a_r , b_r, c_q );
+      mA , aK , aH , aK_sigma , aH_sigma , bA , bMP , bFP , delta_j , a_l , b_l , a_q , b_q , a_r , b_r, c_q );
 }//model
 
  generated quantities {
@@ -128,7 +137,8 @@ model{
       K[i,d] = mA[d] +                                           //global intercept - minimum value of knowledge
                aK[i,d] * aK_sigma[d] +                           //individual interecepts -absorbs residual variation   
                aH[HH[i],d] * aH_sigma[d] +                       //household interecepts    
-               bA[S[i], d] * sum (delta_j[ 1 : A[i], d ] );      //effect of age - sex specific
+               bA[S[i], d] * sum (delta_j[ 1 : A[i], d ] ) +     //effect of age - sex specific
+               bMP[S[i], d] * MP[i] + bFP[S[i], d] * FP[i] ;     //effect of presence of each parent, sex specific
 
    vector [N * L + N * Q + N * R ] log_lik;
    vector [N * L ] log_lik_l;

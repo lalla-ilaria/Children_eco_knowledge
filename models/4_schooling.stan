@@ -4,11 +4,12 @@ functions{
             int start , int end , 
             // data
             int[,] Y_l , int[,] Y_q , int[,] Y_r , 
-            int[] A , int[] S , int[] SY, int D , 
+            int[] A , int[] S , int[] SY, int[]HH ,
+            int D , int H ,
             int L , int Q ,int R ,
             // parameters to pass
-            vector mA , matrix aK , 
-            vector aK_sigma , matrix bA , matrix bSY,
+            vector mA , matrix aK , matrix aH ,
+            vector aK_sigma , vector aH_sigma , matrix bA , matrix bSY,
             matrix delta_j , matrix delta_js ,
             matrix a_l , matrix b_l,
             matrix a_q , matrix b_q,
@@ -24,6 +25,7 @@ functions{
 			for ( d in 1:D ) {
         real K = mA[d] +                        
                aK[i,d] * aK_sigma[d] +                       //individual intercepts                    
+               aH[HH[i],d] * aH_sigma[d] +                     
                bA[S[i], d] * sum (delta_j[ 1 : A[i], d ] ) + //effect of age - sex specific
                bSY[S[i],d] * sum (delta_js[1 : SY[i],d ] ) ;  //effect of school - sex specific
  
@@ -46,11 +48,13 @@ data{
 	int L; //n items freelist
 	int Q; //n items questionnaire
 	int R; //n items image recognition
+  int H;
 	int O; //n ages
 	int Os;//n school classes
 	int A[N]; //age of individuals
 	int S[N]; //sex of individuals
 	int SY[N];//school category/years
+  int HH[N];
   int Y_l[N,L]; //answers freelist
   int Y_q[N,Q]; //answers questionnaire
   int Y_r[N,R]; //answers image recognition
@@ -62,12 +66,14 @@ parameters{
   //individual parameters
   vector[D] mA; //global intercept
 	matrix[N,D] aK; // individual intercepts on knowledge
+	matrix[H,D] aH; // individual intercepts on knowledge
   matrix<lower=0>[2,D] bA; // coefficient relating age to knowledge
   matrix[2,D] bSY; // coefficient max effect of school on knowledge -sex specific
   simplex[O-1] delta [D]; //age specific effects
   simplex[Os-1] delta_s[D]; //school class specific effects
 	//sigma individual parameters
 	vector<lower=0>[D] aK_sigma;
+	vector<lower=0>[D] aH_sigma;
 
 	
 	//item parameters
@@ -97,11 +103,13 @@ model{
   //priors for individual parameters
   for(d in 1:D) mA[d] ~ normal( -5, 3)T[,0]; //global intercept
 	to_vector(aK) ~ normal(0,1);
+	to_vector(aH) ~ normal(0,1);
   for(d in 1:D) for(s in 1:2) bA[s,d] ~ normal( 3 , 2 ) T[0,];
   for(d in 1:D) delta[d] ~ dirichlet( alpha );
   for(d in 1:D) delta_s[d] ~ dirichlet( alpha_s );
   //hyperpriors
 	for(d in 1:D) aK_sigma[d] ~ exponential(1);
+	for(d in 1:D) aH_sigma[d] ~ exponential(1);
   
 	//priors for item parameters
 	//discrimination
@@ -119,9 +127,9 @@ model{
   //model
 	target += reduce_sum( reducer , A , 1 , 
       // data to pass
-			Y_l , Y_q , Y_r , A , S , SY , D , L , Q , R ,
+			Y_l , Y_q , Y_r , A , S , SY , HH , D , H , L , Q , R ,
       // parameters to pass
-      mA , aK , aK_sigma , bA , bSY, delta_j , delta_js , a_l , b_l , a_q , b_q , a_r , b_r, c_q );
+      mA , aK , aH , aK_sigma , aH_sigma, bA , bSY, delta_j , delta_js , a_l , b_l , a_q , b_q , a_r , b_r, c_q );
 }//model
 
  generated quantities {
@@ -130,6 +138,7 @@ model{
       for ( i in 1:N ) 
       K[i,d] = mA[d] +                                           //global intercept - minimum value of knowledge
                aK[i,d] * aK_sigma[d] +                           //individual interecepts -absorbs residual variation   
+               aH[HH[i],d] * aH_sigma[d] +                     
                bA[S[i], d] * sum (delta_j[ 1 : A[i], d ] )+      //effect of age - sex specific
                bSY[S[i],d] * sum (delta_js[1 : SY[i],d ] ) ;      //effect of school - sex specific
 
