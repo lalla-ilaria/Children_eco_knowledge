@@ -23,8 +23,11 @@ library(gtools)       #
 ##############
 #input: raw data in "2_Data_preparation/anonymized_data"
 #output: list d with all data in "2_Data_preparation"
-time_1data <- source("2_Data_preparation/1_process_data.R")
-
+start_time <- Sys.time()
+source("2_Data_preparation/1_process_data.R")
+end_time <- Sys.time()
+time_1data <- end_time - start_time
+  
 ###############
 #main analyses#
 ###############
