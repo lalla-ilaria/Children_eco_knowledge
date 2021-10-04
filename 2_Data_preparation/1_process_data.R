@@ -288,7 +288,7 @@ freelists <- freelists[which (freelists$not_a_creature == 0),]
 #add type of item
 #################
 #list all items by type
-G <- c("DRAGONI", "JINI", "SHEITANI", "YETI", "MAKOMANZI", )
+G <- c("DRAGONI", "JINI", "SHEITANI", "YETI", "MAKOMANZI" )
 N <- c("BABA WATOTO", "BATA", "BATA KANARI", "BATA MZINGA","BUNDI",  "CHAKIAMWEZI", 
        "CHAKIVALE",  "CHECHELE", "CHORE", "CHOZI", "FUFU", "FURUKOMBE", "KANGA", 
        "KASUKU", "KIBULUU", "KICHONGA", "KIHODI", "KIJIMBI MSITU", "KIJUNGU MALIKO", 

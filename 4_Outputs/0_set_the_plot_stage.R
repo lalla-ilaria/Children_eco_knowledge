@@ -253,8 +253,6 @@ plotdeltaffect <- function (deltaj , x_lab = "Age specific increase", y_lab = "A
   for (i in 1:ncol(deltaj)) lines(apply(deltaj, 2, PI)[,i], rep(i, each = 2), col = col_1, lwd = 1.5)
 }
 
-= post_bor_1$delta_jb
-
 plot(apply(post_bor_1$delta_jb, 2, mean), 1:ncol(post_bor_1$delta_jb), 
      #xlab = x_lab, ylab = y_lab,
      pch = 19, col = col_1)
