@@ -423,7 +423,7 @@ freelists$type <- ifelse( freelists$response  %in% G, "G",
                   ifelse( freelists$response  %in% M, "M", NA))))))
 
 #check results
-all_items$type <- ifelse( freelists$response  %in% G, "G",
+all_items$type <- ifelse( all_items$response  %in% G, "G",
                   ifelse( all_items$response  %in% N, "N", 
                   ifelse( all_items$response  %in% S, "S", 
                   ifelse( all_items$response  %in% W, "W", 
