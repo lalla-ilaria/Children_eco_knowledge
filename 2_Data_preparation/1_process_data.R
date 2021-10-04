@@ -415,18 +415,20 @@ M <- c("BEGU", "BUKOBA", "BUSTANI", "KABICHI", "KAJAKAJA", "HAUNGONGWA", "KIFA U
 #            "CHANJE", "CHANJE MOTO", "CHANJE SUELE", "CHANJE UZIWA", "DAKTARI WA NGOMBE")
 ###############
 #add column
-freelists$type <- ifelse( freelists$response  %in% N, "N", 
+freelists$type <- ifelse( freelists$response  %in% G, "G",
+                  ifelse( freelists$response  %in% N, "N", 
                   ifelse( freelists$response  %in% S, "S", 
                   ifelse( freelists$response  %in% W, "W", 
                   ifelse( freelists$response  %in% D, "D", 
-                  ifelse( freelists$response  %in% M, "M", NA)))))
+                  ifelse( freelists$response  %in% M, "M", NA))))))
 
 #check results
-all_items$type <- ifelse( all_items$response  %in% N, "N", 
+all_items$type <- ifelse( freelists$response  %in% G, "G",
+                  ifelse( all_items$response  %in% N, "N", 
                   ifelse( all_items$response  %in% S, "S", 
                   ifelse( all_items$response  %in% W, "W", 
                   ifelse( all_items$response  %in% D, "D", 
-                  ifelse( all_items$response  %in% M, "M", NA)))))
+                  ifelse( all_items$response  %in% M, "M", NA))))))
 write.csv(all_items, "2_Data_preparation/supp_materials/freelist_items.csv")
 
 all_items <- all_items[which (all_items$not_a_creature == 0),] 
@@ -765,7 +767,7 @@ rm( act,
     questionnaire,
     recognition,
     type_r,
-    D, M, W, N, S,
+    D, M, W, N, S, G,
     Y_l, Y_q, Y_r)
 
 
