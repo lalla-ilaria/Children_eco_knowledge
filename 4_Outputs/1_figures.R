@@ -28,7 +28,7 @@ dev.off()
 #effect of activities
 png(file = "4_Outputs/plots/activities_year_gained.png", width = 400, height = 300)
 par(mar = c(5,5,2,2) + 0.1, mfrow = c(1,1))
-actdiff <- plotact(post = `post_act_hh_1`)
+actdiff <- plotact(post = `post_act_1`)
 dev.off()
 
 #calculate tail of the distributions below -20 years

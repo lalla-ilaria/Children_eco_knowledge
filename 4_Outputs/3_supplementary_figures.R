@@ -1,3 +1,5 @@
+#Set the stage for plotting figures
+if( !exists( "plotagesandknow", mode = "function")) source( "4_Outputs/0_set_the_plot_stage.R" )
 
 ###########################
 #Sampling bias#############
@@ -94,7 +96,7 @@ dev.off()
 
 png(file = "4_Outputs/plots/supplementary_figures/activities_effect.png", width = 400, height = 300)
 par(mar = c(5,5,2,2) + 0.1, mfrow = c(1,1))
-plotact(post = post_act_hh_1, unit = "effect")
+plotact(post = post_act_1, unit = "effect")
 dev.off()
 
 ############################
@@ -116,10 +118,10 @@ for (i in 1:4){
 #household effect
 #seems to be no effect of household
 png(file = "4_Outputs/plots/supplementary_figures/hh_random_effects.png", width = 400, height = 400)
-plot(1:36, apply(post_act_hh_1$aH, 2, mean),
+plot(1:36, apply(post_act_1$aH, 2, mean),
      xlab = "Household", ylab = "Household random effect",
      pch = 19, col = col_2)
-for (i in 1 : 36) lines( c(i,i), apply(post_hhi_1$aH, 2, PI)[,i], col = col_2, lwd = 1.5)
+for (i in 1 : 36) lines( c(i,i), apply(post_act_1$aH, 2, PI)[,i], col = col_2, lwd = 1.5)
 dev.off()
 
 #checks correspondent hh_id to household number in model results

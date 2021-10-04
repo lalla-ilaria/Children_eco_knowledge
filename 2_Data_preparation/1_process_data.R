@@ -3,7 +3,9 @@ library(tidyverse)
 library(rethinking)
 library(rlist)
 
-#setwd("../")
+#################
+##load raw data##
+#################
 
 #interviews
 interviews <- read.csv("2_Data_preparation/anonymized_data/1_interviews.csv")

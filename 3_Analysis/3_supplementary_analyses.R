@@ -4,7 +4,11 @@ library(rlist)
 
 #setwd to "Children_eco_knowledge/"
 
+#load data
 d <- list.load("2_Data_preparation/processed_data.RData")
+
+#prepare household vector
+d$HH_ord <- as.integer(factor(d$HH, levels = unique(d$HH)))   
 
 #################
 #BY TYPE OF DATA#

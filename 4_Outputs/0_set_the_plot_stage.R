@@ -11,14 +11,14 @@ library(gtools)
 d <- list.load("2_Data_preparation/processed_data.RData")
 
 #####################
-#####LOAD MODELS#####
+###LOAD FIT MODELS###
 #AND EXTRACT SAMPLES#
 #####################
 # <- readRDS("4_Outputs/posteriors/.rds")
-file_list <- list.files(path="4_Outputs/posteriors/")
+file_list <- list.files(path="3_Analysis/fit_models/")
 
 for (i in 1:length(file_list)){
-  temp_mod <- readRDS( paste("4_Outputs/posteriors/", file_list[[i]], sep = ""))
+  temp_mod <- readRDS( paste("3_Analysis/fit_models/", file_list[[i]], sep = ""))
   assign ( gsub(".rds", "", file_list[i]),   temp_mod)
   assign ( paste ("post", gsub(".rds", "", file_list[i]), sep = "_") , extract.samples(temp_mod))
 }
@@ -42,7 +42,7 @@ d$color_l <- ifelse( is.na(d$type_l), "slategray1",
              ifelse( d$type_l  == "M", "limegreen", 
              NA))))))
 
-#data
+#jitter ages
 d$A_j <- jitter(d$A)
 
 
@@ -99,7 +99,8 @@ plotagesandknow <- function(d = d, post , dimn, dots = T, ages = d$A_j[ d$A_j <=
 }
 
 ##########################################
-#Calculate years gained by counterfactual#
+#############make function to#############
+#calculate years gained by counterfactual#
 ##########################################
 diffage <- function ( post , counterfactual_1 = 0, counterfactual_2 ,  
                       year = 20, sex = 2 , dimn = 1) {
@@ -163,6 +164,9 @@ diffage <- function ( post , counterfactual_1 = 0, counterfactual_2 ,
 #i.e. how many years earlier (positive values) or later (negative value) an individual practicing an activity 
 #would reach the knowledge an individual not practicing that activity would have at 'years' age
 
+  #NB the calculation relies on the uniroot function, which calculates the unique root of the function. But because 
+  #it fits a spline, sometime there isn't an unique root at all, or there are multiple. Error messages and plots appear, 
+  #but as long as there aren't many values that cannot be calculated, the results are valid
 plotact <- function( post, dimn = 1, unit = "years") {
   act <- list()
   if ( unit == "years" )  { 
@@ -309,150 +313,10 @@ plotparentseffect <- function( post, dimn ) {
   return(act)
 }
 
-
-
-##################################
-#plot contrasting counterfactuals#
-##################################
-#feed the data, the posterior to look at and the set of counterfactuals you want to change (select a vector from the posterior like post_act_1$aAM[,1,1])
-
-plotcontrastingcounterfactuals <- function(d = d, post , dimn = 1, counterfactual_1, counterfactual_2, 
-                                           ages = d$A_j[ d$A_j <= 50 ], 
-                                           dots = F, s_boys = F, s_girls = F, l_boys = T, l_girls = T ,
-                                           boy_col = boycol, girl_col = girlcol, boy_col_2 = "darkgreen", girl_col_2 = "purple") {
-  if(length(counterfactual_1)<=1) counterfactual_1 <- rep(counterfactual_1, 150)
-  if(length(counterfactual_2)<=1) counterfactual_2 <- rep(counterfactual_2, 150)
-  act_names <- c("household chores", "seashells collecting", "birds hunting", "game hunting", "agriculture", 
-                 "livestock caring", "fishing", "diving", "algae farming", "cloves picking")
-  year_eff <- apply(post$delta_j[,,dimn], 1, cumsum)
-  plot(x = ages, 
-       y = apply(post$K[,,dimn], 2, mean), 
-       xlab = "Age", 
-       yaxt='n' ,
-       cex.lab=1.8 , 
-       cex.axis=1.8 ,
-       pch = 19 , 
-       cex = ifelse( dots == T, 1.5, 0) , 
-       #family = "A",
-       col =  alpha( d$sex_col, 0.6 )  )
-  axis(side =2, seq (-10, 5, 1), labels = F)
-  #with first counterfactual
-  lines( x = 1:nrow(year_eff),  
-         y = mean(post$mA[,dimn]) + mean(post$bA[,1,dimn]) * apply(year_eff, 1, mean) + mean(counterfactual_1) , 
-         type = "l", 
-         col = col.alpha( boy_col, alpha = ifelse( s_boys == T | l_boys == T, 0.7, 0) ) )
-  shs <- PI(post$mA[,dimn]) + PI(post$bA[,1,dimn]) * apply(year_eff, 1, PI) + PI(counterfactual_1)
-  polygon(x = c( 1:nrow(year_eff), nrow(year_eff):1), y =  c(shs[1,], rev(shs[2,])),
-          col= alpha(boy_col, ifelse( s_boys == F, 0, 0.3)), border=NA)
-  lines( x = 1:nrow(year_eff),  
-         y = mean(post$mA[,dimn]) + mean(post$bA[,2,dimn]) * apply(year_eff, 1, mean) +mean(counterfactual_1), 
-         type = "l", 
-         col = col.alpha( girl_col, alpha = ifelse( s_girls == T | l_girls == T, 0.7, 0)))
-  shs <- PI(post$mA[,dimn]) + PI(post$bA[,2,dimn]) * apply(year_eff, 1, PI) + PI(counterfactual_1)
-  polygon(x = c( 1:nrow(year_eff), nrow(year_eff):1), y =  c(shs[1,], rev(shs[2,])),
-          col= alpha(girl_col, ifelse( s_girls == F, 0, 0.3)), border=NA)
-  for (i in 1:150) {
-    lines(x = 1:nrow(year_eff),  
-          y = post$mA[i,dimn] + post$bA[i,1,dimn] * year_eff[,i] + counterfactual_1[i], 
-          type = "l", 
-          col = alpha(boy_col, ifelse( l_boys == F, 0, 0.3)))}
-  for (i in 1:150) {
-    lines(x = 1:nrow(year_eff),  
-          y = post$mA[i,dimn] + post$bA[i,2,dimn] * year_eff[,i] + counterfactual_1[i], 
-          type = "l", 
-          col = alpha(girl_col, ifelse( l_girls == F, 0, 0.3)))}
-  
-  #with second counterfactual
-  lines( x = 1:nrow(year_eff),  
-         y = mean(post$mA[,dimn]) + mean(post$bA[,1,dimn]) * apply(year_eff, 1, mean) + mean(counterfactual_2) , 
-         type = "l", 
-         col = col.alpha( boy_col_2, alpha = ifelse( s_boys == T | l_boys == T, 0.7, 0) ) )
-  shs <- PI(post$mA[,dimn]) + PI(post$bA[,1,dimn]) * apply(year_eff, 1, PI) + PI(counterfactual_2)
-  polygon(x = c( 1:nrow(year_eff), nrow(year_eff):1), y =  c(shs[1,], rev(shs[2,])),
-          col= alpha(boy_col_2, ifelse( s_boys == F, 0, 0.3)), border=NA)
-  lines( x = 1:nrow(year_eff),  
-         y = mean(post$mA[,dimn]) + mean(post$bA[,2,dimn]) * apply(year_eff, 1, mean) +mean(counterfactual_2), 
-         type = "l", 
-         col = col.alpha( girl_col_2, alpha = ifelse( s_girls == T | l_girls == T, 0.7, 0)))
-  shs <- PI(post$mA[,dimn]) + PI(post$bA[,2,dimn]) * apply(year_eff, 1, PI) + PI(counterfactual_2)
-  polygon(x = c( 1:nrow(year_eff), nrow(year_eff):1), y =  c(shs[1,], rev(shs[2,])),
-          col= alpha(girl_col_2, ifelse( s_girls == F, 0, 0.3)), border=NA)
-  for (i in 1:150) {
-    lines(x = 1:nrow(year_eff),  
-          y = post$mA[i,dimn] + post$bA[i,1,dimn] * year_eff[,i] + counterfactual_2[i], 
-          type = "l", 
-          col = alpha(boy_col_2, ifelse( l_boys == F, 0, 0.3)))}
-  for (i in 1:150) {
-    lines(x = 1:nrow(year_eff),  
-          y = post$mA[i,dimn] + post$bA[i,2,dimn] * year_eff[,i] + counterfactual_2[i], 
-          type = "l", 
-          col = alpha(girl_col_2, ifelse( l_girls == F, 0, 0.3)))}
-  
-  # title( paste("Practicing", act_names[act] , "in dimension", dimn), adj = 0, cex.main = 1.8)
-  legend("bottomright", 
-         legend = c("Boys", "Girls"), 
-         col = c(boy_col, girl_col), 
-         pch = 19, 
-         bty = "n", 
-         cex = 1.5, 
-         text.col = "black", 
-         horiz = F , 
-         inset = c(0.01, 0.01))
-}
-
-######################################
-#Plot counterfactual activity effects#
-######################################
-
-plotcount_act <- function(d = d, post , dimn, act, dots = T, boy_col = boycol, girl_col = girlcol) {
-  act_names <- c("household chores", "seashells collecting", "birds hunting", "game hunting", "agriculture", 
-                 "livestock caring", "fishing", "diving", "algae farming", "cloves picking")
-  year_eff <- apply(post$delta_j[,,dimn], 1, cumsum)
-  plot(x = d$A_j[ d$A_j <= 50 ], 
-       y = apply(post$K[,,dimn], 2, mean), 
-       xlab = "Age", 
-       yaxt='n' ,
-       cex.lab=1.8 , 
-       cex.axis=1.8 ,
-       pch = 19 , 
-       cex = ifelse( dots == T, 1.5, 0) , 
-       #family = "A",
-       col =  alpha( d$sex_col, 0.6 )  )
-  axis(side =2, seq (-10, 5, 1), labels = F)
-  for (i in 1:150) {
-    lines(x = 1:nrow(year_eff),  
-          y = post$mA[i,dimn] + post$bA[i,1,dimn] * year_eff[,i] + post$aAM[i,act,dimn], 
-          type = "l", 
-          col = col.alpha( boy_col, alpha = 0.1))}
-  for (i in 1:150) {
-    lines(x = 1:nrow(year_eff),  
-          y = post$mA[i,dimn] + post$bA[i,2,dimn] * year_eff[,i] + post$aAM[i,act,dimn], 
-          type = "l", 
-          col = col.alpha( girl_col, alpha = 0.1))}
-  lines( x = 1:nrow(year_eff),  
-         y = mean(post$mA[,dimn]) + mean(post$bA[,1,dimn]) * apply(year_eff, 1, mean) + mean(post$aAM[,act,dimn]), 
-         type = "l", 
-         col = col.alpha( boy_col, alpha = 0.7))
-  lines( x = 1:nrow(year_eff),  
-         y = mean(post$mA[,dimn]) + mean(post$bA[,2,dimn]) * apply(year_eff, 1, mean) + mean(post$aAM[,act,dimn]), 
-         type = "l", 
-         col = col.alpha( girl_col, alpha = 0.7))
-  title( paste("Practicing", act_names[act] , "in dimension", dimn), adj = 0, cex.main = 1.8)
-  legend("bottomright", 
-         legend = c("Boys", "Girls"), 
-         col = c(boy_col, girl_col), 
-         pch = 19, 
-         bty = "n", 
-         cex = 1.5, 
-         text.col = "black", 
-         horiz = F , 
-         inset = c(0.01, 0.01))
-}
-
-
 ########################
 #plot prior simulations#
 ########################
+
 plotpriors <- function(post , dimn = 1) {
   mA <- -abs(rnorm (150, 5, 3 ) )
   bA <-  abs(rnorm(150, 3 , 2 ) )

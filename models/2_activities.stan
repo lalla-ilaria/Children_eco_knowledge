@@ -8,7 +8,7 @@ functions{
             int D , int H,
             int L , int Q ,int R ,
             // parameters to pass
-            vector mA , matrix aK , 
+            vector mA , matrix aK , matrix aH ,
             vector aK_sigma , matrix bA , vector aH_sigma,
             matrix delta_j , matrix aAM ,
             matrix a_l , matrix b_l,
@@ -125,7 +125,7 @@ model{
       // data to pass
 			Y_l , Y_q , Y_r , A , AM , S , HH, D , H , L , Q , R ,
       // parameters to pass
-      mA , aK , aK_sigma , bA , aH_sigma , delta_j , aAM , a_l , b_l , a_q , b_q , a_r , b_r , c_q );
+      mA , aK , aH , aK_sigma , bA , aH_sigma , delta_j , aAM , a_l , b_l , a_q , b_q , a_r , b_r , c_q );
 }//model
 
  generated quantities {

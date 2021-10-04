@@ -105,6 +105,77 @@ dat <- list( D = 1,
 )
 
 m_fam <- stan( file =  "models/2_family_intercepts.stan", data=dat , chains=3, cores=3)
+#With intercepts for households
+hhi <- list()
+#run the model with 1:3 number of dimensions
+for (i in 1:3) {
+  dat <- list( D = i,    #loop through dimensions
+               N = as.integer(d$N - 1) , 
+               L = d$L ,    #n freelist items
+               Q = d$Q ,    #n questionnaire items
+               R = d$R ,    #n image recognition items
+               H = d$H ,    #n households
+               HH = d$HH_ord[d$A <= 50], #household id
+               A = d$A  [d$A <= 50], # age #[d$A <= 50] 
+               S = as.integer(ifelse(d$S == "m", 1, 2) [-60]), #sex
+               Y_l = d$Y_l [rownames(d$Y_l) != "19586",] , #answers freelist #[rownames(d$Y_l) != "19586",] 
+               Y_q = d$Y_q [rownames(d$Y_q) != "19586",] , #answers questionnaire
+               Y_r = d$Y_r [rownames(d$Y_r) != "19586",] , #answers picture recognition
+               O = length (0 : 26 ) ,
+               alpha = rep( 0.5, length (0:26 ) -1 ) 
+  )
+  hhi[[i]] <- cstan( file = "models/4a_family_intercepts.stan", data=dat , chains=1, cores=4 , threads=3, control = list(adapt_delta = 0.99))#, control = list(adapt_delta = 0.99)
+  saveRDS(hhi[[i]], paste("3_Analysis/fit_models/hhi_", i, ".rds", sep = ""))
+}
+
+
+#Effect of 0/1/2 parents
+ppc <- list()
+#run the model with 1:3 number of dimensions
+for (i in 1:3) {
+  dat <- list( D = i,    #loop through dimensions
+               N = as.integer(d$N - 1) , 
+               L = d$L , 
+               Q = d$Q ,    #n questionnaire items
+               R = d$R ,    #n image recognition items
+               A = d$A [d$A <= 50] , # age #[d$A <= 50] 
+               S = as.integer(ifelse(d$S == "m", 1, 2) [-60]),
+               PP = as.integer(1 + d$MP + d$FP) [d$A <= 50],
+               Y_l = d$Y_l [rownames(d$Y_l) != "19586",] , #answers freelist #[rownames(d$Y_l) != "19586",] 
+               Y_q = d$Y_q [rownames(d$Y_q) != "19586",] , #answers questionnaire
+               Y_r = d$Y_r [rownames(d$Y_r) != "19586",] , #answers picture recognition
+               O = length (0 : 26 ) ,
+               Op =  3  ,
+               alpha = rep( 0.5, length (0:26 ) -1 ),
+               alpha_p = rep( 0.5, 2 )
+  )
+  ppc[[i]] <- cstan( file = "models/4d_parents_presence.stan", data=dat , chains=1, cores=4 , threads=3, control = list(adapt_delta = 0.99))#, control = list(adapt_delta = 0.99)
+  saveRDS(ppc[[i]], paste("3_Analysis/fit_models/ppc_", i, ".rds", sep = ""))
+}
+
+#Effect of same sex parent
+ssp <- list()
+#run the model with 1:3 number of dimensions
+for (i in 1:3) {
+  dat <- list( D = i,    #loop through dimensions
+               N = as.integer(d$N - 1) , 
+               L = d$L , 
+               Q = d$Q ,    #n questionnaire items
+               R = d$R ,    #n image recognition items
+               A = d$A [d$A <= 50] , # age #[d$A <= 50] 
+               S = as.integer(ifelse(d$S == "m", 1, 2) [-60]),
+               SP = as.integer(ifelse(d$S == "m", 
+                                      ifelse(d$FP == 1, 1,0),
+                                      ifelse(d$MP == 1, 1, 0)))[d$A <= 50],
+               Y_l = d$Y_l [rownames(d$Y_l) != "19586",] , #answers freelist #[rownames(d$Y_l) != "19586",] 
+               Y_q = d$Y_q [rownames(d$Y_q) != "19586",] , #answers questionnaire
+               Y_r = d$Y_r [rownames(d$Y_r) != "19586",] , #answers picture recognition
+               O = length (0 : 26 ) ,
+               alpha = rep( 0.5, length (0:26 ) -1 ) 
+  )
+  ssp[[i]] <- cstan( file = "models/4e_samesex_parent.stan", data=dat , chains=1, cores=4 , threads=3, control = list(adapt_delta = 0.99))#, control = list(adapt_delta = 0.99)
+  saveRDS(ssp[[i]], paste("3_Analysis/fit_models/ssp_", i, ".rds", sep = ""))
+}
 
 
 ###########
@@ -136,6 +207,145 @@ plot_age_sex <- function( post , d, dot_col ){
   lines(A_seq_real, mus2.mean, col = "darkred")
   shade(mus2.PI, A_seq_real, col =  col.alpha("darkred", 0.2))
   
+}
+
+
+##################################
+#plot contrasting counterfactuals#
+##################################
+#feed the data, the posterior to look at and the set of counterfactuals you want to change (select a vector from the posterior like post_act_1$aAM[,1,1])
+
+plotcontrastingcounterfactuals <- function(d = d, post , dimn = 1, counterfactual_1, counterfactual_2, 
+                                           ages = d$A_j[ d$A_j <= 50 ], 
+                                           dots = F, s_boys = F, s_girls = F, l_boys = T, l_girls = T ,
+                                           boy_col = boycol, girl_col = girlcol, boy_col_2 = "darkgreen", girl_col_2 = "purple") {
+  if(length(counterfactual_1)<=1) counterfactual_1 <- rep(counterfactual_1, 150)
+  if(length(counterfactual_2)<=1) counterfactual_2 <- rep(counterfactual_2, 150)
+  act_names <- c("household chores", "seashells collecting", "birds hunting", "game hunting", "agriculture", 
+                 "livestock caring", "fishing", "diving", "algae farming", "cloves picking")
+  year_eff <- apply(post$delta_j[,,dimn], 1, cumsum)
+  plot(x = ages, 
+       y = apply(post$K[,,dimn], 2, mean), 
+       xlab = "Age", 
+       yaxt='n' ,
+       cex.lab=1.8 , 
+       cex.axis=1.8 ,
+       pch = 19 , 
+       cex = ifelse( dots == T, 1.5, 0) , 
+       #family = "A",
+       col =  alpha( d$sex_col, 0.6 )  )
+  axis(side =2, seq (-10, 5, 1), labels = F)
+  #with first counterfactual
+  lines( x = 1:nrow(year_eff),  
+         y = mean(post$mA[,dimn]) + mean(post$bA[,1,dimn]) * apply(year_eff, 1, mean) + mean(counterfactual_1) , 
+         type = "l", 
+         col = col.alpha( boy_col, alpha = ifelse( s_boys == T | l_boys == T, 0.7, 0) ) )
+  shs <- PI(post$mA[,dimn]) + PI(post$bA[,1,dimn]) * apply(year_eff, 1, PI) + PI(counterfactual_1)
+  polygon(x = c( 1:nrow(year_eff), nrow(year_eff):1), y =  c(shs[1,], rev(shs[2,])),
+          col= alpha(boy_col, ifelse( s_boys == F, 0, 0.3)), border=NA)
+  lines( x = 1:nrow(year_eff),  
+         y = mean(post$mA[,dimn]) + mean(post$bA[,2,dimn]) * apply(year_eff, 1, mean) +mean(counterfactual_1), 
+         type = "l", 
+         col = col.alpha( girl_col, alpha = ifelse( s_girls == T | l_girls == T, 0.7, 0)))
+  shs <- PI(post$mA[,dimn]) + PI(post$bA[,2,dimn]) * apply(year_eff, 1, PI) + PI(counterfactual_1)
+  polygon(x = c( 1:nrow(year_eff), nrow(year_eff):1), y =  c(shs[1,], rev(shs[2,])),
+          col= alpha(girl_col, ifelse( s_girls == F, 0, 0.3)), border=NA)
+  for (i in 1:150) {
+    lines(x = 1:nrow(year_eff),  
+          y = post$mA[i,dimn] + post$bA[i,1,dimn] * year_eff[,i] + counterfactual_1[i], 
+          type = "l", 
+          col = alpha(boy_col, ifelse( l_boys == F, 0, 0.3)))}
+  for (i in 1:150) {
+    lines(x = 1:nrow(year_eff),  
+          y = post$mA[i,dimn] + post$bA[i,2,dimn] * year_eff[,i] + counterfactual_1[i], 
+          type = "l", 
+          col = alpha(girl_col, ifelse( l_girls == F, 0, 0.3)))}
+  
+  #with second counterfactual
+  lines( x = 1:nrow(year_eff),  
+         y = mean(post$mA[,dimn]) + mean(post$bA[,1,dimn]) * apply(year_eff, 1, mean) + mean(counterfactual_2) , 
+         type = "l", 
+         col = col.alpha( boy_col_2, alpha = ifelse( s_boys == T | l_boys == T, 0.7, 0) ) )
+  shs <- PI(post$mA[,dimn]) + PI(post$bA[,1,dimn]) * apply(year_eff, 1, PI) + PI(counterfactual_2)
+  polygon(x = c( 1:nrow(year_eff), nrow(year_eff):1), y =  c(shs[1,], rev(shs[2,])),
+          col= alpha(boy_col_2, ifelse( s_boys == F, 0, 0.3)), border=NA)
+  lines( x = 1:nrow(year_eff),  
+         y = mean(post$mA[,dimn]) + mean(post$bA[,2,dimn]) * apply(year_eff, 1, mean) +mean(counterfactual_2), 
+         type = "l", 
+         col = col.alpha( girl_col_2, alpha = ifelse( s_girls == T | l_girls == T, 0.7, 0)))
+  shs <- PI(post$mA[,dimn]) + PI(post$bA[,2,dimn]) * apply(year_eff, 1, PI) + PI(counterfactual_2)
+  polygon(x = c( 1:nrow(year_eff), nrow(year_eff):1), y =  c(shs[1,], rev(shs[2,])),
+          col= alpha(girl_col_2, ifelse( s_girls == F, 0, 0.3)), border=NA)
+  for (i in 1:150) {
+    lines(x = 1:nrow(year_eff),  
+          y = post$mA[i,dimn] + post$bA[i,1,dimn] * year_eff[,i] + counterfactual_2[i], 
+          type = "l", 
+          col = alpha(boy_col_2, ifelse( l_boys == F, 0, 0.3)))}
+  for (i in 1:150) {
+    lines(x = 1:nrow(year_eff),  
+          y = post$mA[i,dimn] + post$bA[i,2,dimn] * year_eff[,i] + counterfactual_2[i], 
+          type = "l", 
+          col = alpha(girl_col_2, ifelse( l_girls == F, 0, 0.3)))}
+  
+  # title( paste("Practicing", act_names[act] , "in dimension", dimn), adj = 0, cex.main = 1.8)
+  legend("bottomright", 
+         legend = c("Boys", "Girls"), 
+         col = c(boy_col, girl_col), 
+         pch = 19, 
+         bty = "n", 
+         cex = 1.5, 
+         text.col = "black", 
+         horiz = F , 
+         inset = c(0.01, 0.01))
+}
+
+######################################
+#Plot counterfactual activity effects#
+######################################
+
+plotcount_act <- function(d = d, post , dimn, act, dots = T, boy_col = boycol, girl_col = girlcol) {
+  act_names <- c("household chores", "seashells collecting", "birds hunting", "game hunting", "agriculture", 
+                 "livestock caring", "fishing", "diving", "algae farming", "cloves picking")
+  year_eff <- apply(post$delta_j[,,dimn], 1, cumsum)
+  plot(x = d$A_j[ d$A_j <= 50 ], 
+       y = apply(post$K[,,dimn], 2, mean), 
+       xlab = "Age", 
+       yaxt='n' ,
+       cex.lab=1.8 , 
+       cex.axis=1.8 ,
+       pch = 19 , 
+       cex = ifelse( dots == T, 1.5, 0) , 
+       #family = "A",
+       col =  alpha( d$sex_col, 0.6 )  )
+  axis(side =2, seq (-10, 5, 1), labels = F)
+  for (i in 1:150) {
+    lines(x = 1:nrow(year_eff),  
+          y = post$mA[i,dimn] + post$bA[i,1,dimn] * year_eff[,i] + post$aAM[i,act,dimn], 
+          type = "l", 
+          col = col.alpha( boy_col, alpha = 0.1))}
+  for (i in 1:150) {
+    lines(x = 1:nrow(year_eff),  
+          y = post$mA[i,dimn] + post$bA[i,2,dimn] * year_eff[,i] + post$aAM[i,act,dimn], 
+          type = "l", 
+          col = col.alpha( girl_col, alpha = 0.1))}
+  lines( x = 1:nrow(year_eff),  
+         y = mean(post$mA[,dimn]) + mean(post$bA[,1,dimn]) * apply(year_eff, 1, mean) + mean(post$aAM[,act,dimn]), 
+         type = "l", 
+         col = col.alpha( boy_col, alpha = 0.7))
+  lines( x = 1:nrow(year_eff),  
+         y = mean(post$mA[,dimn]) + mean(post$bA[,2,dimn]) * apply(year_eff, 1, mean) + mean(post$aAM[,act,dimn]), 
+         type = "l", 
+         col = col.alpha( girl_col, alpha = 0.7))
+  title( paste("Practicing", act_names[act] , "in dimension", dimn), adj = 0, cex.main = 1.8)
+  legend("bottomright", 
+         legend = c("Boys", "Girls"), 
+         col = c(boy_col, girl_col), 
+         pch = 19, 
+         bty = "n", 
+         cex = 1.5, 
+         text.col = "black", 
+         horiz = F , 
+         inset = c(0.01, 0.01))
 }
 
 
