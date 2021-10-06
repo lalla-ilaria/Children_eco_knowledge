@@ -16,6 +16,7 @@ d <- list.load("2_Data_preparation/processed_data.RData")
 #####################
 # <- readRDS("4_Outputs/posteriors/.rds")
 file_list <- list.files(path="3_Analysis/fit_models/")
+file_list <- file_list[-which(file_list == "placeholder.txt")]
 
 for (i in 1:length(file_list)){
   temp_mod <- readRDS( paste("3_Analysis/fit_models/", file_list[[i]], sep = ""))

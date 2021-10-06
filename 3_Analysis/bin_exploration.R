@@ -650,4 +650,36 @@ for (i in 1:50) {
 # #model comparison
 # compare(m_da[[1]], m_da[[2]], m_da[[3]])
 
+#### dimensions discriminations
+par(mfrow = c(1,1))
+plot( c(0,2), c(1,703),col = "white")
+llll <- apply(post_age_1$a_l, 2, PI)
+for(i in 1: 703) lines(llll[,i], rep(i,2), col = col.alpha("lightblue", 0.7))
+abline(v = 0, col = "grey")
 
+par(mfrow = c(1,3))
+plot( c(0,2), c(1,703),col = "white")
+llll <- apply(post_age_3$a_l[,,1], 2, PI)
+for(i in 1: 703) lines(llll[,i], rep(i,2), col = col.alpha("lightblue", 0.7))
+abline(v = 0, col = "grey")
+plot( c(0,2), c(1,703),col = "white")
+llll <- apply(post_age_3$a_l[,,2], 2, PI)
+for(i in 1: 703) lines(llll[,i], rep(i,2), col = col.alpha("lightblue", 0.7))
+abline(v = 0, col = "grey")
+plot( c(0,2), c(1,703),col = "white")
+llll <- apply(post_age_3$a_l[,,3], 2, PI)
+for(i in 1: 703) lines(llll[,i], rep(i,2), col = col.alpha("lightblue", 0.7))
+abline(v = 0, col = "grey")
+
+
+par(mfrow = c(1,3))
+disc <- data.frame( "d1" = apply(post_age_3$a_l[,,1], 2, mean), 
+                    "d2" = apply(post_age_3$a_l[,,2], 2, mean), 
+                    "d3" = apply(post_age_3$a_l[,,3], 2, mean))
+pairs(disc, col = col.alpha("cornflowerblue", 0.5), pch = 19)
+plot (  apply(post_age_3$a_l[,,1], 2, mean), apply(post_age_3$a_l[,,2], 2, mean), 
+        col = col.alpha("cornflowerblue", 0.7), pch = 19, xlab = "Discrimination 1", ylab = "Discrimination 2")
+plot (  apply(post_age_3$a_l[,,1], 2, mean), apply(post_age_3$a_l[,,3], 2, mean), 
+        col = col.alpha("cornflowerblue", 0.7), pch = 19, xlab = "Discrimination 1", ylab = "Discrimination 3")
+plot (  apply(post_age_3$a_l[,,3], 2, mean), apply(post_age_3$a_l[,,2], 2, mean), 
+        col = col.alpha("cornflowerblue", 0.7), pch = 19, xlab = "Discrimination 3", ylab = "Discrimination 2")

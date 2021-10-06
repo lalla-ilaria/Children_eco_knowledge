@@ -69,7 +69,7 @@ for (i in 1:3) {
 #each parent present
 epp <- list()
 #run the model with 1:3 number of dimensions
-for (i in 1:3) {
+for (i in 1:1) {
   dat <- list( D = i,    #loop through dimensions
                N = as.integer(d$N - 1) , 
                L = d$L ,    #n freelist items
@@ -96,7 +96,7 @@ for (i in 1:3) {
 #use subset of data for which data on birth order is present
 fst <- list()
 #run the model with 1:3 number of dimensions
-for (i in 1:3) {
+for (i in 1:1) {
   dat <- list( D = i,    #loop through dimensions
                N = length(d$A [-which(is.na(d$BO))]) , 
                L = d$L , 
@@ -118,7 +118,7 @@ for (i in 1:3) {
 #Effect of birth order
 bor <- list()
 #run the model with 1:3 number of dimensions
-for (i in 1:3) {
+for (i in 1:1) {
   dat <- list( D = i,    #loop through dimensions
                N = length(d$A [-which(is.na(d$BO))]) , 
                L = d$L , 
@@ -149,8 +149,8 @@ for (i in 1:3) {
 school <- ifelse(d$A >= 18, 18, d$A) - 5 - ifelse(d$SY == 0 , 0, d$SY -1) #to caclulate the amunt of school lost
 school <- ifelse(school >= 6, 6, school)#to reduce the effect of great loss of school
 sch <- list()
-#run the model with 1:3 number of dimensions
-for (i in 1:3) {
+#run the model with 1:n number of dimensions
+for (i in 1:1) {
   dat <- list( D = i,    #loop through dimensions
                N = as.integer(d$N - 1) , 
                L = d$L ,    #n freelist items 

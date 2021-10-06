@@ -149,10 +149,13 @@ dev.off()
 #DIMENSIONS#############
 ########################
 
-plot(waics_age)
-plot(waics_age_l)
-plot(waics_age_q)
-plot(waics_age_r)
+#plot waics by data type
+png(file = "4_Outputs/plots/supplementary_figures/waics.png", width = 700, height = 300)
+par(mfrow = c(1,3))
+plot(waics_age_l, main = "WAIC values for freelist")
+plot(waics_age_q, main = "WAIC values for questionnaire")
+plot(waics_age_r, main = "WAIC values for image recognition")
+dev.off()
 
 #2 dimensions
 png(file = "4_Outputs/plots/supplementary_figures/2_dim.png", width = 600, height = 380)

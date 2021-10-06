@@ -26,7 +26,7 @@ for (i in 1:3) {
                alpha = rep( 0.5, length (0:26 ) -1 ) 
   )
   age_l[[i]] <- cstan( file = "models/supplementary_models/l.stan", data=dat , chains=1, cores=4 , threads=3, control = list(adapt_delta = 0.99))#, control = list(adapt_delta = 0.99)
-  saveRDS(age_l[[i]], paste("4_Outputs/posteriors/age_l_", i, ".rds", sep = ""))
+  saveRDS(age_l[[i]], paste("3_Analysis/fit_models/age_l_", i, ".rds", sep = ""))
 }
 #questionnaire only
 age_q <- list()
@@ -41,7 +41,7 @@ for (i in 1:3) {
                alpha = rep( 0.5, length (0:26 ) -1 ) 
   )
   age_q[[i]] <- cstan( file = "models/supplementary_models/q.stan", data=dat , chains=1, cores=4 , threads=3, control = list(adapt_delta = 0.99))#, control = list(adapt_delta = 0.99)
-  saveRDS(age_q[[i]], paste("4_Outputs/posteriors/age_q_", i, ".rds", sep = ""))
+  saveRDS(age_q[[i]], paste("3_Analysis/fit_models/age_q_", i, ".rds", sep = ""))
 }
 #image recognition only
 age_r <- list()
@@ -56,7 +56,7 @@ for (i in 1:3) {
                alpha = rep( 0.5, length (0:26 ) -1 ) 
   )
   age_r[[i]] <- cstan( file = "models/supplementary_models/r.stan", data=dat , chains=1, cores=4 , threads=3, control = list(adapt_delta = 0.99))#, control = list(adapt_delta = 0.99)
-  saveRDS(age_r[[i]], paste("4_Outputs/posteriors/age_r_", i, ".rds", sep = ""))
+  saveRDS(age_r[[i]], paste("3_Analysis/fit_models/age_r_", i, ".rds", sep = ""))
 }
 
 ######################
@@ -77,8 +77,8 @@ dat <- list( D = 1,    #loop through dimensions
 )
 age_bs_1 <- cstan( file = "models/supplementary_models/bs_1.stan", data=dat , chains=1, cores=4 , threads=3, control = list(adapt_delta = 0.99))#, control = list(adapt_delta = 0.99)
 age_bs_3 <- cstan( file = "models/supplementary_models/bs_3.stan", data=dat , chains=1, cores=4 , threads=3, control = list(adapt_delta = 0.99))#, control = list(adapt_delta = 0.99)
-saveRDS(age_bs_1, "age_bs_1.rds")
-saveRDS(age_bs_3, "age_bs_3.rds")
+saveRDS(age_bs_1, "3_Analysis/fit_models/age_bs_1.rds")
+saveRDS(age_bs_3, "3_Analysis/fit_models/age_bs_3.rds")
 
 ###############
 #SAMPLING BIAS#
@@ -99,7 +99,7 @@ dat <- list( D = 1,    #loop through dimensions
                alpha = rep( 0.5, length (0:26 ) -1 ) 
   )
 nge<- cstan( file = "models/1_age.stan", data=dat , chains=1, cores=4 , threads=3  )
-saveRDS(nge, paste("4_Outputs/posteriors/nge.rds", sep = ""))
+saveRDS(nge, paste("3_Analysis/fit_models/nge.rds", sep = ""))
 
 #adding distance from research station as a predictor
 dat <- list( D = 1,    #loop through dimensions
@@ -117,5 +117,5 @@ dat <- list( D = 1,    #loop through dimensions
                alpha = rep( 0.5, length (0:26 ) -1 ) 
   )
 dis <- cstan( file = "models/supplementary_models/distance.stan", data=dat , chains=1, cores=4 , threads=3  )
-saveRDS(dis, paste("4_Outputs/posteriors/dis.rds", sep = ""))
+saveRDS(dis, paste("3_Analysis/fit_models/dis.rds", sep = ""))
   
