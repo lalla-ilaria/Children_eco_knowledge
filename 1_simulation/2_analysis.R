@@ -46,18 +46,23 @@ plot(d$B[d$ID_trip]/mean(d$B), d$notZ, pch = 16, col = col.alpha("grey30", 0.2),
 for (i in 1:500) lines(x, 1 - (inv_logit (  2 * ( post$c[i] - 
                                 exp( post$z_b[i] * log(x)  )))) , col = col.alpha("orange", 0.4))
 #Amount of results
-#weird plot. I'm doing something wrong.
-#fist, simulated data from lognormal include only numbers above zero
-#second, I need to transform the result of the model in the log scale or something???
-#but it fits something
 plot(d$L/mean(d$L), d$R, pch = 16, col = col.alpha("grey30", 0.2), ylim=c(0,10))
-for (i in 1:500) lines(x, exp( post$r_l[i] * log(x) + post$r_k[i] * log(mean(dat$K)) + post$r_b[i] * log(mean(dat$B))), col = col.alpha("orange", 0.4))
+for (i in 1:500) {
+  mu <- exp ( exp( post$r_l[i] * log(x)) + ((post$sigma[i]^2) /2))
+  lines(x, mu, col = col.alpha("orange", 0.4))
+}
 
 plot(dat$K, d$R, pch = 16, col = col.alpha("grey30", 0.2), ylim=c(0,10))
-for (i in 1:500) lines(x, exp( post$r_l[i] * log(mean(dat$L)) + post$r_k[i] * log(x) + post$r_b[i] * log(mean(dat$B))), col = col.alpha("orange", 0.4))
+for (i in 1:500) {
+  mu <- exp ( exp( post$r_k[i] * log(x)) + ((post$sigma[i]^2) /2))
+  lines(x, mu, col = col.alpha("orange", 0.4))
+}
 
 plot(dat$B, d$R, pch = 16, col = col.alpha("grey30", 0.2), ylim=c(0,10))
-for (i in 1:500) lines(x, exp( post$r_l[i] * log(mean(dat$L)) + post$r_k[i] * log(mean(dat$K)) + post$r_b[i] * log(x)), col = col.alpha("orange", 0.4))
+for (i in 1:500) {
+  mu <- exp ( exp( post$r_b[i] * log(x)) + ((post$sigma[i]^2) /2))
+  lines(x, mu, col = col.alpha("orange", 0.4))
+}
 ################
 
 #FIT MODEL MULTIPLE TIMES
