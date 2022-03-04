@@ -6,10 +6,12 @@ g <- matrix(nrow = length(a), ncol = length(x))#store
 plot(NULL, xlim = c(0,3), ylim = c(0,1), 
      xlab = "trait value", ylab = "prob non zero returns")
 for (i in 1:length(a)) {
-  g[i,] <- 1 - (inv_logit (  2 * ( c[i] - exp( a[i] * log(x) + a[i] * log(1) ))))# transformed to cover right space
+  g[i,] <-    2*(1-inv_logit (c[i] * x^a[i]))# transformed to cover right space
   lines( x, g[i,], col = col.alpha("cornflowerblue", 0.7))
 } 
 
+curve(2*(1-inv_logit(2*x^0.5)))
+curve( 1 - 2*( 1 - inv_logit( 0.5*x^0.5 ) ) , from=0 , to=10 , ylim=c(0,1) )
 
 #SIMULATE DATA
 source("1_simulation/1_simulation.R")
@@ -43,10 +45,20 @@ plot(d$B[d$ID_trip], d$notZ,
 #prepare data
 dat <- list(
   M = d$M,
-	notZ = d$notZ,
+	zero = abs(d$notZ - 1),
 	L = d$L/mean(d$L),
 	K = d$K[d$ID_trip]/mean(d$K[d$ID_trip]),
 	B = d$B[d$ID_trip]/mean(d$B[d$ID_trip])
+)
+
+#FIT WITH DATA
+d <- list.load("2_data_preparation/processed_data.RData")
+dat <- list(
+  M = nrow(d$traps),
+  zero = as.numeric(d$traps$success==0),
+  L = d$traps$lenghtDay/mean(d$traps$lenghtDay),
+  K = d$traps$knowledge/mean(d$traps$knowledge),
+  B = d$traps$height/mean(d$traps$height)
 )
 
 #fit model
@@ -58,17 +70,17 @@ x <- seq(0, 3, 0.1) #trait
 
 post <- extract.samples(m)
 
-plot(d$L/mean(d$L), d$notZ, pch = 16, col = col.alpha("grey30", 0.2), xlim = c(0,3))
-for (i in 1:500) lines(x, 1 - (inv_logit (  2 * ( post$c[i] - 
-                                exp( post$z_l[i] * log(x)  )))) , col = col.alpha("orange", 0.4))
+plot(dat$L, 1-dat$zero, pch = 16, col = col.alpha("grey30", 0.2), xlim = c(0,3))
+for (i in 1:500) lines(x, 1 - 2*(1-inv_logit  (
+                                 post$alpha[i] * x ^ post$z_l[i] )) , col = col.alpha("orange", 0.4))
 
-plot(d$K[d$ID_trip]/mean(d$K), d$notZ, pch = 16, col = col.alpha("grey30", 0.2), xlim = c(0,3))
-for (i in 1:500) lines(x, 1 - (inv_logit (  2 * ( post$c[i] - 
-                                exp( post$z_k[i] * log(x)  )))) , col = col.alpha("orange", 0.4))
+plot(dat$K, 1-dat$zero, pch = 16, col = col.alpha("grey30", 0.2), xlim = c(0,3))
+for (i in 1:500) lines(x, 1 - 2*(1-inv_logit  (
+                                 post$alpha[i] * x ^ post$z_k[i] )) , col = col.alpha("orange", 0.4))
 
-plot(d$B[d$ID_trip]/mean(d$B), d$notZ, pch = 16, col = col.alpha("grey30", 0.2), xlim = c(0,3))
-for (i in 1:500) lines(x, 1 - (inv_logit (  2 * ( post$c[i] - 
-                                exp( post$z_b[i] * log(x)  )))) , col = col.alpha("orange", 0.4))
+plot(dat$B, 1-dat$zero, pch = 16, col = col.alpha("grey30", 0.2), xlim = c(0,3))
+for (i in 1:500) lines(x, 1 - 2*(1-inv_logit  (
+                                 post$alpha[i] * x ^ post$z_b[i] )) , col = col.alpha("orange", 0.4))
 
 #FIT MODEL MULTIPLE TIMES
 #define list of parameter combinations
@@ -96,7 +108,7 @@ d <- sim_data(100, 300,
 
 dat <- list(
   M = d$M,
-	notZ = d$notZ,
+	zero = abs(d$notZ - 1),
 	L = d$L/mean(d$L),
 	K = d$K[d$ID_trip]/mean(d$K[d$ID_trip]),
 	B = d$B[d$ID_trip]/mean(d$B[d$ID_trip])

@@ -27,7 +27,7 @@ model{
   r_b ~ lognormal(0,1);
   sigma ~ exponential(1);
   for ( i in 1:M ) {
-      real p =  1 - inv_logit( 2 * ( c - exp(  z_l * log( L [i] ) + 
+      real p =  1 - inv_logit( 2 * ( 1 - exp(  z_l * log( L [i] ) + 
                                                z_k * log( K [i] ) + 
                                                z_b * log( B [i] ))));
       notZ[i] ~ bernoulli( p ); 

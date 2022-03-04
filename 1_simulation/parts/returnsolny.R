@@ -39,31 +39,52 @@ dat <- list(
   B = d$B[d$ID_trip]/mean(d$B[d$ID_trip])
 )
 
+#FIT WITH DATA
+dat <- list(
+  M = nrow(d$shells),
+  R = d$shells$returns,
+  L = d$shells$lenghtMin/mean(d$shells$lenghtMin),
+  K = d$shells$knowledge/mean(d$shells$knowledge),
+  B = d$shells$height/mean(d$shells$height)
+)
+
+plot(dat$L, dat$R, 
+     pch = 16, col = col.alpha("grey40", 0.2),
+     xlab = "length of trip", ylab = "returns amount")
+plot(dat$K, dat$R, 
+     pch = 16, col = col.alpha("grey40", 0.2),
+     xlab = "knowledge", ylab = "returns amount")
+plot(dat$B, dat$R, 
+     pch = 16, col = col.alpha("grey40", 0.2),
+     xlab = "body traits", ylab = "returns amount")
+
+
 #fit model
 m <- cstan( file= "models/returnsonly.stan" , data=dat , chains=1 )
 precis(m)
 tracerplot(m) #not exploring much the space?
+par(mfrow = c(1,1))
 
 #CHECK MODEL FIT
 x <- seq(0, 3, 0.1) #trait
 
 post <- extract.samples(m)
 
-plot(d$L/mean(d$L), d$R, pch = 16, col = col.alpha("grey30", 0.2), ylim=c(0,10))
+plot(dat$L, dat$R, pch = 16, col = col.alpha("grey30", 0.2))
 for (i in 1:500) {
-  mu <- exp ( exp( post$r_l[i] * log(x)) + ((post$sigma[i]^2) /2))
+  mu <- exp ( exp( post$alpha[i] + post$r_l[i] * log(x)) + ((post$sigma[i]^2) /2))
   lines(x, mu, col = col.alpha("orange", 0.4))
 }
 
-plot(dat$K, d$R, pch = 16, col = col.alpha("grey30", 0.2), ylim=c(0,10))
+plot(dat$K, dat$R, pch = 16, col = col.alpha("grey30", 0.2))
 for (i in 1:500) {
-  mu <- exp ( exp( post$r_k[i] * log(x)) + ((post$sigma[i]^2) /2))
+  mu <- exp ( exp( post$alpha[i] + post$r_k[i] * log(x)) + ((post$sigma[i]^2) /2))
   lines(x, mu, col = col.alpha("orange", 0.4))
 }
 
-plot(dat$B, d$R, pch = 16, col = col.alpha("grey30", 0.2), ylim=c(0,10))
+plot(dat$B, dat$R, pch = 16, col = col.alpha("grey30", 0.2))
 for (i in 1:500) {
-  mu <- exp ( exp( post$r_b[i] * log(x)) + ((post$sigma[i]^2) /2))
+  mu <- exp ( exp( post$alpha[i] + post$r_b[i] * log(x)) + ((post$sigma[i]^2) /2))
   lines(x, mu, col = col.alpha("orange", 0.4))
 }
 
