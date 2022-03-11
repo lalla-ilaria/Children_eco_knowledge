@@ -19,10 +19,10 @@ model{
   z_b ~ lognormal (0,1) ;
   for ( i in 1:M ) {
       //poisson outcomes
-      real l =   alpha *  L[i] ^ z_l *
+      real lambda =   alpha *  L[i] ^ z_l *
                              K[i] ^ z_k *
                              B[i] ^ z_b;
-      S[i] ~ poisson( l );
+      S[i] ~ poisson( lambda );
       }
 }
 

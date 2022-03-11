@@ -15,24 +15,31 @@ for (i in 1:length(a)) {
 source("1_simulation/1_simulation.R")
 
 #simulate data with effects of length of trip (l), knowledge (k) and body (b) of individuals on probability of non zeroes (notz) and returns (r)
-d <- sim_data(100, 300, zero = F, age = F, #simulating without zeroes, without effect of age
-              rl = 1, rk = 0.2, rb = 3)
+d <- sim_data(100, 300, zero = F, age = T, #simulating without zeroes, with effect of age
+              ak = 1, ab = 1,
+              rl = 0.4, rk = 0.4, rb = 0.4)
+plot(d$A, d$K)
+plot(d$A, d$B)
 
 #review simulated data
 plot(d$L, d$R, 
-     pch = 16, col = col.alpha("grey40", 0.2), ylim = c(0,8),
+     pch = 16, col = col.alpha("grey40", 0.2), ylim = c(0,18),
      xlab = "length of trip", ylab = "returns amount")
 plot(d$K[d$ID_trip], d$R, 
-     pch = 16, col = col.alpha("grey40", 0.2),ylim = c(0,8),
+     pch = 16, col = col.alpha("grey40", 0.2),ylim = c(0,18),
      xlab = "knowledge", ylab = "returns amount")
 plot(d$B[d$ID_trip], d$R, 
-     pch = 16, col = col.alpha("grey40", 0.2), ylim = c(0,8),
+     pch = 16, col = col.alpha("grey40", 0.2), ylim = c(0,18),
      xlab = "body traits", ylab = "returns amount")
+plot(d$A[d$ID_trip], d$R, 
+     pch = 16, col = col.alpha("grey40", 0.2), ylim = c(0,18),
+     xlab = "age", ylab = "returns amount")
 
 #FIT MODEL
 #prepare data
 dat <- list(
   M = d$M,
+  A = d$A[d$ID_trip]/mean(d$A[d$ID_trip]),
   R = d$R,
   L = d$L/mean(d$L),
   K = d$K[d$ID_trip]/mean(d$K[d$ID_trip]),
@@ -40,8 +47,10 @@ dat <- list(
 )
 
 #FIT WITH DATA
+d <- list.load("2_data_preparation/processed_data.RData")
 dat <- list(
   M = nrow(d$shells),
+  A = d$shells$age / mean(d$shells$age),
   R = d$shells$returns,
   L = d$shells$lenghtMin/mean(d$shells$lenghtMin),
   K = d$shells$knowledge/mean(d$shells$knowledge),
@@ -57,6 +66,9 @@ plot(dat$K, dat$R,
 plot(dat$B, dat$R, 
      pch = 16, col = col.alpha("grey40", 0.2),
      xlab = "body traits", ylab = "returns amount")
+plot(dat$A, dat$R, 
+     pch = 16, col = col.alpha("grey40", 0.2),
+     xlab = "body traits", ylab = "returns amount")
 
 
 #fit model
@@ -64,7 +76,7 @@ m <- cstan( file= "models/returnsonly.stan" , data=dat , chains=1 )
 precis(m)
 tracerplot(m) #not exploring much the space?
 par(mfrow = c(1,1))
-
+dev.off()
 #CHECK MODEL FIT
 x <- seq(0, 3, 0.1) #trait
 
@@ -85,6 +97,23 @@ for (i in 1:500) {
 plot(dat$B, dat$R, pch = 16, col = col.alpha("grey30", 0.2))
 for (i in 1:500) {
   mu <- exp ( exp( post$alpha[i] + post$r_b[i] * log(x)) + ((post$sigma[i]^2) /2))
+  lines(x, mu, col = col.alpha("orange", 0.4))
+}
+
+plot(dat$A, dat$R, pch = 16, col = col.alpha("grey30", 0.2), xlim = c(0, 3))
+for (i in 1:500) {
+  mu <- exp ( exp( post$alpha[i] + post$a_a[i] * log(x)) + ((post$sigma[i]^2) /2))
+  lines(x, mu, col = col.alpha("orange", 0.4))
+}
+
+plot(dat$A, dat$K, pch = 16, col = col.alpha("grey30", 0.2), xlim = c(0, 3))
+for (i in 1:500) {
+  mu <-  post$alpha_k[i] + x ^ post$k_a[i]
+  lines(x, mu, col = col.alpha("orange", 0.4))
+}
+plot(dat$A, dat$B, pch = 16, col = col.alpha("grey30", 0.2), xlim = c(0, 3))
+for (i in 1:500) {
+  mu <-  post$alpha_b[i] + x ^ post$b_a[i]
   lines(x, mu, col = col.alpha("orange", 0.4))
 }
 
@@ -131,3 +160,27 @@ for (i in 1:4) {
   }
 }
 par(mfrow = c(1,1))
+
+
+
+data(WaffleDivorce) 
+d <- list()
+d$A <- standardize( WaffleDivorce$MedianAgeMarriage )
+d$D <- standardize( WaffleDivorce$Divorce )
+d$M <- standardize( WaffleDivorce$Marriage )
+m5.3_A <- ulam(
+alist(
+## A -> D <- M
+D ~ dnorm( mu , sigma ) ,
+mu <- a + bM*M + bA*A ,
+a ~ dnorm( 0 , 0.2 ) ,
+bM ~ dnorm( 0 , 0.5 ) ,
+bA ~ dnorm( 0 , 0.5 ) ,
+sigma ~ dexp( 1 ),
+## A -> M
+M ~ dnorm( mu_M , sigma_M ),
+mu_M <- aM + bAM*A,
+aM ~ dnorm( 0 , 0.2 ),
+bAM ~ dnorm( 0 , 0.5 ),
+sigma_M ~ dexp( 1 )
+) , data = d )

@@ -1,5 +1,6 @@
 #load packages and simulation function
 library(rethinking)
+library(rlist)
 source("1_simulation/1_simulation.R")
 
 #simulate data with effects of length of trip (l), knowledge (k) and body (b) of individuals on probability of non zeroes (z) and returns (r)
