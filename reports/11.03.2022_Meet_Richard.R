@@ -428,3 +428,22 @@ precis(m, 2)
 tracerplot(m) 
 dev.off()
 
+
+#-------------------------------------------------------------------------------
+#-------------------------------------------------------------------------------
+#Individual level random effect + age
+
+#2) age in individual effects
+dat <- list(
+  N = d$N,
+  M = d$M,
+  A = d$A/mean(d$A),
+  R = d$R,
+  L = d$L/mean(d$L),
+  K = d$K[d$ID_trip]/mean(d$K[d$ID_trip]),
+  B = d$B[d$ID_trip]/mean(d$B[d$ID_trip]),
+  ID = d$ID_trip
+)
+
+m <- cstan( file= "models/returns_age_individualeffects_1.stan" , data=dat , chains=3, cores = 3 )
+precis(m, 2)
