@@ -114,13 +114,13 @@ m <- cstan( file= "models/zerosonlyPoiss.stan" , data=dat , chains=1 )
 precis(m)
 
 #CHECK MODEL FIT
-x <- seq(0, 3, 0.1) #trait
+x <- seq(0, 5, 0.1) #trait
 
 post <- extract.samples(m)
 
 #simulate from posterior poisson
 #length of trap
-plot(NULL, xlab = "days", ylab = "n success", xlim = c(0,3), ylim = c (0,4))
+plot(NULL, xlab = "days", ylab = "n success", xlim = c(0,5), ylim = c (0,4))
 for(i in 1:500){
   success <- rpois (length(x), post$alpha[i] * x ^ post$z_l[i] )
   points(jitter(x), jitter(success), pch = 16 , col = col.alpha("grey40", 0.1))
