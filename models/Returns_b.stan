@@ -4,7 +4,7 @@ data{
 	int ID_ind[M];//id of forager/return
 	real R[M];  //returns
 	real L[M];  //length of trip
-//	real K[N];  //individual knowledge
+	real B[N];  //individual knowledge
 	real A[N];
 	}
 parameters{
@@ -13,13 +13,17 @@ parameters{
   real<lower=0> alpha;
   real<lower=0> beta_a; //age effect
   real<lower=0> gamma_a; //age elasticity
+  real<lower=0> beta_b; //knowledge effect
+  real<lower=0> gamma_b; //knowledge elasticity
 	real<lower=0> lambda; //exponent for length trip
 	real<lower=0> sigma;
 }
 transformed parameters{
   vector [N] phi;
   vector [M] psi;
-  for(i in 1:N) phi[i]  = (id_v[i] * sigma_ind) + log(1-exp(-beta_a * A[i]  )) * gamma_a;
+  for(i in 1:N) phi[i]  = (id_v[i] * sigma_ind) + 
+                          log(1-exp(-beta_a * A[i]  )) * gamma_a + 
+                          log(1-exp(-beta_b * B[i]  )) * gamma_b;
   for(i in 1:M) psi[i] = lambda * log (L[i]);
 
 }
@@ -29,6 +33,8 @@ model{
   alpha ~ lognormal(0,1);
   beta_a ~lognormal(0, 1);
   gamma_a ~lognormal(0, 1);
+  beta_b ~lognormal(0, 1);
+  gamma_b ~lognormal(0, 1);
   lambda ~ exponential(1);
   sigma ~ exponential(1);
   for ( i in 1:M ) {

@@ -8,7 +8,7 @@ phi <- matrix(NA, nsamp, length(AGE))
 psi <- rep(NA, nsamp)
 #SIMULATED PRIORS
 #general intercept
-alpha <- rnorm(nsamp, 0, 0.1)#prior
+alpha <- rnorm(nsamp, 0, 1)#prior
 #trip
 lambda <-  rexp(nsamp,1)
 #individual_age
@@ -56,7 +56,7 @@ for(i in 1:nsamp){
                    (1-exp(-beta_k[i] * K[i,])) ^ gamma_k[i])
   psi[i] <-   lambda[i] * log (L[2])
   R <- exp ( alpha[i] + log(phi[i,]) + psi[i] + ((sigma[i]^2) /2))
-  lines( AGE,  R, col = col.alpha("blue", 0.7))
+  lines( AGE,  R, col = col.alpha("lightblue", 0.7))
 }
 
 #REAL DATA
