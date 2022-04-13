@@ -224,7 +224,7 @@ shade(mu_phi, seq(0,3,0.1)* mean(dc_trapppl$age), col = col.alpha(trapcol, 0.15)
 
 
 for(i in 1:30){
-  phi <- (1-exp(-post_r$beta_a[i] * seq(0,3,0.1)  )) ^ post_r$gamma_a[i]
+  phi <- (1-exp(-post_r$beta_a[i] * seq(0,3,0.1)  )) ^ post_r$gamma_a[i] 
   lines( seq(0,3,0.1) * mean(dc_shellppl$age),  phi, col = col.alpha(shellcol, 0.3))
 }
 for(i in 1:30){

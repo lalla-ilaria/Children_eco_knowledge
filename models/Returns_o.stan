@@ -4,7 +4,6 @@ data{
 	int ID_i[M];//id of forager/return
 	real R[M];  //returns
 	real L[M];  //length of trip
-	real B[N];  //individual body
 	real A[N];
 	}
 parameters{
@@ -13,7 +12,6 @@ parameters{
   real<lower=0> alpha;
   real<lower=0> beta; //age effect
   real<lower=0> gamma; //age elasticity
-  real eta_b; //body elasticity
   real xi; //exponent for length trip
 	real<lower=0> sigma;
 }
@@ -21,8 +19,7 @@ transformed parameters{
   vector [N] phi;
   vector [M] psi;
   for(i in 1:N) phi[i]  = exp (iota[i] * sigma_i) * ( 
-                          (1-exp(-beta * A[i]  )) ^ gamma * 
-                           B[i] ^ eta_b);
+                          (1-exp(-beta * A[i]  )) ^ gamma );
   for(i in 1:M) psi[i] =  L[i] ^ xi;
 
 }
@@ -32,7 +29,6 @@ model{
   alpha ~ normal(0,1)T[0,];
   beta ~ lognormal(0, 1);
   gamma~ lognormal(0, 1);
-  eta_b ~ normal(0, 1);
   xi ~ normal(0, 1);
   sigma ~ exponential(1);
   for ( i in 1:M ) {
