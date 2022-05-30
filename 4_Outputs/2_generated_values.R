@@ -1,10 +1,48 @@
 #Set the stage for plotting figures
 if( !exists( "plotagesandknow", mode = "function")) source( "4_Outputs/0_set_the_plot_stage.R" )
 
-waics_age <- compare(age_1, age_2, age_3, age_4, age_5)
-waics_age_l <- compare(age_1, age_2, age_3, age_4, age_5, log_lik = "log_lik_l")
-waics_age_q <- compare(age_1, age_2, age_3, age_4, age_5, log_lik = "log_lik_q")
-waics_age_r <- compare(age_1, age_2, age_3, age_4, age_5, log_lik = "log_lik_r")
+
+##############################
+#SAMPLE SIZES TABLE
+generate_s_size_table <- function (qn_table, age = d$A){
+  s_s <- data.frame( "All ages" = c(length (age)-1, #one individual over 50 year was excluded from analysis
+                                    max(apply(qn_table, 1, sum)), 
+                                    min(apply(qn_table, 1, sum)) ,
+                                    mean(apply(qn_table, 1, sum)), 
+                                    sd(apply(qn_table, 1, sum))), 
+                     "Aged <10" = c(sum(age <= 10),
+                                    max(apply(qn_table[which(age <= 10),], 1, sum)),
+                                    min(apply(qn_table[which(age <= 10),], 1, sum)),
+                                    mean(apply(qn_table[which(age <= 10),], 1, sum)),
+                                    sd(apply(qn_table[which(age <= 10),], 1, sum))),
+                     "Aged 10-20" = c(sum(age >= 10 & age <= 20 ),
+                                      max(apply(qn_table[age >= 10 & age <= 20,], 1, sum)),
+                                      min(apply(qn_table[age >= 10 & age <= 20,], 1, sum)),
+                                      mean(apply(qn_table[age >= 10 & age <= 20,], 1, sum)),
+                                      sd(apply(qn_table[age >= 10 & age <= 20,], 1, sum))),
+                     "Aged >20" = c(sum (age >= 20)-1,
+                                    max(apply(qn_table[which(age >= 20),], 1, sum)),
+                                    min(apply(qn_table[which(age >= 20),], 1, sum)),
+                                    mean(apply(qn_table[which(age >= 20),], 1, sum)),
+                                    sd(apply(qn_table[which(age >= 20),], 1, sum)))
+  )
+  if (ncol(qn_table) <= 200) s_s[2:5,] <- s_s[2:5,]/ncol(qn_table)  
+  
+  s_s <- round(s_s, digits = 2)
+  
+  if (ncol(qn_table) >= 200) {
+    rownames(s_s) <- c("n", "max n items listed",  "min n items listed" , "mean n items listed", "sd n items listed"  )} else {
+      if (ncol(qn_table) <= 55) {
+        rownames(s_s) <- c("n", "max % questions correct",  "min % questions correct" , "mean % questions correct", "sd % questions correct"  )} else {
+          if (ncol(qn_table) <= 200 & ncol(qn_table) >= 55) {
+            rownames(s_s) <- c("n", "max % images recognized",  "min % images recognized" , "mean % images recognized", "sd % images recognized"  )} else{
+              print("No data to function. Choose between d$Y_l, d$Y_q, d$Y_r ")}}}
+  return(s_s)
+}
+
+write.csv( generate_s_size_table(qn_table = d$Y_l), "4_Outputs/generated_values/sample_sizes_freelist.csv")
+write.csv( generate_s_size_table(qn_table = d$Y_q), "4_Outputs/generated_values/sample_sizes_questionnaire.csv")
+write.csv( generate_s_size_table(qn_table = d$Y_r), "4_Outputs/generated_values/sample_sizes_images.csv")
 
 
 #contrasts between sexes
@@ -17,6 +55,49 @@ PI_diff_sexes(post = post_age_1)
 
 mean_diff_sexes(post = post_act_1)
 PI_diff_sexes(post = post_act_1)
+
+posts_for_contrasts <- c("post_age_1",#fig 4
+                            "post_age_3","post_age_3","post_age_3",  #fig 5
+                            "post_age_l_1", "post_age_q_1", "post_age_r_1", #fig S3
+                            "post_age_l_3", "post_age_l_3", "post_age_l_3", #fig S4
+                            "post_age_2", "post_age_2", #fig S12
+                            "post_age_4","post_age_4","post_age_4","post_age_4",  #fig s13
+                            "post_age_5","post_age_5","post_age_5","post_age_5","post_age_5",  #fig s14
+                            "post_act_1"#figS16
+                         )
+dimn_for_contrasts <- c(1,#fig 4
+                        1,3,2,#fig 5
+                        1,1,1,#fig S3
+                        1,2,3,#fig S4
+                        1,2,#fig S12
+                        4,2,1,3,#fig S13
+                        1,5,2,3,4,#fig S14
+                        1)#fig S16
+contrasts <- data.frame( "mean difference" = rep(NA, length(dimn_for_contrasts)),
+                         "5% difference" =  rep(NA, length(dimn_for_contrasts)),
+                         "95% difference" =  rep(NA, length(dimn_for_contrasts)) )
+rownames(contrasts) <- c("Model 1 unidimensional, fig 4", #fig 4
+                         "Model 1, 3 dim, general knowledge, fig 5a", "Model 1, 3 dim, male knowledge, fig 5b", "Model 1, 3 dim, other knowledge, fig 5c", #fig 5
+                         "Model 1, freelist only, fig S3a", "Model 1, questionnaire only, fig S3b", "Model 1, image only, fig S3c", #fig S3
+                         "Model 1, freelist only, 3 dim, general knowledge, fig S4a", "Model 1, freelist only, 3 dim, male knowledge, fig S4b", "Model 1, freelist only, 3 dim, other knowledge, fig S4c", #fig S4
+                         "Model 1, 2 dim, general knowledge, fig S12a", "Model 1, 2 dim, male knowledge, fig S12b",
+                         "Model 1, 4 dim, general knowledge, fig S13a", "Model 1, 4 dim, male knowledge, fig S13b", "Model 1, 4 dim, other knowledge, fig S13c", "Model 1, 4 dim, other knowledge2, fig S13d", #fig 5
+                         "Model 1, 5 dim, general knowledge, fig S14a", "Model 1, 5 dim, male knowledge, fig S14b", "Model 1, 5 dim, male knowledge2, fig S14c", "Model 1, 5 dim, other knowledge, fig S14d", "Model 1, 5 dim, other knowledge2, fig S14e", #fig 5
+                          "Model 2 unidimensional, fig S16")
+for (i in 1:length(dimn_for_contrasts)) {
+  contrasts[i,1] <- mean_diff_sexes(post = get(posts_for_contrasts[i]), dimn = dimn_for_contrasts[i] )
+  contrasts[i,2] <- PI_diff_sexes(post = get(posts_for_contrasts[i]), dimn = dimn_for_contrasts[i] )[1]
+  contrasts[i,3] <- PI_diff_sexes(post = get(posts_for_contrasts[i]), dimn = dimn_for_contrasts[i] )[2]
+}
+
+write.csv(contrasts, "4_Outputs/generated_values/contrasts_sexes_by_image.csv")
+
+#activities
+agediff_by_act <- data.frame(t(as.data.frame(lapply(actdiff, PI)))) 
+agediff_by_act <- cbind (  as.vector(unlist(lapply(actdiff, mean))), agediff_by_act)
+colnames(agediff_by_act) <- c("mean", "5%PI", "95%PI")
+
+write.csv(agediff_by_act, "4_Outputs/generated_values/age_difference_by_activity.csv")
 
 
 #Presence of same sex parent
@@ -55,10 +136,15 @@ b_ls_1 <- apply(post_age_3$b_l[,,1], 2, mean)
 b_ls_2 <- apply(post_age_3$b_l[,,2], 2, mean)
 b_ls_3 <- apply(post_age_3$b_l[,,3], 2, mean)
 
+b_ls_1 <- apply(post_age_2$b_l[,,2], 2, mean)
+b_ls_2 <- apply(post_age_2$b_l[,,1], 2, mean)
+b_ls_3 <- apply(post_age_4$b_l[,,2], 2, mean)
+
+
 colnames(d$Y_l)[which(b_ls <=max(sort(b_ls)[1:10]))]
+colnames(d$Y_l)[which(b_ls_1 <=max(sort(b_ls_1)[1:10]))]
 colnames(d$Y_l)[which(b_ls_2 <=max(sort(b_ls_2)[1:10]))]
 colnames(d$Y_l)[which(b_ls_3 <=max(sort(b_ls_3)[1:10]))]
-colnames(d$Y_l)[which(b_ls_1 <=max(sort(b_ls_1)[1:10]))]
 
 colnames(d$Y_l)[which(b_ls >=min(sort(b_ls, decreasing = T)[1:10]))]
 colnames(d$Y_l)[which(b_ls_1 >=min(sort(b_ls_1, decreasing = T)[1:30]))]

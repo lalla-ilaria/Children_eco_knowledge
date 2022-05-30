@@ -1,0 +1,23 @@
+"","mean.difference","X5..difference","X95..difference"
+"Model 1 unidimensional, fig 4",1.06595482333333,0.544799,1.6007752
+"Model 1, 3 dim, general knowledge, fig 5a",-0.75977728,-1.31354385,-0.2307037
+"Model 1, 3 dim, male knowledge, fig 5b",2.709782799226,2.0872855,3.41126419
+"Model 1, 3 dim, other knowledge, fig 5c",-0.5734105537154,-1.57871788,0.19752385
+"Model 1, freelist only, fig S3a",1.11214056,0.4043294,1.8582229
+"Model 1, questionnaire only, fig S3b",1.70364504886667,1.04037315,2.43262676
+"Model 1, image only, fig S3c",1.35028169033333,0.914766,1.84744475
+"Model 1, freelist only, 3 dim, general knowledge, fig S4a",-0.255067827366667,-1.0018987,0.39433145
+"Model 1, freelist only, 3 dim, male knowledge, fig S4b",2.59938013473333,1.96201685,3.347993025
+"Model 1, freelist only, 3 dim, other knowledge, fig S4c",-1.41538170496733,-2.626581995,-0.428392515
+"Model 1, 2 dim, general knowledge, fig S12a",-0.5415442249,-1.3630541,0.197343050000001
+"Model 1, 2 dim, male knowledge, fig S12b",1.86798599333333,1.37778395,2.4078723
+"Model 1, 4 dim, general knowledge, fig S13a",-0.313313536666667,-1.28361855,1.3597203
+"Model 1, 4 dim, male knowledge, fig S13b",2.53982128096767,1.5479201495,3.36659695
+"Model 1, 4 dim, other knowledge, fig S13c",-0.872541763375,-2.295423495,0.0839528100000002
+"Model 1, 4 dim, other knowledge2, fig S13d",-0.370662071613333,-1.237484815,0.376990845
+"Model 1, 5 dim, general knowledge, fig S14a",-1.49018745996667,-2.43106021,-0.60902295
+"Model 1, 5 dim, male knowledge, fig S14b",1.84935018523333,1.03144395,2.68417385
+"Model 1, 5 dim, male knowledge2, fig S14c",1.316140882049,0.57453517,2.054928735
+"Model 1, 5 dim, other knowledge, fig S14d",-0.509610404307667,-1.621278785,0.31659042
+"Model 1, 5 dim, other knowledge2, fig S14e",-0.345769316183333,-1.2280182,0.411543120000001
+"Model 2 unidimensional, fig S16",0.27526396,-0.57470465,1.09312705

@@ -683,3 +683,54 @@ plot (  apply(post_age_3$a_l[,,1], 2, mean), apply(post_age_3$a_l[,,3], 2, mean)
         col = col.alpha("cornflowerblue", 0.7), pch = 19, xlab = "Discrimination 1", ylab = "Discrimination 3")
 plot (  apply(post_age_3$a_l[,,3], 2, mean), apply(post_age_3$a_l[,,2], 2, mean), 
         col = col.alpha("cornflowerblue", 0.7), pch = 19, xlab = "Discrimination 3", ylab = "Discrimination 2")
+
+png("../individual K by dimension.png", width = 14, height = 6, units = "cm", pointsize = 10,  res = 300)
+par(mfrow = c(1,3), mar = c(4, 4, 1, 1))
+post <- post_age_3
+col_lines <- "lightblue"
+col_dots <-  "cornflowerblue"
+n_lines <- 150
+for (v in 1:3){
+  dimn <- v
+    a <- apply(post$a_r[,,dimn], 2, mean)
+    b <- apply(post$b_r[,,dimn], 2, mean)
+  
+  curve(inv_logit(a[1] * ( x - b[1])), 
+        xlim = c(-11, 4), 
+        ylim = c(0, 1), 
+        xlab = paste("knowledge dimension", dimn), 
+        ylab = "p correct answer", 
+        cex.lab=1.5, 
+        cex.axis=1.5,
+        col = "white")
+  for(i in 1: n_lines){
+        curve(inv_logit(a[i] * ( x - b[i])), 
+                    col = alpha(col_lines, 0.4), 
+                    add = TRUE)}
+   points(apply(post$K[,,dimn], 2, mean), rep(0.5, 93),
+         pch = 19, 
+         cex = 0.7, 
+         col = alpha(col_dots, 0.2))  
+
+  points(mean(post$K[,7 ,dimn]), 0.5,
+         pch = 19, 
+         cex = 0.8, 
+         col = alpha("darkblue", 0.9))  
+
+}
+dev.off()
+
+
+
+#dimensions contain similar info
+par(mar = c(0,0,0,0), mfrow = c(3,3))
+plot(apply(post_age_2$K[,,1], 2, mean), apply(post_age_3$K[,,3], 2, mean), pch = 19, col = "100", axes=FALSE, frame.plot=TRUE)
+plot(apply(post_age_2$K[,,2], 2, mean), apply(post_age_3$K[,,1], 2, mean), pch = 19, col = "100", axes=FALSE, frame.plot=TRUE)
+plot(apply(post_age_3$K[,,1], 2, mean), apply(post_age_4$K[,,1], 2, mean), pch = 19, col = "50", axes=FALSE, frame.plot=TRUE)
+plot(apply(post_age_3$K[,,2], 2, mean), apply(post_age_4$K[,,2], 2, mean), pch = 19, col = "50", axes=FALSE, frame.plot=TRUE)
+plot(apply(post_age_3$K[,,3], 2, mean), apply(post_age_4$K[,,4], 2, mean), pch = 19, col = "50", axes=FALSE, frame.plot=TRUE)
+plot(apply(post_age_4$K[,,1], 2, mean), apply(post_age_5$K[,,2], 2, mean), pch = 19, col = "30", axes=FALSE, frame.plot=TRUE)
+plot(apply(post_age_4$K[,,2], 2, mean), apply(post_age_5$K[,,3], 2, mean), pch = 19, col = "30", axes=FALSE, frame.plot=TRUE)
+plot(apply(post_age_4$K[,,3], 2, mean), apply(post_age_5$K[,,4], 2, mean), pch = 19, col = "30", axes=FALSE, frame.plot=TRUE)
+plot(apply(post_age_4$K[,,4], 2, mean), apply(post_age_5$K[,,5], 2, mean), pch = 19, col = "30", axes=FALSE, frame.plot=TRUE)
+par(mar = c(5,2,2,2) + 0.1)

@@ -24,6 +24,15 @@ for (i in 1:length(file_list)){
   assign ( paste ("post", gsub(".rds", "", file_list[i]), sep = "_") , extract.samples(temp_mod))
 }
 
+
+#Calculate Waics
+#NB requires experimental branch of Rethinking package 
+#devtools::install_github('rmcelreath/rethinking@Experimental')
+waics_age <- compare(age_1, age_2, age_3, age_4, age_5)
+waics_age_l <- compare(age_1, age_2, age_3, age_4, age_5, log_lik = "log_lik_l")
+waics_age_q <- compare(age_1, age_2, age_3, age_4, age_5, log_lik = "log_lik_q")
+waics_age_r <- compare(age_1, age_2, age_3, age_4, age_5, log_lik = "log_lik_r")
+
 #############################
 #GENERAL PLOT SPECIFICATIONS#
 #############################
@@ -32,6 +41,8 @@ for (i in 1:length(file_list)){
 #colors
 boycol  <- rgb(114/255, 181/255, 40/255) #"navyblue"
 girlcol <- rgb(208/255, 29/255, 157/255) #"red3"
+boycol2  <- rgb(94/255, 150/255, 33/255) #"navyblue"
+girlcol2 <- rgb(179/255, 23/255, 134/255) #"red3"
 col_1 <- "cornflowerblue"
 col_2 <- "cornflowerblue"
 d$sex_col <- ifelse(d$S == "m", boycol, girlcol)#assign color to each sex
@@ -82,12 +93,12 @@ plotagesandknow <- function(d = d, post , dimn, dots = T, ages = d$A_j[ d$A_j <=
   lines( x = 1:nrow(year_eff),  
          y = mean(post$mA[,dimn]) + mean(post$bA[,1,dimn]) * apply(year_eff, 1, mean), 
          type = "l", 
-         col = col.alpha( boycol, alpha = 0.7))
+         col = col.alpha( boycol2, alpha = 1), lwd = 1.5 )
   lines( x = 1:nrow(year_eff),  
          y = mean(post$mA[,dimn]) + mean(post$bA[,2,dimn]) * apply(year_eff, 1, mean), 
          type = "l", 
-         col = col.alpha( girlcol, alpha = 0.7))
-  title( main = maintitle, cex.main = 1.8, ylab = "Knowledge", line=1, cex.lab=1.8)
+         col = col.alpha( girlcol2, alpha = 1), lwd = 1.5 )
+  title( main = maintitle, cex.main = 1.8, ylab = "Ecological Knowledge", line=1, cex.lab=1.8)
   legend("bottomright", 
          legend = c("Boys", "Girls"), 
          col = c(boycol, girlcol), 
@@ -183,9 +194,7 @@ plotact <- function( post, dimn = 1, unit = "years") {
              if (unit == "years") { xlim =c(- 20, 10) 
              } else {xlim =   c(-2,2)},
              step = ifelse(unit == "years" , 0.11 , 1.3 ),
-             xlab = ifelse(unit == "years" , "Years gained practicing activities" , "Effect of activities"), 
-             cex.lab=1, 
-             cex.axis=1, 
+             xlab = ifelse(unit == "years" , "Years of advantage gained from each activity" , "Effect of activities"), 
              col = "cornflowerblue",
              #family = "A",
              fill = col.alpha("cornflowerblue", 0.2))
@@ -220,7 +229,7 @@ plotirtcurves <- function(post , qn = 1 , dimn = 1 , maintitle = "",
   curve(inv_logit(a[1] * ( x - b[1])), 
         xlim = c(-11, 4), 
         ylim = c(0, 1), 
-        xlab = "knowledge dimension", 
+        xlab = "Ecological knowledge dimension", 
         ylab = "p correct answer", 
         cex.lab=1.5, 
         cex.axis=1.5,
@@ -249,6 +258,7 @@ plotirtcurves <- function(post , qn = 1 , dimn = 1 , maintitle = "",
 
 plotdeltaffect <- function (deltaj , x_lab = "Age specific increase", y_lab = "Ages") {
   plot(apply(deltaj, 2, mean), 1:ncol(deltaj), 
+       xlim = c(0, max(deltaj)),
      xlab = x_lab, ylab = y_lab,
      pch = 19, col = col_1)
   for (i in 1:ncol(deltaj)) lines(apply(deltaj, 2, PI)[,i], rep(i, each = 2), col = col_1, lwd = 1.5)
@@ -275,7 +285,7 @@ plotschooleffect <- function( post, dimn = 1) {
   names(act) <- c("School - boys", "School - girls")
   ridgeplot( act,
              step = 0.1,
-             xlab = paste("Years gained skipping school"), 
+             xlab = paste("Years of advantage gained skipping school"), 
              cex.lab=1, 
              cex.axis=1, 
              col = "cornflowerblue",
@@ -301,7 +311,7 @@ plotparentseffect <- function( post, dimn ) {
                   "Father - girls", "Father - boys")
   ridgeplot( act,
              step = 0.1,
-             xlab = paste("Years gained with presence of parent"), 
+             xlab = paste("Years of advantage gained with presence of parent"), 
              xlim = c(-30,20),
              cex.lab=1, 
              cex.axis=1, 

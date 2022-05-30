@@ -27,7 +27,8 @@ for (i in 1:5) {
                O = length (0 : 26 ) ,
                alpha = rep( 0.5, length (0:26 ) -1 ) 
   )
-  age[[i]] <- cstan( file = "models/1_age.stan", data=dat , chains=1, cores=4 , threads=3, control = list(adapt_delta = 0.99))#, control = list(adapt_delta = 0.99)
+  age[[i]] <- cstan( file = "models/1_age.stan", data=dat , chains=1, cores=4 , threads=3, 
+                     warmup=1000, iter=4000, control = list(adapt_delta = 0.99, max_treedepth = 15))
   saveRDS(age[[i]], paste("3_Analysis/fit_models/age_", i, ".rds", sep = ""))
 }
 
@@ -55,7 +56,8 @@ for (i in 1:3) {
                O = length (0 : 26 ) ,
                alpha = rep( 0.5, length (0:26 ) -1 ) 
   )
-  act[[i]] <- cstan( file = "models/2_activities.stan", data=dat , chains=1, cores=4 , threads=3, control = list(adapt_delta = 0.99) )
+  act[[i]] <- cstan( file = "models/2_activities.stan", data=dat , chains=1, cores=4 , threads=3, 
+                     warmup=1000, iter=4000, control = list(adapt_delta = 0.99, max_treedepth = 15) )
   saveRDS(act[[i]], paste("3_Analysis/fit_models/act_", i, ".rds", sep = ""))
 }
 
@@ -87,7 +89,8 @@ for (i in 1:1) {
                O = length (0 : 26 ) ,
                alpha = rep( 0.5, length (0:26 ) -1 ) 
   )
-  epp[[i]] <- cstan( file = "models/3a_each_parent_presence.stan", data=dat , chains=1, cores=4 , threads=3, control = list(adapt_delta = 0.99))#, control = list(adapt_delta = 0.99)
+  epp[[i]] <- cstan( file = "models/3a_each_parent_presence.stan", data=dat , chains=1, cores=4 , threads=3, 
+                     warmup=1000, iter=4000, control = list(adapt_delta = 0.99, max_treedepth = 15))
   saveRDS(epp[[i]], paste("3_Analysis/fit_models/epp_", i, ".rds", sep = ""))
 }
 
@@ -111,7 +114,8 @@ for (i in 1:1) {
                O = length (0 : 26 ) ,
                alpha = rep( 0.5, length (0:26 ) -1 ) 
   )
-  fst[[i]] <- cstan( file = "models/3b_firstborn.stan", data=dat , chains=1, cores=4 , threads=3, control = list(adapt_delta = 0.99))#, control = list(adapt_delta = 0.99)
+  fst[[i]] <- cstan( file = "models/3b_firstborn.stan", data=dat , chains=1, cores=4 , threads=3, 
+                     warmup=1000, iter=4000, control = list(adapt_delta = 0.99, max_treedepth = 15))
   saveRDS(fst[[i]], paste("3_Analysis/fit_models/fst_", i, ".rds", sep = ""))
 }
 
@@ -135,7 +139,8 @@ for (i in 1:1) {
                alpha = rep( 0.5, length (0:26 ) -1 ),
                alpha_b = rep( 0.5, max(d$BO, na.rm = T) -1 )
   )
-  bor[[i]] <- cstan( file = "models/3c_birth_order.stan", data=dat , chains=1, cores=4 , threads=3, control = list(adapt_delta = 0.99))#, control = list(adapt_delta = 0.99)
+  bor[[i]] <- cstan( file = "models/3c_birth_order.stan", data=dat , chains=1, cores=4 , threads=3, 
+                     warmup=1000, iter=4000, control = list(adapt_delta = 0.99, max_treedepth = 15))
   saveRDS(bor[[i]], paste("3_Analysis/fit_models/bor_", i, ".rds", sep = ""))
 }
 
@@ -169,6 +174,7 @@ for (i in 1:1) {
                Os = length(unique(school)),
                alpha_s = rep(0.5, length(unique(school))-1)
   )
-  sch[[i]] <- cstan( file = "models/4_schooling.stan", data=dat , chains=1, cores=4 , threads=3, control = list(adapt_delta = 0.99))#, control = list(adapt_delta = 0.99)
+  sch[[i]] <- cstan( file = "models/4_schooling.stan", data=dat , chains=1, cores=4 , threads=3, 
+                     warmup=1000, iter=4000, control = list(adapt_delta = 0.99, max_treedepth = 15))
   saveRDS(sch[[i]], paste("3_Analysis/fit_models/sch_", i, ".rds", sep = ""))
 }
