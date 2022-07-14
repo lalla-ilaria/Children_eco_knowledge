@@ -1,0 +1,319 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+\usepackage[natbibapa]{apacite} % citations
+\usepackage[onehalfspacing]{setspace} % double spacing
+\usepackage[dvipsnames]{xcolor}
+\usepackage{cancel}
+\usepackage[english]{babel}
+\usepackage{graphicx}
+\usepackage{placeins}
+\usepackage{url,hyperref, lineno, microtype,subcaption}
+\usepackage{tikz}
+\usepackage{csquotes}
+
+% revision color
+\newcommand{\rev}[1]{{\color{Red}#1}}
+
+% commenting/notes color
+\newcommand{\comment}[1]{{\color{Blue}#1}}
+
+% checkmark
+\def\checkmark{{\color{ForestGreen} \tikz\fill[scale=0.6](0,.35) -- (.25,0) -- (1,.7) -- (.25,.15) -- cycle;}} 
+
+\citestyle{apacite}
+\bibliographystyle{apacite}
+
+\newlength{\cslhangindent}
+\setlength{\cslhangindent}{1.5em}
+\newenvironment{cslreferences}%
+  {}%
+  {\par}
+\begin{document}
+\begin{center}
+{\Large\bf Author response to reviews of Manuscript \textcolor{blue}{EHS-2022-0014}}
+\end{center}
+{\Large Rates of ecological knowledge learning in Pemba, Tanzania: Implications for childhood evolution.}\\[1em]
+{Ilaria Pretelli, Monique Borgerhoff Mulder, Richard McElreath}\\
+
+We thank both reviewers for detailed and considered comments. We feel that their feedback helped us improve the clarity of this paper, especially the methods section. We also revised title, main and supplementary text and figures to answer the helpful comments of the reviewers. Below we \comment{respond to each comment in blue} and \rev{report relevant extracts of the paper in red}.
+
+
+\section{Reviewer 1}
+Comments:
+I think this is a terrific paper that makes a clear, useful contribution to the literature. I really have very little to add, actually — I think it’s a well-rounded, well-written, and carefully analyzed set of data. I only have a number of rather minor comments below that will hopefully help strengthen the paper \& its ease of comprehension.
+\begin{enumerate}
+    \item It would be helpful to name and clearly state the three competing accounts / hypotheses, as outlined in Figure 1, so the reader can track them more efficiently throughout the paper. Relatedly, a legend describing which account each color line corresponds to would be helpful if appended to Figure 1 (in addition to the description in the caption).
+    
+    \comment{In answer to Reviewer 1, we modified both the introduction, as follows, and the figures.}
+    
+    \rev{Unfortunately, we have little precision over how knowledge and skill map onto changes in brain and body structure. Does knowledge increase track cerebral growth (e.g. green curve in figure 1), as would be expected if the only condition necessary for the acquisition of knowledge was brain development, for example in a `brain-threshold' model? Or is knowledge simply a prerequisite to reproduce (and acquirable in a short period), such that it increases just before individuals reach sexual maturity (purple curve, figure 1), what we might dub the `learn-to-reproduce' hypothesis? Previous studies report a slow, long period of knowledge acquisition, inconsistent with both aforementioned explanations, but as yet we do not have a clear understanding of how learning is patterned. Fast or innate behavior acquisition would probably not be adaptive for a species like ours, which relies on highly specialized cultural adaptations to cope with environment-specific challenges. On the contrary, the slow development observed in previous studies could be the result of a combination of cognitive development and exposure to context specific experiences as well as other factors, in some sort of `brain-filling' hypothesis. But how knowledge acquisition correlates with age is not fully understood, and ascertaining its shape can give insights into its role for the evolution of childhood. }
+
+    \item If going with the approach above, the competing accounts framework should also be extended to the discussion.
+    
+    \comment{In answer to this point, we introduced references to the competing hypotheses in the discussion.}
+    
+    \rev{The observation that people in this sample learn during the whole pre-reproductive period complements previous work showing increases in ecological knowledge during adolescence and adulthood  (e.g. \citealp{Koster2016WisdomLifespan, Schniter2021Age-AppropriateChoyeros}). Additionally, we show that the rate of acquisition is not constant, and that there are age `hot-spots' for learning. Knowledge acquisition appears in our data to be fastest during middle childhood, between 7 and 12 years, after which its speed decreases. As expected, this pattern is inconsistent with the fictionalized `brain-threshold' or `learn-to-reproduce' models, and consistent with the slow `brain-filling' hypothesis}.
+
+    \item Similarly, I wonder how much of that framing can be incorporated into the title and abstract: the primary research question appears to be the *shape* of knowledge learning with age, not that it simply increases (which the title currently reflects).
+    
+    \comment{We agree that the paper could use a better title. We have changed it to `Rates of ecological knowledge learning in Pemba, Tanzania: Implications for childhood evolution', hoping to pass the message that rates define the shape of knowledge acquisition. Similarly, the following passage in the abstract refers to varying rates:}
+    
+    \rev{In the studied population, children learn during the whole pre-reproductive period, but at varying rates, with fastest increases in young children.}
+
+    \item I’m having a bit of difficulty interpreting the three dimensions outlined in the results and Figure 5. There is some language suggesting that the first dimension is “General Knowledge”, the second is “Male-Biased Knowledge”, and the third is “Other Knowledge”? If you plan to retain this figure and analysis in the main text, I would spend a bit more time explaining to the reader what exactly this means. At the least, I think the dimensions could benefit from labels (like the ones I provided above) and perhaps a bit more exposition in the main text to explain what exactly they are capturing. There’s interesting text in the Supplement explaining what kinds of knowledge correspond with what dimensions, and I imagine some of that text could be brought back into the main text to provide context.
+    
+    \comment{In answer to this comment, we integrated the section from the Supplementary Information, to which Reviewer 1 refers, into the main text (as shown below). Moreover, we changed the labelling of the figures in both main and supplementary text.}
+    
+\rev{When we partition ecological knowledge using the method described in section 2.4, three main dimensions emerge. In the first, both sexes acquire ecological knowledge at a similar rate, plausibly representing general ecological knowledge. In the second, there is a sharp increase in ecological knowledge among boys, and no age effect among girls, which probably reflects a male-specific dimension of knowledge. Finally a third dimension captures remaining variation, which contains no strong sex differences. Although our analysis was not developed with the scope of analyzing differences between question items, an inspection of the question-specific parameters can help interpret this dimensionality. In particular, a sex-specific pattern emerges when looking at difficulty parameters $b_j$ for the freelist items. For example, the ten easier items in the dimension where both sexes learn at the same rate include mainly farmyard animals such as chicken and goats. The most salient items in the dimension where only males learn are mainly fish and wild birds, which are more relevant for the pursuits of boys.}
+
+    \item I recognize that the latent variable you’re modeling is referred to as ``Knowledge”, but I would suggest relabeling the figures to read ``Ecological Knowledge” to make sure that a context-less glance at the key image doesn’t get misinterpreted. Indeed, I also wonder how many other points in the paper might benefit from this correction as well. For example, the sentence ``On the contrary, working in the fields can hinder knowledge acquisition by more than a decade” reads very differently if ``ecological knowledge” is subbed in. I think the point becomes much clearer \& easier to interpret, and I would suggest just making a more general correction (``Ecological knowledge” instead of ``knowledge”) throughout the manuscript in this fashion.
+    
+    \comment{We welcome the suggestions above, and added ``Ecological" to ``Knowledge" in multiple parts through the text. We also modified the label of the axes through the figures as suggested.}
+
+    \item It turns out I have a lot of figure-related comments, but Figure 6 could do with a small amount of updating as well. It would be great if the labels like “seashells” or “livestock” could be a little bit more descriptive (e.g. “Collecting seashells” vs. “Seashells”). Similarly, the X-axis might be better labeled as something like “Years of advantage gained from each activity”.
+    
+    \comment{We agree that the labels given to the different activities are not very explanatory. But we believe that elongating text on the figure itself would make it harder to read, without adding enough detail anyway. We then added some description of the activities in the figure caption (see below). We also changed the x-axis label as suggested.}
+    
+\rev{Activities description: Seashells: extracting seashells from sandy bottom. Livestock: herding and watering cattle or goats. Birds: hunt birds with various traps or slingshots. Fishing: fishing using small-to-medium sized boats, often in small groups. Game: hunting larger game with the help of dogs, often targeting targeting crop predators such as monkeys. Algae: farming seaweed to sell. Diving: advanced fishing, with masks and sometimes air tanks. Cloves: paid labor in picking clove buds from trees. Household: chores such as water collecting or cooking. Agriculture: participating on work in family fields. }
+    
+\end{enumerate}
+
+
+
+\section{Reviewer 2}
+Comments:
+This paper has the makings of an important contribution to the study of human life history and especially the development of ecological knowledge. The statistical modeling is state of the art; the use of an ordered categorical variable for age with a monotonic constraint is likely to become a standard for future studies (at least in the ages before senescence). The decomposition of ecological knowledge into several dimensions is a really useful approach that fuels an interesting discussion of when and why sex differences emerge. It is clear that a great deal of thoughtful work went into the study design, the data collection, and the analyses, and the work presented is top notch. I applaud the overall aims of this paper, and the generally clear manner in which the results are presented. In my attached review, I raise a few issues that seem well within reach of a standard revision. My biggest concerns are:
+
+\begin{enumerate}
+    \item all the text should be made consistent with regard to what associations between age and knowledge represent -- causal, non-causal, or both -- just be consistent (and justified) in your approach, and please explain these assumptions with reference to your DAG. 
+    
+    \comment{We followed this advice and tried to clarify through the text the references to causal associations. More details on the changes we made can be found point by point in the `Additional Questions' section.}
+    
+    \item  I think the paper has prematurely ruled out any role for innate sex differences (whether direct or indirect influences, via choice of activities). I am not arguing here *for* innate sex differences, just for the authors to discuss the limits of inference in a study of this type. 
+    
+    \comment{In answer to this point, we tried to clarify our position on the source of differences between the sexes. Actually, we do not argue against \textit{any} innate sex differences, only against differences in the ability to acquire knowledge. On the contrary, we recognize there are sex differences in the frequency at which the sexes engage in certain activities, although whether these activities are innate or culturally acquired is not object of the present paper. We have tried to make this position clearer through the text, and we refer to the changes made in the specific points below.}
+    
+    \item  The last few paragraphs of the paper are great but they should be more closely integrated with the introduction, and the framing presented there. I think the intro could better foreshadow the final discussion and the discussion could better echo the intro -- this would not take a lot of work. 
+    
+    \rev{We are not exactly sure what the Reviewer is referring to here, but we note that in response to Reviewer 1's point 2 we have linked the discussion to the newly named hypotheses for different patterning and rates of learning.}
+    
+    \item  Please consider generating tables of results that quantitatively summarize the many plots, either in the supplement, or somehow linked to this project's Github page. 
+    
+    \comment{Sample size tables, as well as tables for contrasts between sexes and difference in years between individuals practicing activities have been added to the main and supplementary text. The code for producing these results can be found in the GitHub page. }
+    
+    \item  The remainder of my notes and suggestions are mostly minor suggestions for improved clarity. 
+    
+    \comment{We thank Reviewer 2 for the helpful comments.}
+\end{enumerate}
+
+Additional Questions:
+\begin{enumerate}
+    \item 37-38 “But the level of modelling detail reserved to somatic and cerebral growth (Gonzalez-Forero, Faulwasser, \& Lehmann, 2017; Kuzawa et al., 2014) has not extended to knowledge acquisition.” Suggest rephrase: but the detailed modelling approaches used in studies of somatic and cerebral growth … have not yet been extended to knowledge acquisition.
+    
+    \comment{The text has been edited as suggested. }
+
+    \item Figure 1: I really like that this figure contrasts simple models and discusses their justifications. My comments below are just meant for marginal improvements. Figure 1 (caption): “and could be acquired in a short periods of time” should be “and could be acquired in a short period of time”
+
+    \comment{The text has been edited as suggested. }
+    
+    \item Figure 1: Why is the green curve shifted to the right of the brain curve if it is meant to represent a model in which “learning rates were dependent exclusively on brain size”? That textual description of the model had me anticipating a green curve that would be directly overlaid upon the “brain” curve. The green curve appears to represent a more complex model than the text describes – perhaps there is a minimum brain size threshold for knowledge growth implicit in this curve? Or there is a tradeoff between brain growth and knowledge growth and knowledge growth only accelerates once brain growth slows down? These are guesses, but the text should be edited to explain the model in sufficient detail to explain the right shift of the green curve.
+    
+    \comment{The curves represent only fictionalized hypotheses for brain growth, but we understand that even fiction needs to follow consistent rules. We then changed the caption to figure 1 to better describe a potential mechanism by which brain size is the main predictor of knowledge.}
+    
+    \rev{If learning rates were dependent exclusively on brain development, we could expect knowledge to follow the trajectory of the green curve ( for example if learning was to begin only after the brain reaches a certain volume, but could then proceed quite fast).}
+
+    \item Figure 1 caption: “although there is no proof that knowledge should grow linearly.” I don’t think this caveat is required, because this figure is meant to represent plausible conjectures, not proofs. Related question: if knowledge growth was an additive outcome of brain growth, body growth, and reproductive growth, would that generate a roughly linear outcome of knowledge growth? That might be worth considering when discussing why a linear model could be justified.
+    
+    \comment{As suggested, we removed the caveat about the linearity of knowledge acquisition. We also modified the main text to suggest that a combination of some of the traits described in the figure can be implicated in the pattern of slow learning. We refer to the text reported in answer to Reviewer 1's first point.}
+    
+    \item Figure 2: The scale has been cropped, it indicates “20Kr” instead of “20Km”
+    
+    \comment{Figure 2 has been updated. Thank you for catching the error!}
+
+    \item Figure 2: I suggest the inset map of Africa be zoomed into east Africa, to meaningfully show where the island is relative to the mainland and the rest of Zanzibar; the chartreuse dot is not very informative.
+    
+    \comment{Figure 2 has been updated, so that the inset now focuses on East Africa. The main island of the Zanzibar Archipelago, Unguja, is still not very visible, but the maritime location and the vicinity to the coast, hence to the Swahili commercial network, are indeed clarified.  }
+
+    \item59-62 “This method also allows for the inference of different dimensions of knowledge, which allow to identify gender-specific patterns of learning. It simultaneously measures the reliability of different survey approaches.” Suggest rephrase to: “Item response theory refers to a family of statistical models whose structure allows us to measure individual differences in ability, gender-specific patterns of learning, and assess the reliability of survey questions across subjects”
+    
+    \comment{The text has been edited as suggested. }
+
+
+    \item 79-80 “Here we find evidence of gender-specific dimensions of knowledge, rather than differences in overall levels of knowledge.” I like this summary of the results, but I also must ask: was this study designed to measure “overall levels of knowledge”? I.e. a comprehensive sample of all types of knowledge? Or would it be more accurate to say “differences in overall levels of measured environmental knowledge”? Reading the methods, I think this more targeted summary is more accurate.
+    
+    \comment{We agree with this point, and opportunely modified the text--see also point 5, Reviewer 1.}
+    
+    \rev{Here we find evidence of gender-specific dimensions of ecological knowledge, rather than differences in overall levels of knowledge.}
+
+    \item 86-89 “Our specific contribution in the context of exposure and practice is to show how gendered differences in knowledge are related to the differential engagement in sex specific activities in different subsets of the ecological niche, consistent with expectations that such differences are not necessarily innate.” This sentence is a bit awkward – can it be rephrased to be more succinct and direct?
+    
+    \comment{We rephrased the sentence as follows:}
+    
+    \rev{We show how gendered differences in ecological knowledge are related to sex-specific engagement with harvesting in different ecological niches. This is consistent with expectations that such differences are not necessarily innate.} 
+
+    \item 115-116 “and the people living around it depend on terrestrial and maritime habitats for more than 80\% of their livelihoods.” Where does the remaining 20\% come from, if not the earth or sea? Should be rephrased.
+    
+    \comment{The level of market integration is quite variable on the island of Pemba, and the village where the study was conducted is in one of the least developed areas. Even there, though, there are several small shops and impromptu fish markets, which represent a small but not irrelevant proportion of some families' livelihoods. Moreover, paid labor during the clove harvest season is an important source of cash money for many households. We clarified this reality in the main text as follows:}
+    
+    \rev{The forest of Ngezi is the largest remaining patch of rain forest in Pemba, and the people living around it depend on terrestrial and maritime habitats for more than 80\% of their livelihoods \rev{ with the remaining proportion derived from commercial activities and paid labor}. }
+
+    \item 139-142 This sentence is held together with dashes, semi-colons, and parentheses, and could be divided into separate nice sentences. Because it is a crucial issue, the representativeness of the sample should be handled front and center, in 1-2 sentences in the main text. Please don’t just reference Supplementary section 9.2.
+    
+    \comment{As suggested, we introduced a short discussion on the representativeness of the sample we used.}
+
+    \rev{Using an opportunistic sampling procedure - effectively children and young adults volunteering for interview - IP conducted a survey instrument measuring ecological knowledge of the natural environment (as defined in Supplementary section 9.1) . Opportunistic sampling might have introduced some bias in our results, but these are qualitatively comparable to those originated from a smaller, unbiased sample (see Supplementary section 9.2).} 
+
+    \item 167-169 “The first illustrates how knowledge changes with age; the causal section, instead, describes the effect of sex, activities, family and schooling on the development of knowledge.”. I am confused why the relationship between Age and Knowledge is not considered to be causal. In the DAG of Figure 3, there is a direct arrow between Age and Knowledge, just as there is between Schooling and Knowledge, for example. Why is the arrow between Age and Knowledge considered a non-causal relationship while the same arrow between Activities and Knowledge is considered causal?
+    
+    \comment{We agree on the need of explaining better how age influences knowledge. See point \ref{itm:dag}.}
+
+    \item 174: “The knowledge Ki in the IRT part of the model is simultaneously used as a dependent variable in the second part of the model” … “Model 1, described by equation 3” It is confusing to refer to equation 3 as both being “the second part of the model” and to refer to it as “Model 1”, rather than a subset of some model. Please clarify these labels.
+    
+    \comment{We modified the text in multiple points to improve clarity of the model structure. In summary, we run multiple models, each targeting a different estimation goal. Each of these models is composed of two parts, the IRT that estimates knowledge, and a second, variable, section that estimates the importance of age, sex etc on knowledge. This section changes between models, while the IRT remains constant (with the exception of multidimensional models, see SI 9.6). We hope that the passages we report below convey now a clearer message. }
+    
+    \rev{We developed multiple Bayesian models targeting our different inference goals, each composed of two different parts. The first part of each model is an Item Response Theory (IRT) model.[...]}
+    
+    \rev{The ecological knowledge $K_i$ in the IRT part of the models is simultaneously used as a dependent variable in the second part of the models, which estimates the effect of various factors on individual \rev{ecological} knowledge. This second section varies according to the inference goal of each model (see below equations 3,4,5, and equations 1,2 in SI section 9.6). [...]}
+
+    \rev{Note that this model has been extended to allow different dimensions of ecological knowledge to emerge from the data (becoming a compensatory Multidimensional IRT model \citep{Reckase2009MultidimensionalTheory}, see Supplementary equations 3 and 4, and Supplementary section 9.8).}
+
+    \rev{In contrast, the models described below aim instead at estimating the causal effect of the other factors included in the DAG in figure 2. In order, Model 2 (\rev{for which equation 4 shows the list of estimated parameters}) includes also household level varying random effects [...].}
+
+
+    \item 174: All the parameters in Equation 3 need to be described textually. What does omega represent? What does sigma-sub-alpha represent? Let the reader know here, or else tell them where that information is to be found.
+    
+    \comment{In answer to this comment, we included a description of $\omega$ in the main text, and anticipated the description of the individual intercept $\alpha_i$, so that the parameters are now encountered in the text in the same order as they appear in equation 1.}
+    
+    \rev{All models include a global intercept $\omega$ and non centered individual random effects $\alpha_i$, with $\sigma_{\alpha}$  being the standard deviation parameter. Age is also included in all \rev{model variants}  as an ordered categorical variable, so that there is a sex specific maximum effect for age $\beta_s$ (for sex $s$) and each year adds a proportion $\delta_y$ of the total effect. [...]}
+
+\rev{ $$K_i = \omega + \alpha_i \sigma_1 + \beta_s \sum_{y=1}^{Age_i}  \delta_y $$}
+
+    \item \label{itm:dag}183-185: “The relationship between age and knowledge is not really a causal relationship, because any association between age and knowledge is presumably a result of accumulated experience and instruction, not merely of calendar age.” Is there any way that this assumption can be integrated into the DAG of Figure 3? Otherwise, in reference to my earlier note about lines 167-169, the meaning of the arrows in the DAG are unclear. Specifically, the meaning of the arrow between Age and Knowledge is confusing, if not causal. Perhaps there should be an additional node added to the DAG that represents “accumulated experience and instruction”? Even though not directly measured, for maximum clarity, it seems like it should be represented on Figure 3 somehow. Or perhaps when the DAG is first introduced, the handling of causal and non-causal variables and their representation on DAGs can be introduced in a way that anticipates some of this confusion. The description of the DAG in the supplementary materials section 9.5 contradicts the main text, because it states that “Age has a direct effect on knowledge”. Upshot: all of the text and figures that discuss relationships between Age and Knowledge (causal or otherwise) need to be reviewed and made more consistent.
+    
+    \comment{In answer to this and the previous comment, we modified the DAG in figure 2 so that the effect of Age appears now to be mediated by unmeasured variables U, which represent experiences as well as developmental changes for which age stands as a proxy. We also modified the caption, as shown below, and revised the text to improve coherency in the causal approach--including in Supplementary section 9.5. }
+    
+    \rev{DAG describing relationships between analyzed variables. Note that Age does not `cause' knowledge directly. Rather, the effect of age is mediated by other variables, including activities practiced and school attendance, but also other unmeasured events and developmental changes. In the models, as we introduce activities or schooling, age remains as a proxy for these unmeasured factors, represented by the circled U in the plot. }
+
+    \item 185: “Further models to test the effect of other factors” Please rephrase to “estimate the effect of other factors” 200: “Parameters estimation in the Bayesian framework” change to “Parameter estimation …”
+    
+    \comment{The text has been edited as suggested. }
+
+    \item Figure 4: For each sex, there is a thicker line which represents the model-estimated mean value, and then thinner lines which are individual samples from the posterior. It is very hard to pick out where those mean lines are plotted within the ages of about 6 to 12. Please make sure that the mean lines are easier to visually identify, by using a thicker width, by changing their color, or doing something else that makes them stand out more. This same problem arises in some age ranges displayed in all sex-stratified line charts (Figure 4, S3, S4, S12, S13, S14, S16). Please make sure the sex-mean values are more distinct.
+    
+    \comment{We followed every suggestion: the lines showing the posterior means are now thicker, have a darker shade of the same color and are less transparent. Thank you, the plots are more understandable, now.}
+
+    \item 212-213 “… keeps increasing during most of adolescence and then starts leveling off around 20 years of age.” I do not see anything notable happening around age 20, indicating a real reduction in the rate of growth in ecological knowledge. Even if there is a very subtle shift, I wonder if that degree of difference is even worth mentioning. This is a situation akin to deciding whether the difference between p = .049 and p = .051 is itself significant. Apologies for associating this paper with that sort of statistic; the point I’m trying to make is that whatever change that might be happening in the rate of growth around age 20 is extremely subtle, if anything, and likely to be swamped by error in the parameter estimates. Looking at the parameter estimates for each age in Figure S7, I again don’t see anything notable happening around age 20.
+    
+    \comment{We corrected the Result section to remove the emphasis on a specific age--which was indeed not justified by any result relative to age 20. We provide now a more general description of the trend that sees a small reduction in the amount of change expected during the years after maturity. As Reviewer 2 points out in comment \ref{itm:delta_y}, though, smaller sample sizes for these ages reduce the reliability of this interpretation.  }
+    
+    \rev{Ecological knowledge increases quite steeply during early and middle childhood, keeps increasing during most of adolescence and then appears to start leveling off as people approach maturity}.
+
+    \item General note: The Table of sample sizes for all the measures and models should be included in the main text, rather than the supplementary materials. If space or table/figure restricted, my suggestion would be to swap out the map figure (Figure 2) with what is now Table S1.
+    
+    \comment{Table S1 describes data pre-cleaning to illustrate the point that, because even younger children listed a large number of words, a ceiling effect in attention span is an unlikely reason for our results. But we welcome Reviewer 2's point and introduced a table in the main text summarizing the sample sizes and upper boundaries of results in Table 1. We also introduced tables similar to Table S1 describing cleaned freelist and other types of data in the Supplementary information section.  }
+ 
+    \item 215-216 “see Supplementary section 9.3.1 for reasons why we are confident in our age estimations” Perhaps rephrase to the less opinionated “see Supplementary section 9.3.1 for age estimation methods”? The methods described in section 9.3.1 are not error free, and the degree of confidence or error across individuals is not quantified.
+
+    \comment{The text has been edited as suggested. }
+
+    \item 219 “when division of labor begins to emerge” rephrase to “when a division of labor”
+
+    \comment{The text has been edited as suggested. }
+
+    \item 240 “effect on undifferentiated knowledge is substantial” Does undifferentiated knowledge mean total measured ecological knowledge, or does it refer to dimensions 1 and 3 displayed in figure 5, which do not show strong sex-differentiation? Please clarify.
+    
+    \comment{We hope to have clarified this point, see below.}
+
+    \rev{The first variable we considered is practice, specifically the effect of the activities practiced by children (defined combining reports by parents and the children themselves, see Supplementary section 9.3.2 for details). We find a substantial effect of activity on ecological knowledge. }
+
+    \item Lines 246: “account for majority of the measured difference between boys and girls” rephrase to “account for a majority …”
+
+    \comment{The text has been edited as suggested. }
+
+    \item Line 269: “and more distally that early life history is shaped by the need to learn” This clause is a bit unclear. Perhaps end the sentence after “ecological information” and then begin a second sentence covering the “more distally” clause.
+    
+    \comment{As suggested, we provided a new main verb to the clause on the need to learn: }
+    
+    \rev{We find that higher ecological knowledge is associated with activities like foraging, hunting and fishing, consistent with the general view that practice is important to the acquisition of ecological information. Moreover, we provide general support for the idea that early life history is shaped by the need to learn. }
+
+    \item Line 283-286 “Differences in knowledge between the sexes appear by age 7 and become more prominent during adolescence. Although Pemban children of both sexes live in close contact with the natural and cultivated landscape, boys begin to participate in more gender-specific activities in the forest and sea, such as hunting and fishing” Perhaps of relevance, Wood et al. (2021) “Gendered movement ecology …” found that a gender difference in the travel patterns of Hadza boys and girls emerged at age 6, quite close to the age in which you have found this activity-related gender difference in ecological knowledge.
+    
+    \comment{Very welcome additional citation!}
+    
+    \rev{Differences in ecological knowledge between the sexes appear by age 7 and become more prominent during adolescence. This is consistent with studies showing inter-sex differences in foraging behaviors, such as mobility \citep{Wood2021GenderedHunter-gatherers}, and division of labor \citep{Lew-Levy2017HowReview,Lew-Levy2022SocioecologySocieties} emerge around this age. }
+
+    \item 297-299: “the multidimensional nature of knowledge means that the survey design impacts the ability to measure knowledge evenly across dimensions, potentially overestimating the importance of one dimension above the others” This is a really good point!
+    
+    \comment{Thank you! We believe this must be taken into consideration when developing surveys to estimate ecological knowledge...}
+
+    \item 303-304 “Once we control for activities, we can see that the [sex] differences almost completely disappear (see figure S16) ... knowledge differences between the sexes emerge through differential participation, rather than because of any presumed innate attitudes to environmental knowledge.” If sex partially determines activities, then controlling for activities means removing / masking a causal influence of sex from your model predictions, doesn’t it? The view that sex could partially determine activities appears to endorsed by the DAG in figure 3. If you present model-derived estimates of ecological knowledge controlling for activities (Figure S16) you should also address this issue. Please note, I am not asking you to endorse a view that innate sex differences are implicated by your study, just to describe the statistical nuances here and the limits of inference. That kind of nuance is present in the discussion of the results regarding schooling and household membership.
+    
+    \comment{In answer to this point, we introduced some more caution in the discussion section.}
+
+    \item Line 338 “These differences are not innate”. As my note above describes, I don’t think this study can rule out any influence of innate differences, especially if sex partially determines activities. Even controlling for activities, there still remains a sex difference in figure S16, which should not be ignored, in light of this statement. If the statistical approach is not subject to this critique, please explain why. Can all direct (sex -> ecological knowledge) or indirect (sex -> activities -> ecological knowledge) causal influences of innate sex differences really be ruled out this conclusively?
+    
+    \comment{As mentioned in general point 2, we agree with Reviewer 2 on the point that innate differences might exist between the sexes concerning the frequency at which individuals engage in different activities, and clarified this through the text, e.g. in  the caption for figure 2:}
+    
+    \rev{Moreover, we do not assume a direct effect of sex on knowledge, as we do not expect innate differences between sexes in knowledge acquisition. On the contrary, the sexes differ in the frequency with which they engage in activities, although we do not discuss whether this has an innate or cultural origin.}
+    
+    \comment{Or in the discussion:}
+    
+    \rev{Hunting, fishing and shellfish collection all have positive effect on \rev{ecological} knowledge, and they are practiced at different rates by boys and girls, so that knowledge differences between the sexes \rev{most likely }emerge through differential participation, rather than because of any presumed innate attitudes to environmental knowledge.}
+
+    \item Figure 4, S3, S4, S12, S13, S14, S16: It would be great to present summaries of sex differences quantitatively rather than only in the form of line graphs. Cohen’s D is a common measure used to represent sex differences, and each fit model used to plot estimated sex differences could also be used to generate a table of Cohen’s D across ages. It would be especially good to see tables of these measures for F4, F5, S3, S16. I know it can be tedious to present table after table of results, but tables of this sort also enable more standardized comparisons across studies, and would likely increase the impact of this paper. In lines 352-354 there is an explicit call for comparable studies from other populations, and I make this suggestion with that in mind. If it is too much to include those tables in this paper, then perhaps you could link to relevant code or summaries on the project Github page.
+    
+    \comment{We added a table with sample sizes to the main text (Table 1) and also, in the Supplementary information, tables with age specific results for the three types of questions (Tables S2, S3, S5), as well as contrasts between the posterior values for male and female $\beta_s$ (divided by images, in Table S6) and a summary of the year-difference values presented in figure 6 (Table S7).}
+
+    \item 343-346 “Knowledge cannot be acquired very early nor in a short time because of the crucial role that activities play, exposing individuals to relevant information. There are physical constraints to achieve adult rates of success in most foraging activities (Bliege Bird \& Bird, 2002; Bock, 2002), but children start trying them out much before they are physically apt and proficient (Lew-Levy et al., 2021), and during this time they seem to be acquiring the necessary knowledge (Lew-Levy \& Boyette, 2018). Faster learning, boosted for example by innate behaviors acquired through natural selection, is probably not adaptive in humans because of the high behavioral flexibility we exhibit.” I really like this section, and I think it would be really nice to tie this discussion text back to the ideas represented in your original Figure 1. I raised some questions about that figure earlier in this review, and I think there is a great opportunity here to revisit those specific models in light of your results.
+    
+    \comment{Also in answer to the comments of Reviewer 1, we developed more connections between the Introduction and Discussion, specifically targeting the aforementioned passage:}
+    
+    Introduction: we refer to the text reported in answer to Reviewer 1's first point.
+    
+    Discussion: \rev{Faster learning, boosted for example by innate behaviors acquired through natural selection, such as proposed in the `brain-threshold' or learn-to-reproduce' models, is probably not adaptive in humans because of the high behavioral flexibility we exhibit. Children have to learn in many different dimensions to complete different tasks, with differences between sexes and individual specialization.}
+
+    356-358 “For example, it might be interesting to examine whether the hot-spot age range identified in Pemba is a human universal, consistent with the brain-filling hypothesis” This is the first time the term “the brain-filling hypothesis” has been used. That is a great term, but please define exactly what this means earlier in the paper, if it is to be mentioned here.
+    
+    \comment{Within the general description of the competing hypotheses presented in figure 1, we also introduced the definition of 'brain-filling' hypothesis, which we are pleased is been appreciated.}
+
+Supplementary materials
+
+    \item “Figure S7: Proportion of the total effect of age relative to each year. These represent posterior estimates of $\delta_y$ parameters.” What is the credible interval that is displayed here?
+    
+    \comment{Thank you for this comment. In the best \texttt{Rethinking} fashion, this figure shows 89\% credible intervals for $\delta_y$ values. We also clarified this in the figure caption.}
+    
+\rev{Proportion of the total effect of age relative to each year. The bars represent 89\% of the posterior estimates around the mean of $\delta_y$ parameters, shown by the central point.}
+
+    \item \label{itm:delta_y} Figure S7: One pattern that might be worth mentioning is a reduction in parameter estimate variation from age 16 through to 25. What accounts for that reduction in variance? Is it owing to differences in sample sizes, or is it owing to more consistent patterns of age-related growth?
+
+    \comment{We believe that smaller sample sizes, rather than more regular growth, are the cause of the pattern described by Reviewer 2. We highlighted the pattern, and indicated sample size as probable cause, in the Supplementary Information, section 9.6.}
+
+\rev{Note here that variation for posterior values for $\delta_y$ decreases after age 20, probably due to a reduction in sample size for those ages.}
+
+    \item “In particular, we seem to have interesting results looking at the items listed in the freelist for which the difficulty parameter bj is lower can help us understand which items are considered more salient in each dimension.” This sentence is not clear and should be rephrased.
+    
+    \comment{The sentence has been reformulated as follows:}
+    
+\rev{In particular, a sex-specific pattern emerges when looking at difficulty parameters $b_j$ for the freelist items.}
+    
+    \comment{Note, though, that this section has been moved to the main body of the paper, following an indication by Reviewer 1.}
+
+    \item Figure S11 caption: “and the left panel is for image recognition.” Should be “and the right panel is for image recognition.”
+
+    \comment{The text has been edited as suggested. }
+
+    \item Figure S11: “The lighter line segment with the triangle on it is the standard error of the difference in WAIC between the models.” I do not see this symbol – a lighter line segment. The triangles are tiny, so I wonder if the lighter line segment described here is too faint or too small to be seen, in the figures as represented here. Generally speaking, figure is overly complicated. Why is there a vertical grey line on each of these panels? Why is it not explained? Please simplify this figure.
+    
+    \comment{Following this request, we simplified the WAIC plots and clarified the meaning of the vertical grey line. The caption at the moment reads as follows:}
+    
+\rev{Comparison of WAIC values between models with variable number of dimensions, from 1 to 5. The first panel to the left is relative to freelist questions only, the middle refers to questionnaire results and the \rev{right} panel is for image recognition. The vertical line marks the deviance value of the best model (top line), so that the other models can be easily compared.}
+
+    \item Figure S13: The title of the panel on the lower right is “Dimension 3 bis”, I believe it should be “Dimension 4”. This same term “bis” appears in the title of several plots, and should be edited.
+    
+    \comment{The reason why some dimensions were dubbed `bis' is that they double the meaning of one of the three main dimensions presented in the text. We understand the confusion this can generate, though, and hope that our revision, in answer to the suggestion of Reviewer 1, helps to clear this issue as well. The `redundant' dimensions are now named, for example, `General Knowledge 2'. }
+ 
+\end{enumerate}
+
+\bibliography{references.bib}
+
+\end{document}

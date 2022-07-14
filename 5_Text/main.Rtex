@@ -1,0 +1,328 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+\UseRawInputEncoding                        %allows accented characters
+\usepackage{graphicx}
+\usepackage{url}
+\graphicspath{ {./} }
+\usepackage[paperwidth=8.5in,paperheight=11in,text={6in,9in},left=1.25in,top=1in,headheight=0.25in,headsep=0.4in,footskip=0.4in]{geometry}
+\usepackage{lineno}                         %line number
+\usepackage{subfiles}                       % File import
+\usepackage{mathtools}% http://ctan.org/pkg/mathtools
+
+\usepackage[natbibapa]{apacite}
+    \bibliographystyle{apacite}% apacitex, apacann, or apacannx
+%\usepackage{natbib}
+% \bibliographystyle{abbrvnat}
+% \setcitestyle{authoryear, open={(},close={)}}
+%table stuff
+ \usepackage{booktabs}
+ \usepackage{lscape}
+ \usepackage{longtable}
+\usepackage{verbatim}%for word count
+\newcommand{\quickwordcount}[1]{%
+  \immediate\write18{texcount -1 -sum=1 -q #1.Rtex > #1-words.sum}%
+  \input{#1-words.sum} words%makes command quickwordcount, which counts in text words
+}
+\newcommand{\rev}[1]{{\color{red}#1}}
+\renewcommand{\thetable}{S\arabic{table}}
+
+\usepackage{tikz}
+\usetikzlibrary{shapes.geometric, arrows.meta, positioning}
+\tikzstyle{rec} = [rectangle, rounded corners, text width=1.7cm, minimum width=1.8cm, minimum height=1cm,text centered, draw=black]
+\tikzstyle{arrow} = [thick,->,>=stealth]
+
+
+
+\title{Rates of ecological knowledge learning in Pemba, Tanzania: Implications for childhood evolution.} %Childhood as a hotspot for learning in Pemba, TZ: age and sex variability and the importance of practiceincreases throughout childhood in Pemba, Tanzania: Exploring drivers of variation
+\author{Ilaria Pretelli$^1$, Monique Borgerhoff Mulder$^1$, Richard McElreath$^1$}
+\date{$^1$Max Planck Institute for Evolutionary Anthropology, Leipzig\\%
+    \vspace{0.2cm}
+    \quickwordcount{main} \\
+    \vspace{0.2cm}
+    \today}
+
+\begin{document}
+
+\maketitle
+\linenumbers
+\pagebreak
+
+\begin{abstract} %max 200 words
+    Humans live in diverse, complex niches where survival and reproduction are conditional on the acquisition of knowledge. Humans also have long childhoods, spending more than a decade before they become net producers. Whether the time needed to learn has been a selective force in the evolution of long human childhood is unclear, because there is little comparative data on the growth of ecological knowledge throughout childhood. We measured ecological knowledge at different ages in Pemba, Zanzibar (TZ), interviewing 93 children and teenagers between 4 and 26 years. We developed Bayesian latent-trait models to estimate individual knowledge and its association with age, activities, household family structure, and education. In the studied population, children learn during the whole pre-reproductive period, but at varying rates, with fastest increases in young children. Sex differences appear during middle childhood and are mediated by participation in different activities. In addition to providing a detailed empirical investigation of the relationship between knowledge acquisition and childhood, this study develops and documents computational improvements to the modeling of knowledge development. 
+\end{abstract}
+
+\section{Introduction}
+Humans have a distinct pattern to their life history, even compared to other apes. We require adult provisioning for a long period of time, which constitutes childhood \citep{Bock2002ChildhoodCourse, Bogin1997EvolutionaryChildhood, Leigh2002EvolutionGrowth}. The emergence of this phase in our lineage has been connected to other specifically human traits, including early weaning, short inter birth intervals, cooperative breeding and the presence of multiple dependent offspring in a family \citep{Bogin1997EvolutionaryChildhood, Kaplan1996ASocieties, Kramer2005ChildrensHumans, Kramer2010CooperativeHumans, Kramer2011TheHelp, Kramer2010PooledTrade-offs}. It is theorized that this period is important for acquiring skills and knowledge, which are necessary to exploit our species' complex niche \citep{Kaplan2000ALongevity, Kaplan2015FertilityEvolution, Robson2003TheEconomics, Schuppli2012HowHumans}. The connection between life history, knowledge and the prevalence in our niche of nutrient-dense, difficult-to-acquire food resources has been extensively explored in \cite{Kaplan2000ALongevity}. Individuals who postponed reproduction in order to improve their understanding of the environment and increase their ability to extract its resources were selected through the benefits reaped in adulthood, when overproduction could support dependent offspring \citep{Hill1999}. 
+
+\cite{Schuppli2016LifeNiches} present a comparative analysis supporting this hypothesis, as they show that niche complexity correlates with adult provisioning and lengthy development in carnivora and primates respectively. But testing this hypothesis in our species is difficult. Previous research focused on describing age specific patterns of foraging efficiency \citep{BliegeBird2002ConstraintsGrowing, Bird2005MarduHistories, BlurtonJones2002SelectionGather, Bock2002LearningBotswana, Crittenden2013JuvenileHistory, Gurven2006HowSpan, Koster2020TheVariation}, or knowledge \citep{Koster2016WisdomLifespan, Schniter2021Age-AppropriateChoyeros}. But the detailed modelling approaches used in studies of somatic and cerebral growth \citep{Kuzawa2014MetabolicDevelopment, Gonzalez-Forero2017AEvolution} have not yet been extended to knowledge acquisition. 
+
+Human bodies grow slowly, but our brains grow quickly. A ten year old child's brain has already reached its adult size, before the reproductive tissues start to develop and long before somatic growth is completed (see dashed lines in figure \ref{fig:3curves}, adapted from \citealp{Bogin1997EvolutionaryChildhood}). Children's bodies grow slowest around the time that the brain is adult in size, but not yet completely adult in structure. What are the evolutionary origins of this pattern, and how does it relate to what the brain is doing at each age? 
+
+Unfortunately, we have little precision over how knowledge and skill maps onto changes in brain and body structure. Does knowledge increase track cerebral growth (e.g. green curve in figure \ref{fig:3curves}), as would be expected if the only condition necessary for the acquisition of knowledge was brain development, for example in a `brain-threshold' model? Or is knowledge simply a prerequisite to reproduce (and acquirable in a short period), such that it increases just before individuals reach sexual maturity (purple curve, figure \ref{fig:3curves}), what we might dub the `learn-to-reproduce' hypothesis? Previous studies report a slow, long period of knowledge acquisition, inconsistent with both aforementioned explanations, but as yet we do not have a clear understanding of how learning is patterned. Fast or innate behavior acquisition is unlikely to be adaptive for a species like ours, which relies on highly specialized cultural adaptations to cope with environment-specific challenges. On the contrary, the slow development observed in previous studies could be the result of a combination of cognitive development and exposure to context-specific experiences as well as other factors, in some sort of `brain-filling' hypothesis. But how knowledge acquisition correlates with age is not fully understood, and ascertaining its shape can give insights into its role for the evolution of childhood.
+
+\begin{figure}
+    \centering
+    \includegraphics[width=14cm]{4_Outputs/plots/bogin.png}
+    \caption{Growth curves for different body tissues in dashed grey lines, adapted from \cite{Bogin1997EvolutionaryChildhood}, with overlaying possible growth curves for knowledge, continuous lines. We could expect knowledge to follow the trajectory of the green curve, if learning rates were dependent exclusively on brain development, for example if learning was to begin only after the brain reaches a certain volume, but could then proceed quite fast, in a `brain-threshold model'. On the contrary, if knowledge was a pre-requisite for reproduction, and could be acquired in a short period of time, it could simply increase before sexual maturity, as described by the purple curve, a `learn-to-reproduce' hypothesis. Finally, the blue line shows a slow increase of knowledge with age, potentially continuing even after sexual maturity, which is consistent with the hypothesis that filling one's brain requires time.}
+    \label{fig:3curves}
+\end{figure}
+ 
+
+In this paper, we focus on the acquisition of ecological knowledge because of its potential association with fitness, for example through increased returns when foraging \citep{Koster2016WisdomLifespan, Reyes-Garcia2016TheSocieties} or health benefits \citep{Reyes-Garcia2008Non-marketSociety,McDade2007EthnobotanicalAmazon}. We make three specific contributions to our understanding of how knowledge is acquired. 
+
+First, we develop a novel analysis of ecological knowledge using Item Response Theory \citep{Osteen2010AnStructures}. We model knowledge as a latent variable measured with several independent survey tools. Item response theory refers to a family of statistical models whose structure allows us to measure individual differences in ability, gender-specific patterns of learning, and assess the reliability of survey questions across subjects.
+
+Second, we describe in detail the variation in ecological knowledge dependent on age and sex. Concerning age, we focus on a sample ranging from 5-26 years, and we allow the relational function between age and knowledge to emerge from the data. This is in contrast to previous studies, which impose linear or logistic functions and focus on adults (\cite{Bortolotto2015KnowledgeBrazil} 21-86 years, \cite{Geng2016TraditionalProvince} 21-91 years, \cite{Koster2016WisdomLifespan} 10-80 years, with few individuals below 15; \cite{Schniter2021Age-AppropriateChoyeros} 5 to 86 years, only 7 individuals below 30), or divide children in large age categories (\cite{Cruz-garcia2018ChildrensInterface} children 7-14 divided in two categories; \cite{Quinlan2016ChildrensVillage} children from 4 to 17 years divided in three categories; \cite{Gallois2017LocalCulture} divides only between children and adults). This allows us to explore the relation between age and ecological knowledge in the most important phases of our development with more precision, in an attempt to understand how knowledge acquisition map onto other life history traits. 
+Following the assumption that labor division along gender lines entails knowledge specializations, we also investigate sex differences in ecological knowledge. Previous studies provide contrasting results on whether boys and girls differ in their levels of ecological knowledge \citep{Blacutt-Rivero2016LocalBolivia, Gallois2017LocalCulture, Schniter2021Age-AppropriateChoyeros, Setalaphruk2007ChildrensThailand, Cruz-garcia2018ChildrensInterface, Geng2016TraditionalProvince}. Here we find evidence of gender-specific dimensions of ecological knowledge, rather than differences in overall levels of knowledge.
+
+Third, we supplement our description of variation in the pattern of ecological knowledge acquisition with a causal analysis of the factors influencing this variation. We focus on three specific factors: first, exposure and practice (gendered-activities effects); second, access to adult experts or peers (household and family composition effects), and third opportunities for learning (formal education effects). These were chosen because they were expected to represent opportunities for learning through practice or exposure to models of behavior in the particular ethnographic context. 
+We show how gendered differences in ecological knowledge are related to sex-specific engagement with harvesting in different ecological niches. This is consistent with expectations that such differences are not necessarily innate.
+Household composition is leveraged to identify how adult experts or peers \citep{Page2021ChildrenAgta, Ruddle1993TheKnowledge, Ohmagari1997TransmissionCanada, Boyette2013SocialRepublic, Lew-Levy2017HowSkills}, in addition to parents \citep{Lozada2006CulturalArgentina, Hewlett1986CulturalPygmies}, might influence the acquisition of knowledge about the local environment. Similarly, we examine the effects on knowledge acquisition of birth order \citep{Quinlan2016ChildrensVillage}, to determine whether late-borns gain more access to older sibling role models, and/or early-borns enjoy preferential access to parental and grandparental wisdom. Finally, participation in formal education can lower exposure to locally relevant ecological knowledge, as time invested in school attendance could reduce opportunities for acquiring information about the environment \citep{Reyes-Garcia2010SchoolingOther, Quinlan2016ChildrensVillage}.
+
+
+\section{Materials and Methods}
+
+\subsection{Research location}
+
+\begin{figure}
+\includegraphics[width=12cm]{4_Outputs/plots/maps_inset.png}
+\caption{Pemba lies offshore Tanzania. Data were collected in the \textit{shehia} of Kifundi, colored in green, which is still partially covered by the forest of Ngezi. }
+\label{fig:inset}
+\end{figure}
+%add contour inset, add scale, add forest
+
+The data used for this study were collected in Pemba, the northern island of the Zanzibar archipelago, a semi-autonomous zone of Tanzania. The study was performed in and around a village located in proximity of the forest of Ngezi, in the \textit{shehia} (administrative unit) of Kifundi (see figure \ref{fig:inset}). 
+%history/islam
+Pemba is part of the Swahili world, with multiple historical and cultural influences: first the Bantu expansion from the mainland, then 700 years of trade in the Indian ocean, and later Portuguese, Omani and British colonial power \citep{Fleisher2015WhenMaritime, LaViolette2009TheAD}. Especially important has been the influence of the Arab world and Islam, since at least the eleventh century and then during the rule of the Omani Sultanate, which was weakened by the British at the end of the 19th century, but formally deposed only in 1963 \citep{Fleisher2013The600-950}.
+
+%location
+The island, located just below the equator (5°S), enjoys a tropical climate and mild seasonality, with an alternation between drier and rainier seasons following the monsoon cycle. Its densely distributed population ($428/km^2$, about twice as high as Switzerland) mostly lives in rural areas (around 80\%, according to the \citealp{NationalBureauofStatisticsMinistryofFinance2014BasicReport}) and depends largely on agriculture, fishing and other forest based activities \citep{Andrews2022ForestEthnography., ZahorZahor2021TheZanzibar}. 
+
+%reliance on natural resources 
+Located in the northwest of the island, the forest of Ngezi is the largest remaining patch of rainforest in Pemba, and the people living around it depend on terrestrial and maritime habitats for more than 80\% of their livelihoods, with the remaining proportion derived from commercial activities and paid labor. Most of the income of the typical household in the area around Ngezi comes either from fishing (9.7\%), agriculture (farming 20.6\%, livestock 3.9\%, agroforestry 4.2\%, 11.9\% clove production, the main cash crop on the island) or the forest itself (forest products, mainly firewood, for 33\% of total income for the average family in the area around Ngezi forest, according to \cite{Andrews2022ForestEthnography.}). Hunting is relatively rare among the adult population, in large part because of the scarce wildlife of reasonable size, but still present in many areas of the island \citep{Walsh2007IslandOcean}. %
+
+%children role 
+Children comprise a large part of the growing population of Pemba, where 48\% of inhabitants are below 15 years of age \citep{NationalBureauofStatisticsMinistryofFinance2014BasicReport}. Young people divide their time between domestic and farming chores, education at both the state and Koranic schools and play. There is variability in the extent to which children and teenagers interact with the natural environment, mainly when they forage on the shore or in the forest, depending on personal inclination and their familial or environmental conditions.
+
+\subsection{Data collection}
+\emph{Village census:} With government approval for research (IMMZ/07/17/25, ethic approval provided also by Max Planck Institute Ethics Council, application number 2019\_05), IP visited all households in a village in the area surrounding the forest of Ngezi between June and August 2019. The objective of this survey was to record a full village census with relevant household level characteristics, so that background variables on subjects (opportunistically sampled, see below) were known. The survey also provided the opportunity to introduce the project to the full community, and to obtain approval for future interviews with the children. 
+
+\emph{Knowledge interviews:} Using an opportunistic sampling procedure - effectively children and young adults volunteering for interview - IP conducted a survey instrument measuring ecological knowledge of the natural environment (as defined in Supplementary section \ref{SI:knowledge}). Opportunistic sampling might have introduced some bias in our results, but these are qualitatively comparable to those originated from a smaller, unbiased sample (see Supplementary section \ref{SI:Sampling bias}). In sum, 93 individuals between 5 and 26 years of age participated in the knowledge interviews. These consisted of three different types of questions, namely: (i) freelisting questions \citep{Quinlan2005ConsiderationsEthobotany}, in which children were asked to name all the living creatures (\emph{viumbe}, which include plants, different kinds of animals and also spirits that are thought to inhabit nature) found in the village/cultivated fields, in the forest or in the sea. The named items were then checked for misspelling, and then again with local and international collaborators to ensure appropriate identification of the answered items; (ii) a list of 50 multiple choice quiz questions probing different aspects of ecological knowledge, each with two options, developed with the help of both the Department of Forestry and Non Renewable Natural Resources (DFNRNR) and focus groups with adults in the village; (iii) a task of image recognition using pictures collected around the chosen village or elsewhere in Pemba, in which children were asked to name all the 71 living beings appearing in a sequence of 27 photographs. Answers given to each picture were rated as acceptable or non-acceptable during a focus group with adults in the village following data collection. Table \ref{tab: ssizes} reports sample sizes by age groups and a summary of answers. More details on the interviews and data can be found in Supplementary section \ref{SI:data_details}.
+
+\begin{table}
+\begin{tabular}{ccccc}
+\toprule
+                             & \textbf{All ages} & \textbf{Aged \textless 10} & \textbf{Aged 10-20} & \textbf{Aged \textgreater 20} \\ \midrule
+\textbf{n}                        & 93                & 27                          & 64                                            & 7                              \\  
+\midrule
+\textbf{max n items freelist}     & 231               & 110                         & 195                                           & 231                            \\  
+\midrule
+\textbf{max \% questions correct} & 0.82              & 0.64                        & 0.82                                          & 0.76                           \\  
+\midrule
+\textbf{max \% images recognized} & 0.68              & 0.38                        & 0.61                                          & 0.68                           \\  
+\bottomrule
+\end{tabular}
+\renewcommand{\thetable}{\arabic{table}}
+\caption{Sample size by decade of age, as well as best result by decade and type of question.}
+\label{tab: ssizes}
+\end{table}
+
+\subsection{Causal framework}
+Data collection and analysis were informed by preliminary work aimed at describing the causal and non-causal factors influencing the association between age and ecological knowledge. Specifically, we described all the aspects of individuals that are expected to influence ecological knowledge in a Direct Acyclic Graph (DAG) and later in a full structural causal model that we used to validate the analysis code (see figure \ref{fig:DAG} and Supplementary section \ref{SI:DAG}). A DAG is a heuristic generative model that allows derivation of a causal estimand \citep{Pearl1995CausalResearch}. Each causal query may require a different statistical procedure that includes different variables. 
+
+\begin{figure}[tp]
+\centering
+    \begin{tikzpicture}
+        \node (AGE)  {Age};
+        \node (SEX) [ left=0.8 of AGE] {Sex};
+        \node (FAM) [ right=0.8 of AGE] {Family};
+        \node (ACT) [ below left=1 and 0.1 of SEX] {Activities};
+        \node (SCH) [ below right=1 and 0.1 of FAM] {Schooling};
+        \node (U) [ below=1.7 of AGE,circle,draw] {U};
+        \node (K) [ below=3 of AGE] {Knowledge};
+        \draw[->,line width=0.7] (AGE) -- (U);
+        \draw[->,line width=0.7] (U) -- (K);
+        \draw[->,line width=0.7] (AGE) -- (ACT);
+        \draw[->,line width=0.7] (AGE) -- (SCH);
+        \draw[->,line width=0.7] (SEX) -- (ACT);
+        \draw[->,line width=0.7] (SEX) -- (SCH);
+        \draw[->,line width=0.7] (FAM) -- (ACT);
+        \draw[->,line width=0.7] (FAM) -- (K);
+        \draw[->,line width=0.7] (FAM) -- (SCH);
+        \draw[->,line width=0.7] (ACT) -- (K);
+        \draw[->,line width=0.7] (SCH) -- (ACT);
+        \draw[->,line width=0.7] (SCH) -- (K);
+    \end{tikzpicture}
+    \caption{DAG describing relationships between analyzed variables. Note that age does not `cause' knowledge directly. Rather, the effect of age is mediated by other variables, including activities practiced and school attendance, but also other unmeasured events and developmental changes. In the models, as we introduce activities or schooling, age remains as a proxy for these unmeasured factors, represented by the circled U in the graph. Moreover, we do not assume a direct effect of sex on knowledge, as we do not expect innate differences between sexes in knowledge acquisition. On the contrary, the sexes differ in the frequency with which they engage in activities, although we do not discuss whether this has an innate or cultural origin.}
+    \label{fig:DAG}
+\end{figure}
+
+
+We relied on the DAG described in figure \ref{fig:DAG} to plan data collection, so that all the variables would be recorded, as well as to define the analyses described below. The analysis can be divided in a descriptive and a causal section. The first illustrates how ecological knowledge changes with age; the causal section, instead, uses different models to address causal queries concerning the effect of sex, activities, family and schooling on the development of knowledge. 
+
+Of course it is possible that unobserved confounds exist along any edge in our DAG. We encourage the perspective that any estimated effects are possibly partially due to such confounding. This is true in all observational, anthropological investigations. The additional transparency of our approach, and its ability to logically derive statistical procedures from causal assumptions, is its strength.
+
+\subsection{Analysis} \label{m:m&m}
+We developed multiple Bayesian models targeting our different inference goals, each composed of two different parts. The first part of the models is an Item Response Theory (IRT) model. IRT models, initially developed as a mean to grade tests in pedagogy \citep{Osteen2010AnStructures}, aim at estimating one or multiple latent traits, such as individual ecological knowledge ($K_i$), from answers to questions while simultaneously allowing questions to vary in difficulty ($b_j$) and discrimination ($a_j$, i.e. how helpful they are at discriminating between high and low knowledge individuals).
+For each question $j$, an individual $i$ has a probability $p_{i,j}$ of answering correctly ($Y_{i,j}=1$, see equation \ref{Y1} and \ref{Y2}); that is, naming a specific item in the freelist, answering correctly an item in the quiz, or recognizing an item in the image recognition task. The quiz questions differ from the other two types because the correct answer can be given simply by guessing, and thus required a 3PL IRT model, which includes a pseudo-guessing parameter $c_j$ \citep{Osteen2010AnStructures}. All three types of data contribute to the estimation of one single measure of ecological knowledge for each individual (see Supplementary section \ref{SI:model_details} for an extended description of the model's functioning and implications). 
+
+\begin{align}
+Y_{i,j} &\sim \text{Bernoulli}(p_{i,j}) \label{Y1}\\
+\text{logit}(p_{i,j}) &= a_j (K_i - b_j) \label{Y2}
+\end{align}
+
+The ecological knowledge $K_i$ in the IRT part of the models is simultaneously used as a dependent variable in the second part of the models, which estimates the effect of various factors on individual ecological knowledge. This second section varies according to the inference goal of each model (see below equations \ref{M1}, \ref{M2}, \ref{M3}, and equations \ref{M4}, \ref{M5} in SI section \ref{SI:model_details}). All models include a global intercept $\omega$ and non centered individual random effects $\alpha_i$, with $\sigma_1$ being the standard deviation parameter. Age is also included in all model variants as an ordered categorical variable, so that there is a sex specific maximum effect for age $\beta_s$ (for sex $s$) and each year adds a proportion $\delta_y$ of the total effect. 
+This means that, while we impose monotonicity on the function relating age to ecological knowledge (knowledge never decreases with age, at least in the observed range), the curve of the relation between knowledge and age emerges from the data themselves, rather than being imposed to be a specific function in the model design. Model 1 , which provides a description of age-related changes in ecological knowledge and for which the second section is described by equation \ref{M1}, produces sex and age specific estimates, and can hence tell us the total effect of age and sex combined. 
+
+\begin{align} 
+ K_i &= \omega + \alpha_i \sigma_1 + \beta_s \sum_{y=1}^{Age_i} \delta_y \label{M1}  
+\end{align}
+
+Note that this model has been extended to allow different dimensions of ecological knowledge to emerge from the data (becoming a compensatory Multidimensional IRT model \citep{Reckase2009MultidimensionalTheory}, see Supplementary equations \ref{Y3} and \ref{Y4}, and Supplementary section \ref{SI:dimensions}). This is aimed at determining whether the individuals in our sample are experts in certain aspects of the environment, while having lower knowledge in others; in other words if there is knowledge specialization. The probability individual $i$ has of answering a single question $j$ correctly is the sum of multiple probabilities for each dimension $d$, and individuals are assigned a measure of ecological knowledge in each dimension $K_{i,d}$. This approach allows us to partition the variation among knowledge of individuals in any number of dimensions.
+
+%in supplementary now
+%\begin{align*}
+%Y_{i,j} &\sim \text{Bernoulli}(logit (p_{i,j})) \label{Y3}\\
+%p_{i,j} &= \sum_{d=1}^{d=D} p_{i,j,d} \label{Y4}
+%\end{align*}
+
+The results of Model 1, both in the unidimensional and multidimensional versions, are descriptive. The relationship between age and ecological knowledge is not really a causal relationship, because any association between age and knowledge is presumably a result of accumulated experience and instruction, which can't be measured and for which age is a proxy, not merely of calendar age. 
+
+In contrast, the models described below aim instead at estimating the causal effect of the other factors included in the DAG in figure \ref{fig:DAG}. In order, Model 2 (for which equation \ref{M2} shows the list of estimated parameters) includes also household level varying random effects $\eta_h$ ($\sigma_2$ is the standard deviation parameter for household level random effects) and effects of each of the ten possible activities $\gamma_{act}$ on individual ecological knowledge (see caption of figure \ref{fig:activities_years} and Supplementary section \ref{SI:activities} for a description of these activities).
+Model 3 (equation \ref{M3}) estimates the effect of co-residing with either parent for individuals of both sexes ($\psi_s$ is the sex specific effect of being in the same household with mothers, $\phi_s$ with fathers). 
+Further models allow to estimate the effect of other factors such as schooling and birth order, described in Supplementary section \ref{SI:model_details}. 
+
+\begin{align} 
+K_i &= \omega + \alpha_i \sigma_1 + \eta_h \sigma_2 + \beta_s \sum_{y=1}^{Age_i} \delta_y + \sum_{act=1}^{10} \gamma_{act}  \text{Activity}_{i,act}  \label{M2}\\
+K_i &= \omega + \alpha_i \sigma_1 + \eta_h \sigma_2 + \beta_s \sum_{y=1}^{Age_i} \delta_y + \psi_s \text{Mother}_i + \phi_s \text{Father}_i \label{M3}
+\end{align}
+
+We determined priors for all models through prior predictive simulation. The resulting priors are weakly informative, specifying low probability for impossible outcomes and inducing regularized estimates, but allowing a very wide range of results (see supplementary figures \ref{fig:priors_IRT} and \ref{fig:priors_agesex}). The priors used for the model are:
+
+\begin{align*} 
+a_j &\sim \text{Half-Normal}(0,1)\\
+b_j &\sim \text{Normal}(0,2)\\
+\omega &\sim \text{Normal}(-5,3)\\
+\beta_s &\sim \text{Folded-Normal}(3,1,0)\\
+\delta_y &\sim \text{Dirichlet}(0.5)\\
+\sigma_1, \sigma_2 &\sim \text{Exponential}(1)\\
+\alpha_i, \eta_h, \gamma_{act}, \phi_s, \psi_s &\sim \text{Normal}(0,1)
+\end{align*}
+The prior for $a$, a normal distribution limited to positive values, ensures that more knowledgeable individuals have higher values than less knowledgeable ones. The slightly less constrained prior for $b$ allows the axis of the latent knowledge to expand to accommodate all the values for each question (to see what happens when changing the priors for $b$, see figure \ref{fig:IRT_diffpriors}). Note that the individual ecological knowledge measures $K_i$ do not require a prior distribution, but are informed by the combination of the priors for $a$ and $b$.
+For the parameters $\alpha_i$, $\eta_h$, $\sigma_{\alpha}$, $\sigma_{\eta}$, $\delta_y$, $\gamma_{act}$, $\psi_s$, and $\phi_s$ weakly informative regularizing priors have been used. The priors for the parameters $\omega$ and $\beta_s$, instead, have been chosen to allow the function to expand in the negative space where the values of ecological knowledge are placed by the IRT model.
+
+We estimated the posterior distribution for each model using the Hamiltonian Monte Carlo engine Stan \citep{StanDevelopmentTeam2021StanManual}, specifically CmdStan \citep{StanDevelopmentTeam2021CmdStanR:CmdStan.}. Posterior distributions were processed in R 4.1.0 \citep{RCoreTeam2021R:Computing}, with the help of the Statistical Rethinking R package, version 2.13 \citep{McElreath2020StatisticalRethinking}. 
+For all analyses, visual inspection of traceplots, Gelman-Rubin diagnostic and effective number of samples indicate model convergence. 
+
+Parameter estimation in the Bayesian framework does not return point estimates, but rather a posterior distribution of possible values for a parameter. The figures in the result section reflect this feature, e.g. each line in figure \ref{fig:age_sex} is draw by a set of values sampled from the posterior distribution of parameters.
+Finally, prior to fitting to real data, all models have been tested with simulated data, as described in Supplementary section \ref{SI:Simulation}. This allowed to ensure that the models could recover `real' parameter values.
+Simulation code as well as all the other code necessary to reproduce these analyses is available on GitHub (https://github.com/lalla-ilaria/Children\_eco\_knowledge).
+
+\subsection{Results}
+
+\subsubsection{Descriptive results} 
+
+In agreement with previous studies, ecological knowledge in our model increases along all sampled ages. The lines in figure \ref{fig:age_sex} show the estimated increase in ecological knowledge per each year of age, plotted over the dots representing individual measures of ecological knowledge resulting from the IRT part of the model.
+Ecological knowledge increases quite steeply during early and middle childhood, keeps increasing during most of adolescence and then appears to start leveling off as individuals approach maturity. Age-specific effects, shown in figure \ref{fig:year_effect}, are largest for ages 7 and 11, suggesting that the time around these years has higher importance for ecological knowledge than, for example, ages 20-25 (see Supplementary section \ref{SI:age_note} for age estimation methods). 
+
+Sex differences in ecological knowledge, as identified from the one dimensional model, are clearly visible in Figure \ref{fig:age_sex} (see table \ref{tab: contrasts} for calculated contrasts between sexes, i.e. differences between posterior estimates of sex-specific age-effects). This difference appears during the juvenile period, between 7 and 12 years, right when a division of labor begins to emerge, and results in higher undifferentiated ecological knowledge among the oldest boys in our sample when compared to the oldest girls. But this one dimensional description of knowledge does not tell the whole story. When we partition ecological knowledge using the method described in section \ref{m:m&m}, three main dimensions emerge (figure \ref{fig:dimensions}). In the first, both sexes acquire ecological knowledge at a similar rate, with girls achieving higher final values, plausibly representing general or slightly female-biased dimension of ecological knowledge. In the second, there is a sharp increase in ecological knowledge among boys, and no age effect among girls, which probably reflects a male-specific dimension of knowledge. Finally a third dimension captures remaining variation, which contains no strong sex differences (again, see table \ref{tab: contrasts} for contrasts). 
+Although our analysis was not developed with the scope of analyzing differences between question items, an inspection of the question-specific parameters can help interpret this dimensionality. In particular, a sex-specific pattern emerges when looking at difficulty parameters $b_j$ for the freelist items. For example, the ten easier items (i.e. with lower $b_j$ values) in the first, general dimension include mainly farmyard animals such as chicken and goats. The most salient items in the dimension where only males learn are mainly fish and wild birds, which are more relevant for the pursuits of boys.
+Supplementary section \ref{SI:dimensions} explains why we think three dimensions are the best description of the data. 
+
+\begin{figure}[tp]
+    \centering
+    \includegraphics[width = 12cm] {4_Outputs/plots/age_sex_knowledge.png}
+    \caption{The points in the figure represent individual ecological knowledge $K_i$  as measured by the IRT model, color coded for sex. The average knowledge for an individual of a certain age and sex, as predicted by model 1 in equation \ref{M1}, is represented by the continuous lines, where the darker one is the mean of the distribution, and the lighter lines represent 150 draws from the posterior.}
+    \label{fig:age_sex}
+\end{figure}
+
+\begin{figure}[tp]
+    \centering
+    \includegraphics[width = 16cm] {4_Outputs/plots/age_sex_dimensions.png}
+    \caption{Individual ecological knowledge $K_i$  and predicted values by age and sex in three dimensions. } 
+    \label{fig:dimensions}
+\end{figure}
+
+\subsubsection{Causal results} 
+We attempted to estimate the causal influence of activities, household family structure, and school attendance on ecological knowledge. In each case, we try to control for unmeasured household-level variables, using random effects. This is because any correlation caused by some social characteristic associated to specific households can induce spurious correlations between the outcome variable, Knowledge, and the other variables that stay in the path of Family (see DAG in figure \ref{fig:DAG}). The posterior estimates for these random effects suggest that not much knowledge variation is due to differences between the families (see Supplementary section \ref{SI:other_factors}). However, the models are not designed to estimate the causal influence of unmeasured household variables, so these estimates cannot be interpreted causally, as is the norm with control variables \citep{Westreich2013TheCoefficients}. 
+
+The first variable we considered is practice, specifically the effect of the activities practiced by children (defined combining reports by parents and the children themselves, see Supplementary section \ref{SI:activities} for details). We find a substantial effect of activity on ecological knowledge. Figure \ref{fig:activities_years} plots how much advantage, in terms of time, an individual can gain (positive effect) or lose (negative effect) from practicing a specific activity. All else being equal, a person who hunts birds can reach the same ecological knowledge of a non-hunting 20 year old up to 10 years earlier. Similarly positive effects are given by collecting shellfish, fishing and by tending to the family's livestock. On the contrary, working in the fields can hinder ecological knowledge acquisition by more than a decade, as can attending to household chores. Activities practiced account for a majority of the measured difference between boys and girls, so that, once their effect is controlled for, the difference in ecological knowledge between sexes seems to disappear (see figure \ref{fig:zero_act} and refer to last row of table \ref{tab: contrasts} for a measure of the contrasts between the sexes). 
+Some portion of the measured association between activities and ecological knowledge is plausibly causal, but note that there may be unmeasured common causes of both activity and knowledge, as well as some reverse causation, if ecological knowledge is a necessary precondition for some activities. Therefore we suspect these activity effects are upper bound estimates.
+
+We present the results of household family structure and school attendance in the Supplement \ref{SI:other_factors}. Co-residence of parents (figure \ref{fig:parents_years}) appears to have an effect on individual's ecological knowledge. Mothers seem to boost their children's knowledge, helping to reach earlier, on average, the same ecological knowledge of a 20 years old with no parents. The presence of fathers, on the contrary, has different effect on his sons and daughters, improving the knowledge of the former, but impeding learning about the environment for the latter. Schooling seems to at least partially slow down learning for girls, but has no effect on boys (figure \ref{fig:school_years}). Birth order has no appreciable effect on ecological knowledge (see figure \ref{fig:birthorder_effects} and Supplementary section \ref{SI:other_factors} for more information).
+
+
+
+
+
+\begin{figure}[tp]
+    \centering
+    \includegraphics[width = 12cm] {4_Outputs/plots/activities_year_gained.png}
+    \caption{The plot describes how much advantage, in terms of time, an individual can gain from practicing an activity with respect to undifferentiated ecological knowledge. The $x$ axis represents the years gained, i.e. how much earlier (positive values) or later (negative ones) an individual practicing each activity would reach the same ecological knowledge of a 20 years old individual not practicing that activity, all else kept constant. Activities such as shellfish collection and bird hunting could give up to ten years advantage in terms of ecological knowledge to practicing individuals - although most people would gain two to five years. On the contrary, doing agricultural work (bottom row) seems to slow down learning. Notice that the tail of the distributions for the bottom 5 activities extends outside of the limit of the plot, with the 5th or smaller percentile below $-20$. Activities description: Seashells: extracting seashells from sandy bottom. Livestock: herding and watering cattle or goats. Birds: hunt birds with various traps or slingshots. Fishing: fishing using small-to-medium sized boats, often in small groups. Game: hunting larger game with the help of dogs, often targeting crop predators such as monkeys. Algae: farming seaweed to sell. Diving: advanced fishing, with masks and sometimes air tanks. Cloves: paid labor in picking clove buds from trees. Household: chores such as water collecting or cooking. Agriculture: participating on work in family fields. }
+    \label{fig:activities_years}
+\end{figure}
+
+
+\section{Discussion}
+%Knowledge increases non linearly
+The observation that people in this sample learn during the whole pre-reproductive period complements previous work showing increases in ecological knowledge during adolescence and adulthood (e.g. \citealp{Koster2016WisdomLifespan, Schniter2021Age-AppropriateChoyeros}). Additionally, we show that the rate of acquisition is not constant, and that there are age `hot-spots' for learning. Knowledge acquisition appears in our data to be fastest during middle childhood, between 7 and 12 years, after which its speed decreases. As expected, this pattern is inconsistent with the fictionalized `brain-threshold' or `learn-to-reproduce' models, and consistent with the slow `brain-filling' hypothesis.
+More novel is our use of causal modelling to explore the role of activities in shaping sex differences in ecological knowledge. We find that higher ecological knowledge is associated with activities like foraging, hunting and fishing, consistent with the general view that practice is important to the acquisition of ecological information. Moreover, we provide general support for the idea that early life history is shaped by the need to learn.
+
+%Integrating the development of tissues, knowledge and behavior, 
+Most hypotheses describing the importance of knowledge for life history evolution propose that childhood emerges in the \emph{Homo} lineage as a time to complete full growth of the brain during early childhood, after which the brain has to be filled with information during middle childhood \citep{Thompson2011MiddleOrigins}.
+Our results are congruent with this view: after the brain reaches its full size, ecological knowledge acquisition speeds up, maintaining a fast rate during the middle childhood years. Perhaps not incidentally, this period is marked by a slowdown in somatic growth, which reduces the energetic requirements of children while they start to engage in productive activities and acquire the required ecological knowledge.
+Adult provisioning and protection are needed up to at least the beginning of adolescence, but the first attempts at performing most activities happen well before 12 years, and allow children to have a buffer zone in their life history in which to try out various tasks with the back-up offered by parents and other caretakers \citep{Lew-Levy2018EvidenceBasin}.
+During adolescence, learning is slower, although it keeps going until after sexual maturity, potentially providing opportunities for specialization. 
+
+%gender specialization and dimensions
+Differences in ecological knowledge between the sexes appear by age 7 and become more prominent during adolescence. This is consistent with studies showing the emergence, around this age, of inter-sex differences in foraging behaviors, such as mobility \citep{Wood2021GenderedHunter-gatherers}, and division of labor \citep{Lew-Levy2017HowReview,Lew-Levy2022SocioecologySocieties}. Although Pemban children of both sexes live in close contact with the natural and cultivated landscape, boys begin to participate in more gender-specific activities in the forest and sea, such as hunting and fishing (see \cite{Lew-Levy2020Gender-TypedAdolescents} for further examples of cross-cultural variation in gender segregation during play). Shellfish collection is the main activity in the wild practiced preferentially by girls, but young boys often follow their sisters in these expeditions, and are therefore exposed to this kind of ecological knowledge. Accordingly, the two sexes will typically differ to some extent in the amount of exposure to information about the environment, with boys having access to more girl-specific knowledge than the contrary. Indeed, while both sexes learn at the same rate ecological knowledge that is shared, see left panel in figure \ref{fig:dimensions}, boys have access to a whole area of information that is precluded to girls, which is represented in the central panel of the same figure. 
+Our result could help explain why previous studies showed inconsistencies in the amount of knowledge differences found between the sexes \citep{Blacutt-Rivero2016LocalBolivia, Gallois2017LocalCulture, Schniter2021Age-AppropriateChoyeros, Setalaphruk2007ChildrensThailand, Cruz-garcia2018ChildrensInterface, Geng2016TraditionalProvince}. Indeed, the multidimensional nature of ecological knowledge means that the survey design impacts the ability to measure knowledge evenly across dimensions, potentially overestimating the importance of one dimension above the others (e.g., a survey focusing on wild birds will show that males have much higher environmental knowledge, see Supplementary section \ref{SI:data_methods} for observations on how the types of data we collected vary in reflecting ecological knowledge differences between sexes). 
+
+The importance of activities in promoting the differences between the sexes is supported by the causal analysis of their effect. Once we control for activities, we can see that the differences almost completely disappear (see figure \ref{fig:zero_act} and last row in table \ref{tab: contrasts}). 
+Hunting, fishing and shellfish collection all have positive effect on ecological knowledge, and they are practiced at different rates by boys and girls, so that knowledge differences between the sexes most likely emerge through differential participation, rather than because of any presumed innate attitudes to environmental knowledge.
+
+%In general, foraging in the natural environment is associated to higher ecological knowledge, whereas individuals who do not hunt nor gather are less knowledgeable, and most likely a large part of this association is causal. This is an important contribution to the idea that early life history is shaped by the need to learn, showing that practice and exposure to activities are important to acquire ecological information. 
+
+%social environment
+The differential participation in activities that involve the natural environment can also explain why residing with mothers appears to have a positive effect on ecological knowledge for both girls and boys, but only the latter benefit from the presence of fathers. At least, this would be the case if both sons and daughters learn from their mothers when collecting shellfish on the reef, but only sons learn to fish with their fathers. Or if, as found by \citet{Hassan2019FathersTanzania}, mothers don't discriminate, while fathers invest more in their male offspring. The fact that this is the only clear finding from our analysis of the effects of household composition on environmental knowledge may reflect the fact that children are immersed in a large and diverse social environment, which makes it difficult to investigate its effect on knowledge. As in so many contexts \citep{Boyette2017TeachingHunter-Gatherers, Lew-Levy2017HowSkills, Lew-Levy2019Inter-Congo}, children are almost always surrounded by other adults, by older siblings or cousins, and by a varied set of peers and neighbours in play groups. Knowledge transmission is likely to happen through all of these ties, likely weakening any direct influences of household structure, particularly if children with few siblings are more likely to seek out neighbours and more distant relatives as playmates. Future investigations into the effects of the social environment on knowledge should probe friendship networks and household composition at a higher resolution. 
+
+Our analysis of the effects of participation in formal education on ecological knowledge does not yield a clear answer on whether formal schooling impacts ecological knowledge, consistent with previous work \citep{Reyes-Garcia2010SchoolingOther, Quinlan2016ChildrensVillage}. It is possible that the specific settings of the village where the data were collected (both forest and seashore are close-by) allow children to acquire enough experience of the natural environment irrespective of the amount of time they spend in formal education. But also, schooling might affect what children know about the environment, rather than only how much they know. It is even possible that information on other biomes learned at school substitutes for or even enhances locally relevant environmental knowledge. As such, no effect of schooling would be detected, as might be substituted by information on other biomes learned at school and result in no variation in total ecological knowledge, as in our sample. 
+
+%wrap up
+In summary, our results support the idea that the pre-reproductive phase serves as a period for knowledge acquisition. First, we demonstrate that, among children and teenagers in Pemba, ecological knowledge increases with age in a non linear fashion and that middle childhood is a hot-spot for learning. Second, we show how knowledge differences among sexes can be ascribed to different dimensions of ecological knowledge, which reflect specialization. These differences appear not to be innate, but seem to be a product of labor division, given the role played by activities in driving differentiation of ecological knowledge. Third, we show the importance of practicing activities for knowledge acquisition and, fourth, we find some evidence that the social environment influences ecological knowledge of children, but more specific analyses are needed in this sense.
+All these results have significant implications for the hypotheses on the evolution of human early life history.
+Knowledge cannot be acquired very early nor in a short time because of the crucial role that activities play, exposing individuals to relevant information. There are physical constraints to achieve adult rates of success in most foraging activities \citep{BliegeBird2002ConstraintsGrowing, Bock2002LearningBotswana}, but children start trying them out much before they actually are physically apt and proficient \citep{Lew-Levy2021Cross-culturalSocieties}, and during this time they seem to be acquiring the necessary ecological knowledge \citep{Lew-Levy2018EvidenceBasin}.
+Faster learning, boosted for example by innate behaviors acquired through natural selection, such as proposed in the `brain-threshold' or learn-to-reproduce' models, is probably not adaptive in humans because of the high behavioral flexibility we exhibit. Children have to learn in many different dimensions to complete different tasks, with differences between sexes and individual specialization. 
+
+These insights on the evolution of childhood could be strengthened by applying comparable methods to samples from other populations, thereby providing a more nuanced understanding of the relationship between age and knowledge \citep{Deffner2021AGeneralizability}. With such data we can account for cultural variation, while at the same time produce comparable, non site-specific data to make adequate inferences on generalizable human learning patterns. For example, it might be interesting to examine whether the hot-spot age range identified in Pemba is a human universal, consistent with the `brain-filling' hypothesis, or variable across sites, more consistent with the idea that learning schedules vary according to the ecological affordances offered by different environments and cultures. %find other citations
+
+Moreover, we advocate for the realization of longitudinal studies, tracking the variation of ecological knowledge over time in the same child. This would allow us to draw individual learning curves, and thus estimate general trajectories of knowledge acquisition. Longitudinal studies would also allow us to better understand the direction of causation between participation in activities and knowledge about these activities, as well as the effect of social environments.%new citation \citep{Redhead2021AResearch} but needs to be published
+
+Finally, we believe that understanding how and when ecological knowledge is acquired is an important goal in today's changing world. Local environmental knowledge is important to cope with climate change \citep{Berkes2002AdaptingCommunity}, and can boost the perceived value of plant foods, often considered weeds, which provide important ecosystem services \citep{Turner2011EdibleAgroecology}. In fact we know that agricultural societies rely on the natural (uncultivated) environment for multiple services: archaeological evidence proves that the transition to agriculture did not exclude foraged food from neolithic diets \citep{Ottoni2021TrackingCalculus}, modern populations fall back on wild foods in case of famine \citep{Walsh1995Eating:} and children are observed foraging in many different social settings \citep{Lee2009ChildrensShantytowns.}.
+Hence we believe that our study on ecological knowledge of children in Pemba can add a relevant contribution to the literature on how societies can adapt to social and environmental transitions.
+
+\section{Acknowledgments}
+This work would not have been possible without the kindness and hospitality of people in Pemba. In particular, the staff at the DFNRNR in Wete, Asha Yusuf Khamis and her family, our neighbors and the rest of the people in the village. To Dr.~Martin Walsh, Massoud Bakar Massoud, Bakar Makame Khamis and Haji Masoud Hamadi a special thanks for helping reviewing the list of items of the freelist. 
+
+\section{Author Contributions}
+IP, MBM and RM designed the study. IP collected the data. IP and RM performed statistical analysis. IP drafted the MS with inputs from RM and MBM. 
+
+\section{Financial Support}
+This research is funded by the Department of Human Behavior, Ecology and Culture at the Max Planck Institute for Evolutionary Anthropology.
+
+\section{Conflicts of Interest declarations in manuscripts}
+The authors declare they have no conflict of interest.
+
+\section{Research Transparency and Reproducibility}
+The data that support the findings of this study are openly available in https://github.com/lalla-ilaria/Children\_eco\_knowledge. % at http://doi.org/[doi], reference number [reference number]
+
+%TC:ignore
+\bibliography{references}
+
+\pagebreak
+
+\import{./5_Text}{2_supplementary.tex}
+%TC:endignore
+
+\end{document}
+
