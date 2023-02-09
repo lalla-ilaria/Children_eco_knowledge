@@ -1,5 +1,7 @@
 # Children_eco_knowledge
 
+This repository contains data and code to reproduce results from [Pretelli, I., Borgerhoff Mulder, M., & McElreath, R. (2022). _Rates of ecological knowledge learning in Pemba, Tanzania: Implications for childhood evolution._ Evolutionary Human Sciences, 4, E34](https://doi.org/10.1017/ehs.2022.31) 
+
 ## Abstract
 Humans live in diverse, complex niches where survival and reproduction are conditional on the acquisition of locally relevant knowledge. Humans also have long childhoods, spending more than a decade before they begin to produce more than they consume. Whether the time it takes to learn locally relevant knowledge has been a selective force in the evolution of long human childhood is unclear, because there is little comparative data on the growth of ecological knowledge throughout childhood. 
 We measured ecological knowledge at different ages in the Island of Pemba, Zanzibar (TZ), interviewing 93 children and teenagers between 4 and 26 years old.
